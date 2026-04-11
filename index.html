@@ -4987,7 +4987,6 @@ function CommunicationCompass() {
             <LogoIcon size={52} />
             <div>
               <h1 className="text-2xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent leading-tight">支礎学コンパス</h1>
-              <p className="text-xs text-gray-500">全25回PDF統合 ｜ 血液型×性別 完全版</p>
             </div>
           </div>
           {/* 認証ボタン */}
@@ -5042,8 +5041,7 @@ function CommunicationCompass() {
           {view==="plan"&&<PlanView/>}
         </div>
         <div className="text-center text-xs text-gray-400 mt-3">
-          支礎学システム ｜ 第1〜25回 + 全会話データ統合版
-          {user && <span className="text-green-500 ml-2">☁️ Supabase 同期中</span>}
+          {user && <span className="text-green-500">☁️ Supabase 同期中</span>}
         </div>
       </div>
     </div>
