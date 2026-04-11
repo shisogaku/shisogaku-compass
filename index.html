@@ -4944,19 +4944,38 @@ function CommunicationCompass() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Supabase からデータを読み込んで上書き
+  // Supabase からデータを読み込んで上書き（ローカルデータを優先マージ）
   const loadFromSupabase = async (userId) => {
     const [sbProfiles, sbMyId] = await Promise.all([
       sbDb.getProfiles(userId),
       sbDb.getMyId(userId),
     ]);
-    if (sbProfiles !== null) {
+
+    // ローカルに保存済みのデータを取得
+    let localProfiles = [];
+    let localMyId = null;
+    try { localProfiles = JSON.parse(localStorage.getItem("shisogaku_profiles")) || []; } catch {}
+    try { localMyId = localStorage.getItem("shisogaku_myId") || null; } catch {}
+
+    if (sbProfiles !== null && sbProfiles.length > 0) {
+      // Supabase にデータあり → Supabase を優先して使用
       setProfiles(sbProfiles);
       localStorage.setItem("shisogaku_profiles", JSON.stringify(sbProfiles));
+    } else if (localProfiles.length > 0) {
+      // Supabase にデータなし、ローカルにデータあり → ローカルを維持＆Supabaseへ移行保存
+      setProfiles(localProfiles);
+      for (const p of localProfiles) {
+        const isMe = p.id === localMyId;
+        await sbDb.saveProfile(userId, p, isMe);
+      }
     }
+    // どちらにもデータがない場合はそのまま（0件を維持）
+
     if (sbMyId !== null) {
       setMyId(sbMyId);
       localStorage.setItem("shisogaku_myId", sbMyId);
+    } else if (localMyId) {
+      setMyId(localMyId);
     }
   };
 
@@ -4969,7 +4988,7 @@ function CommunicationCompass() {
     });
   };
 
-  // ログアウト
+  // ログアウト（ローカルデータはそのまま維持）
   const handleLogout = async () => {
     if (!_sb) return;
     await _sb.auth.signOut();
