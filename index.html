@@ -8,6 +8,8 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Supabase JS クライアント -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
   <div id="root"></div>
@@ -1471,6 +1473,90 @@ const CATS = [
   </script>
   <script type="text/babel" data-presets="react">
     const { useState, useEffect } = React;
+
+// ─────────────────────────────────────────
+// Supabase 設定（supabase.com で取得した値に書き換えてください）
+// ─────────────────────────────────────────
+const SUPABASE_URL      = "YOUR_SUPABASE_URL";       // 例: https://xxxxxxxxxxxx.supabase.co
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";  // Supabase > Settings > API > anon public
+
+// Supabase クライアント（CDN から読み込み。未設定時は null）
+const _sb = (typeof window !== "undefined" && window.supabase &&
+  SUPABASE_URL !== "YOUR_SUPABASE_URL")
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true }
+    })
+  : null;
+
+// ─────────────────────────────────────────
+// Supabase データ操作ユーティリティ
+// ─────────────────────────────────────────
+const sbDb = {
+  // プロフィール一覧取得
+  async getProfiles(userId) {
+    if (!_sb || !userId) return null;
+    const { data, error } = await _sb.from("profiles").select("*").eq("user_id", userId);
+    if (error) { console.warn("[SB] getProfiles:", error.message); return null; }
+    return data.map(r => ({
+      id: r.profile_id, name: r.name, blood: r.blood, gender: r.gender,
+      age: r.age, marriage: r.marriage, divorce: r.divorce, kids: r.kids,
+      loveExp: r.love_exp, color: r.color,
+    }));
+  },
+  // myId 取得（is_me = true なプロフィールのprofile_id）
+  async getMyId(userId) {
+    if (!_sb || !userId) return null;
+    const { data } = await _sb.from("profiles").select("profile_id")
+      .eq("user_id", userId).eq("is_me", true).maybeSingle();
+    return data?.profile_id || null;
+  },
+  // プロフィール保存（upsert）
+  async saveProfile(userId, profile, isMe) {
+    if (!_sb || !userId) return;
+    const { error } = await _sb.from("profiles").upsert({
+      user_id: userId, profile_id: profile.id,
+      name: profile.name, blood: profile.blood, gender: profile.gender,
+      age: profile.age || "", marriage: profile.marriage || "",
+      divorce: profile.divorce || "", kids: profile.kids || "",
+      love_exp: profile.loveExp || "", color: profile.color || "",
+      is_me: !!isMe,
+    }, { onConflict: "user_id,profile_id" });
+    if (error) console.warn("[SB] saveProfile:", error.message);
+  },
+  // プロフィール is_me フラグ一括更新
+  async updateMyId(userId, myId, profiles) {
+    if (!_sb || !userId) return;
+    for (const p of profiles) {
+      await _sb.from("profiles").update({ is_me: p.id === myId })
+        .eq("user_id", userId).eq("profile_id", p.id);
+    }
+  },
+  // プロフィール削除
+  async deleteProfile(userId, profileId) {
+    if (!_sb || !userId) return;
+    await _sb.from("profiles").delete()
+      .eq("user_id", userId).eq("profile_id", profileId);
+  },
+  // レベルチェック取得
+  async getLevelChecks(userId, profileKey) {
+    if (!_sb || !userId) return null;
+    const { data } = await _sb.from("level_checks").select("checks")
+      .eq("user_id", userId).eq("profile_key", profileKey).maybeSingle();
+    return data?.checks || null;
+  },
+  // レベルチェック保存（upsert）
+  async saveLevelChecks(userId, profileKey, checks) {
+    if (!_sb || !userId) return;
+    await _sb.from("level_checks").upsert({
+      user_id: userId, profile_key: profileKey, checks,
+    }, { onConflict: "user_id,profile_key" }).catch(() => {});
+  },
+  // 利用ログ記録
+  async log(userId, action, metadata = {}) {
+    if (!_sb || !userId) return;
+    await _sb.from("usage_logs").insert({ user_id: userId, action, metadata }).catch(() => {});
+  },
+};
 
 
 // ===== 支礎学コンパス 完全統合版 =====
@@ -3967,7 +4053,7 @@ function SelfForm({ blood, setBl, gender, setGe, name, setNa, age, setAg,
   );
 }
 
-function TorokuView({ profiles, setProfiles, myId, setMyId }) {
+function TorokuView({ profiles, setProfiles, myId, setMyId, user }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [blood, setBlood] = useState(null);
@@ -3980,6 +4066,26 @@ function TorokuView({ profiles, setProfiles, myId, setMyId }) {
   const [levelChecks, setLevelChecks] = useState({});
 
   const me = profiles.find(p => p.id === myId);
+
+  // ── Supabase からレベルチェックを初期ロード ──
+  useEffect(() => {
+    if (!user || !me) return;
+    const pk = `${me.blood}${me.gender === "female" ? "女性" : "男性"}`;
+    sbDb.getLevelChecks(user.id, pk).then(sbChecks => {
+      if (sbChecks && Object.keys(sbChecks).length > 0) {
+        setLevelChecks(sbChecks);
+        // localStorageも更新
+        localStorage.setItem(`shisogaku_levelup_${pk}`, JSON.stringify(sbChecks));
+      }
+    });
+  }, [user?.id, me?.blood, me?.gender]);
+
+  // ── レベルチェック変化時に Supabase へ同期 ──
+  useEffect(() => {
+    if (!user || !me || Object.keys(levelChecks).length === 0) return;
+    const pk = `${me.blood}${me.gender === "female" ? "女性" : "男性"}`;
+    sbDb.saveLevelChecks(user.id, pk, levelChecks);
+  }, [levelChecks, user?.id]);
 
   // チェック状態からレーダーチャートの有効データを計算
   const effectiveRadarData = me ? (() => {
@@ -4016,6 +4122,11 @@ function TorokuView({ profiles, setProfiles, myId, setMyId }) {
     } else {
       setProfiles(prev => [...prev, newP]);
       setMyId(newP.id);
+    }
+    // Supabase 同期
+    if (user) {
+      sbDb.saveProfile(user.id, newP, true);
+      sbDb.log(user.id, "save_profile", { blood: newP.blood, gender: newP.gender });
     }
     setEditing(false);
   };
@@ -4667,15 +4778,82 @@ function CommunicationCompass() {
   const [view,setView] = useState("toroku");
   const [blood,setBlood] = useState(null);
   const [gender,setGender] = useState(null);
-  // 登録プロフィール（localStorage永続化）
+
+  // ── 認証状態 ──
+  const [user, setUser] = useState(null);       // Supabase ユーザー
+  const [authLoading, setAuthLoading] = useState(!!_sb);
+
+  // ── プロフィール（localStorage + Supabase）──
   const [profiles, setProfiles] = useState(() => {
     try { return JSON.parse(localStorage.getItem("shisogaku_profiles")) || []; } catch { return []; }
   });
   const [myId, setMyId] = useState(() => {
     try { return localStorage.getItem("shisogaku_myId") || null; } catch { return null; }
   });
+
+  // localStorage への永続化
   useEffect(() => { try { localStorage.setItem("shisogaku_profiles", JSON.stringify(profiles)); } catch {} }, [profiles]);
   useEffect(() => { try { if (myId) localStorage.setItem("shisogaku_myId", myId); else localStorage.removeItem("shisogaku_myId"); } catch {} }, [myId]);
+
+  // ── Supabase 認証初期化 ──
+  useEffect(() => {
+    if (!_sb) return;
+    // 現在のセッションを確認
+    _sb.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+      if (session?.user) loadFromSupabase(session.user.id);
+    });
+    // 認証状態変化を監視
+    const { data: { subscription } } = _sb.auth.onAuthStateChange((_event, session) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      setAuthLoading(false);
+      if (u) {
+        loadFromSupabase(u.id);
+        sbDb.log(u.id, "login", { provider: session?.user?.app_metadata?.provider });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Supabase からデータを読み込んで上書き
+  const loadFromSupabase = async (userId) => {
+    const [sbProfiles, sbMyId] = await Promise.all([
+      sbDb.getProfiles(userId),
+      sbDb.getMyId(userId),
+    ]);
+    if (sbProfiles !== null) {
+      setProfiles(sbProfiles);
+      localStorage.setItem("shisogaku_profiles", JSON.stringify(sbProfiles));
+    }
+    if (sbMyId !== null) {
+      setMyId(sbMyId);
+      localStorage.setItem("shisogaku_myId", sbMyId);
+    }
+  };
+
+  // Google ログイン
+  const handleLogin = async () => {
+    if (!_sb) return;
+    await _sb.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.href }
+    });
+  };
+
+  // ログアウト
+  const handleLogout = async () => {
+    if (!_sb) return;
+    await _sb.auth.signOut();
+    setUser(null);
+  };
+
+  // タブ切り替え時にログ記録
+  const handleViewChange = (v) => {
+    setView(v);
+    if (user) sbDb.log(user.id, "view_tab", { tab: v });
+  };
 
   const views = [
     {id:"toroku",label:"登録",icon:"👤"},
@@ -4688,28 +4866,60 @@ function CommunicationCompass() {
     {id:"plan",label:"プラン",icon:"🏦"},
   ];
 
+  const sbConfigured = SUPABASE_URL !== "YOUR_SUPABASE_URL";
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-3">
       <div className="max-w-lg mx-auto">
         {/* ヘッダー */}
-        <div className="text-center mb-3">
-          <h1 className="text-2xl font-black text-gray-800">支礎学コンパス</h1>
-          <p className="text-xs text-gray-500">全25回PDF統合 ｜ 血液型×性別 コミュニケーション完全版</p>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h1 className="text-2xl font-black text-gray-800">支礎学コンパス</h1>
+            <p className="text-xs text-gray-500">全25回PDF統合 ｜ 血液型×性別 完全版</p>
+          </div>
+          {/* 認証ボタン */}
+          {sbConfigured && (
+            authLoading ? (
+              <div className="text-xs text-gray-400">読込中…</div>
+            ) : user ? (
+              <div className="flex items-center gap-1.5">
+                <div className="text-right">
+                  <div className="text-xs font-bold text-gray-700 max-w-24 truncate">
+                    {user.user_metadata?.full_name || user.email}
+                  </div>
+                  <div className="text-xs text-green-600 font-bold">☁️ 同期中</div>
+                </div>
+                {user.user_metadata?.avatar_url && (
+                  <img src={user.user_metadata.avatar_url} alt="avatar"
+                    className="w-8 h-8 rounded-full border-2 border-green-400" />
+                )}
+                <button onClick={handleLogout}
+                  className="text-xs px-2 py-1 rounded-lg bg-gray-100 text-gray-500 border border-gray-200">
+                  ログアウト
+                </button>
+              </div>
+            ) : (
+              <button onClick={handleLogin}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border-2 border-indigo-200 shadow-sm text-xs font-bold text-indigo-700 hover:bg-indigo-50 transition-all">
+                <span>🔑</span> Googleログイン
+              </button>
+            )
+          )}
         </div>
         {/* タブ（2段） */}
         <div className="grid grid-cols-4 gap-0.5 mb-1 bg-white rounded-xl p-1 shadow-sm">
-          {views.slice(0,4).map(v=><button key={v.id} onClick={()=>setView(v.id)} className={`py-1.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${view===v.id?"bg-indigo-600 text-white shadow":"text-gray-500 hover:bg-gray-100"}`}>
+          {views.slice(0,4).map(v=><button key={v.id} onClick={()=>handleViewChange(v.id)} className={`py-1.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${view===v.id?"bg-indigo-600 text-white shadow":"text-gray-500 hover:bg-gray-100"}`}>
             <span>{v.icon}</span><span style={{fontSize:"9px"}}>{v.label}</span>
           </button>)}
         </div>
         <div className="grid grid-cols-4 gap-0.5 mb-3 bg-white rounded-xl p-1 shadow-sm">
-          {views.slice(4).map(v=><button key={v.id} onClick={()=>setView(v.id)} className={`py-1.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${view===v.id?"bg-indigo-600 text-white shadow":"text-gray-500 hover:bg-gray-100"}`}>
+          {views.slice(4).map(v=><button key={v.id} onClick={()=>handleViewChange(v.id)} className={`py-1.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${view===v.id?"bg-indigo-600 text-white shadow":"text-gray-500 hover:bg-gray-100"}`}>
             <span>{v.icon}</span><span style={{fontSize:"9px"}}>{v.label}</span>
           </button>)}
         </div>
         {/* カード */}
         <div className="bg-white rounded-2xl shadow-md p-4">
-          {view==="toroku"&&<TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId}/>}
+          {view==="toroku"&&<TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user}/>}
           {view==="pair"&&<PairView profiles={profiles} setProfiles={setProfiles} myId={myId}/>}
           {view==="life"&&<LifeView/>}
           {view==="compat"&&<CompatView profiles={profiles} myId={myId}/>}
@@ -4720,6 +4930,7 @@ function CommunicationCompass() {
         </div>
         <div className="text-center text-xs text-gray-400 mt-3">
           支礎学システム ｜ 第1〜25回 + 全会話データ統合版
+          {user && <span className="text-green-500 ml-2">☁️ Supabase 同期中</span>}
         </div>
       </div>
     </div>
