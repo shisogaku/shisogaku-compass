@@ -3653,9 +3653,15 @@ function CommunicationCompass() {
     try { return localStorage.getItem("shisogaku_myId") || null; } catch { return null; }
   });
 
-  // localStorage への永続化
-  useEffect(() => { try { localStorage.setItem("shisogaku_profiles", JSON.stringify(profiles)); } catch {} }, [profiles]);
-  useEffect(() => { try { if (myId) localStorage.setItem("shisogaku_myId", myId); else localStorage.removeItem("shisogaku_myId"); } catch {} }, [myId]);
+  // localStorage への永続化（ログアウト中は書き込まない）
+  useEffect(() => {
+    if (!user && profiles.length === 0) return; // ログアウト直後は書き込みスキップ
+    try { localStorage.setItem("shisogaku_profiles", JSON.stringify(profiles)); } catch {}
+  }, [profiles, user]);
+  useEffect(() => {
+    if (!user && !myId) return; // ログアウト直後は書き込みスキップ
+    try { if (myId) localStorage.setItem("shisogaku_myId", myId); else localStorage.removeItem("shisogaku_myId"); } catch {}
+  }, [myId, user]);
 
   // ── Supabase 認証初期化 ──
   useEffect(() => {
@@ -3674,6 +3680,14 @@ function CommunicationCompass() {
       if (u) {
         loadFromSupabase(u.id);
         sbDb.log(u.id, "login", { provider: session?.user?.app_metadata?.provider });
+      } else {
+        // ログアウト時：表示とlocalStorageをクリア
+        setProfiles([]);
+        setMyId(null);
+        try {
+          localStorage.removeItem("shisogaku_profiles");
+          localStorage.removeItem("shisogaku_myId");
+        } catch {}
       }
     });
     return () => subscription.unsubscribe();
