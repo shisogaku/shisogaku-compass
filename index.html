@@ -1361,6 +1361,214 @@ function LifeView() {
 }
 
 // ─────────────────────────────────────────
+// AI相談ビュー
+// ─────────────────────────────────────────
+const EDGE_URL = "https://nncwmltuwxbpwlgruvwn.supabase.co/functions/v1/ai-analyze";
+
+function AIView({ profiles = [], myId = null, user = null }) {
+  const bloods  = ["O","A","B","AB"];
+  const genders = ["男性","女性"];
+
+  // 自分・相手の初期値をプロフィールから設定
+  const myProf = profiles.find(p => p.id === myId) || null;
+  const others = profiles.filter(p => p.id !== myId);
+
+  const [myBlood,  setMyBlood]  = useState(myProf?.blood  || null);
+  const [myGender, setMyGender] = useState(myProf?.gender || null);
+  const [tgBlood,  setTgBlood]  = useState(others[0]?.blood  || null);
+  const [tgGender, setTgGender] = useState(others[0]?.gender || null);
+  const [situation, setSituation] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error,   setError]   = useState(null);
+  const [helpful,  setHelpful]  = useState(null); // true/false/null
+  const [lastLogId, setLastLogId] = useState(null);
+  const [charCount, setCharCount] = useState(0);
+
+  const MAX_CHARS = 300;
+
+  const handleSituationChange = (e) => {
+    const val = e.target.value.slice(0, MAX_CHARS);
+    setSituation(val);
+    setCharCount(val.length);
+  };
+
+  const handleAnalyze = async () => {
+    if (!myBlood || !tgBlood || !situation.trim()) return;
+    setLoading(true);
+    setResult(null);
+    setError(null);
+    setHelpful(null);
+    setLastLogId(null);
+
+    try {
+      const bcMy     = BC[myBlood] || null;
+      const bcTarget = BC[tgBlood] || null;
+      const compatKey = [myBlood, tgBlood].sort().join("-");
+      const compat   = COMPAT ? (COMPAT[[myBlood,tgBlood].sort().join("")] || COMPAT[compatKey] || null) : null;
+
+      const res = await fetch(EDGE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          myBlood, myGender, targetBlood: tgBlood, targetGender: tgGender,
+          situation: situation.trim(),
+          bcMy, bcTarget, compat,
+          userId: user?.id || null,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setResult(data.response);
+      setLastLogId(data.logId || null);
+    } catch (e) {
+      setError(e.message || "エラーが発生しました");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendFeedback = async (val) => {
+    setHelpful(val);
+    if (!lastLogId) return;
+    try {
+      await fetch(`${EDGE_URL.replace("ai-analyze","ai-feedback")}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ logId: lastLogId, helpful: val }),
+      });
+    } catch {}
+  };
+
+  const canAnalyze = myBlood && tgBlood && situation.trim().length >= 10;
+
+  // セレクタ共通
+  const BloodSel = ({ val, set, label }) => (
+    <div>
+      <div className="text-xs text-gray-500 font-bold mb-1">{label}</div>
+      <div className="flex gap-1">
+        {bloods.map(b => (
+          <button key={b} onClick={() => set(b)}
+            className="flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all"
+            style={val===b ? {backgroundColor:BC[b].color,borderColor:BC[b].color,color:"white"} : {borderColor:"#e5e7eb",color:"#374151"}}>
+            {b}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+  const GenderSel = ({ val, set }) => (
+    <div className="flex gap-1 mt-1.5">
+      {genders.map(g => (
+        <button key={g} onClick={() => set(g)}
+          className="flex-1 py-1 rounded-lg text-xs font-bold border-2 transition-all"
+          style={val===g ? {backgroundColor:"#6366f1",borderColor:"#6366f1",color:"white"} : {borderColor:"#e5e7eb",color:"#374151"}}>
+          {g}
+        </button>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="text-center">
+        <div className="text-sm font-bold text-gray-700">🤖 AI相談</div>
+        <div className="text-xs text-gray-400">血液型×状況を読み取ったアドバイスを生成します</div>
+      </div>
+
+      {/* 血液型・性別選択 */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+          <BloodSel val={myBlood} set={setMyBlood} label="あなたの血液型" />
+          <GenderSel val={myGender} set={setMyGender} />
+        </div>
+        <div className="p-3 bg-pink-50 rounded-xl border border-pink-100">
+          <BloodSel val={tgBlood} set={setTgBlood} label="相手の血液型" />
+          <GenderSel val={tgGender} set={setTgGender} />
+        </div>
+      </div>
+
+      {/* 状況入力 */}
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-xs font-bold text-gray-600">今の状況を教えてください</div>
+          <div className={`text-xs ${charCount >= MAX_CHARS ? "text-red-500" : "text-gray-400"}`}>{charCount}/{MAX_CHARS}</div>
+        </div>
+        <textarea
+          value={situation}
+          onChange={handleSituationChange}
+          placeholder={"例：「昨日LINEを送ったのに既読スルーされた。いつもこのパターンで不安になる」\n「仕事でミスをして謝ったが相手の反応が薄い。どう対応すれば良いか」"}
+          rows={4}
+          className="w-full text-sm p-3 rounded-xl border-2 border-gray-200 focus:border-indigo-400 focus:outline-none resize-none leading-relaxed"
+        />
+        <div className="text-xs text-gray-400 mt-1">※ 10文字以上入力してください</div>
+      </div>
+
+      {/* 送信ボタン */}
+      <button
+        onClick={handleAnalyze}
+        disabled={!canAnalyze || loading}
+        className="w-full py-3 rounded-xl font-bold text-sm transition-all"
+        style={canAnalyze && !loading
+          ? {background:"linear-gradient(135deg,#f43f5e,#a855f7)",color:"white",boxShadow:"0 4px 12px rgba(168,85,247,0.3)"}
+          : {backgroundColor:"#e5e7eb",color:"#9ca3af"}}>
+        {loading ? "🤖 AIが分析中..." : "✨ AIに相談する"}
+      </button>
+
+      {/* エラー */}
+      {error && (
+        <div className="p-3 bg-red-50 rounded-xl border border-red-200 text-xs text-red-600">
+          ⚠️ {error}
+          {error.includes("ANTHROPIC_API_KEY") && (
+            <div className="mt-1 text-gray-500">Supabase の Secrets に ANTHROPIC_API_KEY を設定してください。</div>
+          )}
+        </div>
+      )}
+
+      {/* AI回答 */}
+      {result && (
+        <div className="space-y-2">
+          <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold">
+                🤖 {myBlood}型{myGender} × {tgBlood}型{tgGender}
+              </span>
+            </div>
+            <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{result}</div>
+          </div>
+
+          {/* フィードバック */}
+          {helpful === null ? (
+            <div className="flex items-center gap-2 justify-center">
+              <div className="text-xs text-gray-500">このアドバイスは役に立ちましたか？</div>
+              <button onClick={() => sendFeedback(true)}
+                className="px-3 py-1 rounded-lg text-xs bg-green-100 text-green-700 font-bold hover:bg-green-200">
+                👍 役立った
+              </button>
+              <button onClick={() => sendFeedback(false)}
+                className="px-3 py-1 rounded-lg text-xs bg-gray-100 text-gray-500 font-bold hover:bg-gray-200">
+                👎 いまいち
+              </button>
+            </div>
+          ) : (
+            <div className="text-center text-xs text-gray-400">
+              {helpful ? "✅ フィードバックありがとうございます！" : "📝 より良い回答を蓄積していきます"}
+            </div>
+          )}
+
+          {/* 再相談ボタン */}
+          <button onClick={() => { setResult(null); setSituation(""); setCharCount(0); }}
+            className="w-full py-2 rounded-xl text-xs font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-all">
+            別の状況を相談する
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
 // 人生プランデータ（住宅・保険・転職・資産）
 // ─────────────────────────────────────────
 function PlanView() {
@@ -3537,6 +3745,7 @@ function CommunicationCompass() {
     {id:"power",label:"知識",icon:"📚"},
     {id:"simulate",label:"シミュ",icon:"🎯"},
     {id:"plan",label:"プラン",icon:"🏦"},
+    {id:"ai",label:"AI相談",icon:"🤖"},
   ];
 
   const sbConfigured = SUPABASE_URL !== "YOUR_SUPABASE_URL";
@@ -3602,6 +3811,7 @@ function CommunicationCompass() {
           {view==="power"&&<PowerView profiles={profiles}/>}
           {view==="simulate"&&<SimulateView profiles={profiles} myId={myId}/>}
           {view==="plan"&&<PlanView/>}
+          {view==="ai"&&<AIView profiles={profiles} myId={myId} user={user}/>}
         </div>
         <div className="text-center text-xs text-gray-400 mt-3">
           {user && <span className="text-green-500">☁️ Supabase 同期中</span>}
