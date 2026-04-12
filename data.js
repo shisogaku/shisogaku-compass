@@ -1001,6 +1001,16 @@ const PLAN_DB = {
       AB:{ style:"調べて効率化・オンライン活用型", decision:"マイナポータル・e-Tax・各種オンライン申請を先に調べ、効率的な方法を自分で見つけ出す。窓口に行く前にほぼ把握済み", risk:"調べた情報が古かったり、自分のケースと異なる場合に気づきにくいことも。制度は頻繁に改正されるため確認を", timing:"新制度・給付金の情報を収集するアンテナが高く、他より早く動ける。周囲に教えてあげる役割を担いがち" },
     }
   },
+  pet: {
+    label:"ペット飼育", icon:"🐾", color:"#84cc16",
+    subtitle:"血液型別・ペットとの向き合い方と選び方",
+    tips:{
+      O:{ style:"", decision:"", risk:"", timing:"" },
+      A:{ style:"", decision:"", risk:"", timing:"" },
+      B:{ style:"", decision:"", risk:"", timing:"" },
+      AB:{ style:"", decision:"", risk:"", timing:"" },
+    }
+  },
   matching: {
     label:"マッチングサイト", icon:"💑", color:"#f43f5e",
     subtitle:"血液型別・出会いのアプローチと選び方",
