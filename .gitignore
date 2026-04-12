@@ -1,0 +1,11 @@
+# Google OAuth クライアントシークレット（絶対にGitHubにあげない）
+client_secret*.json
+
+# zz/ フォルダ全体（退避・バックアップ用）
+zz/
+
+# macOS
+.DS_Store
+
+# node_modules
+node_modules/
