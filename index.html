@@ -3723,11 +3723,17 @@ function CommunicationCompass() {
     });
   };
 
-  // ログアウト（ローカルデータはそのまま維持）
+  // ログアウト（Supabaseにデータは残す・表示はクリア）
   const handleLogout = async () => {
     if (!_sb) return;
     await _sb.auth.signOut();
     setUser(null);
+    setProfiles([]);
+    setMyId(null);
+    try {
+      localStorage.removeItem("shisogaku_profiles");
+      localStorage.removeItem("shisogaku_myId");
+    } catch {}
   };
 
   // タブ切り替え時にログ記録
