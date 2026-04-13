@@ -298,6 +298,8 @@ function CommunicationCompass() {
   const handleViewChange = (v) => {
     setView(v);
     setSidebarOpen(false);
+    setSearchQuery('');
+    setSearchResults([]);
     if (user) sbDb.log(user.id, "view_tab", { tab: v });
   };
 
