@@ -44,6 +44,33 @@ function LogoIcon({ size = 44 }) {
 }
 
 // ─────────────────────────────────────────
+// シンプル SVGアイコン（フェミニン・細線）
+// ─────────────────────────────────────────
+function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
+  const P = (d, op) => <path strokeLinecap="round" strokeLinejoin="round" d={d} opacity={op||1}/>;
+  const C = (cx,cy,r,f) => <circle cx={cx} cy={cy} r={r} fill={f||"none"}/>;
+  const icons = {
+    user:     <>{C(12,8,4)}{P("M4 20a8 8 0 0116 0")}</>,
+    people:   <>{C(9,7,4)}{P("M3 21v-1a6 6 0 016-6h4a6 6 0 016 6v1",.65)}{P("M16 3.13a4 4 0 010 7.75",.45)}</>,
+    heart:    <>{P("M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z")}</>,
+    matrix:   <>{P("M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18")}</>,
+    chat:     <>{P("M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z")}{P("M8 10h8M8 13h5",.45)}</>,
+    book:     <>{P("M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25")}</>,
+    sparkle:  <>{P("M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z")}{P("M18 9.75l-.26-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259A3.375 3.375 0 0017.74 3.3L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456L18 9.75z",.7)}</>,
+    envelope: <>{P("M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z")}{P("M22 6l-10 7L2 6")}</>,
+    calender: <>{P("M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z")}{P("M16 1v4M8 1v4M3 9h18")}{P("M8 13h2M12 13h2M8 17h2",.55)}</>,
+    journey:  <>{P("M3 17c2-5 4-2 6-4s4-8 6-6 4 6 6 2")}{C(3,17,1.5,color)}{C(9,13,1.5,color)}{C(15,7,1.5,color)}</>,
+    robot:    <>{P("M9 3H7a2 2 0 00-2 2v2M15 3h2a2 2 0 012 2v2M5 7h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z")}{C(9,13,1.5)}{C(15,13,1.5)}{P("M9 17h6",.6)}</>,
+    menu:     <>{P("M4 6h16M4 12h16M4 18h16")}</>,
+  };
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+      {icons[name]||null}
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────
 // 検索インデックス構築
 // ─────────────────────────────────────────
 function buildSearchIndex() {
@@ -309,17 +336,17 @@ function CommunicationCompass() {
 
   // ── タブ定義 ──
   const sidebarItems = [
-    { id:"toroku", label:"自分の登録", icon:"👤", badge: me ? (me.blood + '型') : null, badgeColor: me?.color },
-    { id:"pair",   label:"相手の登録", icon:"👥", badge: partners.length > 0 ? String(partners.length) : null },
-    { id:"ai",     label:"AIに確認",  icon:"🤖" },
+    { id:"toroku", label:"自分の登録", icon:"user",   badge: me ? (me.blood + '型') : null, badgeColor: me?.color },
+    { id:"pair",   label:"相手の登録", icon:"people", badge: partners.length > 0 ? String(partners.length) : null },
+    { id:"ai",     label:"AIに確認",  icon:"robot" },
   ];
   const mainTabs = [
-    { id:"life",     label:"ライフ",  icon:"💑" },
-    { id:"compat",   label:"相性",    icon:"🔮" },
-    { id:"scene",    label:"シーン",  icon:"🎬" },
-    { id:"power",    label:"知識",    icon:"📚" },
-    { id:"simulate", label:"シミュ",  icon:"🎯" },
-    { id:"plan",     label:"プラン",  icon:"🏦" },
+    { id:"life",     label:"ライフ",  icon:"journey"  },
+    { id:"compat",   label:"相性",    icon:"heart"    },
+    { id:"scene",    label:"シーン",  icon:"chat"     },
+    { id:"power",    label:"知識",    icon:"book"     },
+    { id:"simulate", label:"シミュ",  icon:"envelope" },
+    { id:"plan",     label:"プラン",  icon:"calender" },
   ];
 
   const isSidebarView = ['toroku','pair','ai'].includes(view);
@@ -327,23 +354,22 @@ function CommunicationCompass() {
 
   // ── レンダー ──
   return (
-    <div className="flex h-screen overflow-hidden" style={{background:'#f8fafc'}}>
+    <div className="flex h-screen overflow-hidden" style={{background:'#fdf9f3'}}>
 
       {/* ── サイドバー（デスクトップ固定 / モバイルオーバーレイ）── */}
-      {/* オーバーレイ背景（モバイルのみ） */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 z-20 md:hidden"
+        <div className="fixed inset-0 bg-black bg-opacity-30 z-20 md:hidden"
           onClick={() => setSidebarOpen(false)} />
       )}
 
       <aside className={[
-        "flex flex-col bg-white border-r border-gray-200 z-30 transition-transform duration-300",
+        "flex flex-col z-30 transition-transform duration-300",
         "fixed md:static inset-y-0 left-0 w-56",
         sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-      ].join(' ')}>
+      ].join(' ')} style={{background:'#fffcf7',borderRight:'1px solid rgba(180,130,70,0.18)'}}>
 
         {/* ロゴ */}
-        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-gray-100">
+        <div className="flex items-center gap-2.5 px-4 py-4" style={{borderBottom:'1px solid rgba(180,130,70,0.15)'}}>
           <LogoIcon size={36} />
           <div>
             <div className="text-sm font-black bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent leading-tight">
@@ -359,15 +385,13 @@ function CommunicationCompass() {
 
           {sidebarItems.map(item => (
             <button key={item.id} onClick={() => handleViewChange(item.id)}
-              className={[
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                view === item.id
-                  ? (item.id === 'ai'
-                    ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-indigo-200"
-                    : "bg-indigo-600 text-white shadow-md shadow-indigo-200")
-                  : "text-gray-700 hover:bg-gray-50"
-              ].join(' ')}>
-              <span className="text-base w-5 text-center">{item.icon}</span>
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+              style={view === item.id
+                ? {background:'linear-gradient(135deg,#92400e,#b45309)',color:'white',boxShadow:'0 2px 8px rgba(146,64,14,0.3)'}
+                : {color:'#5c3d1e'}}>
+              <span className="w-5 flex items-center justify-center">
+                <Icon name={item.icon} size={16} color={view===item.id?"white":"#92400e"} sw={1.5}/>
+              </span>
               <span className="flex-1 text-left">{item.label}</span>
               {item.badge && (
                 <span className={[
@@ -387,13 +411,13 @@ function CommunicationCompass() {
 
           {mainTabs.map(tab => (
             <button key={tab.id} onClick={() => handleViewChange(tab.id)}
-              className={[
-                "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all",
-                view === tab.id
-                  ? "bg-gray-100 text-indigo-700 font-bold"
-                  : "text-gray-600 hover:bg-gray-50"
-              ].join(' ')}>
-              <span className="text-base w-5 text-center">{tab.icon}</span>
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all"
+              style={view === tab.id
+                ? {background:'rgba(146,64,14,0.09)',color:'#92400e',fontWeight:700}
+                : {color:'#7c5c3e'}}>
+              <span className="w-5 flex items-center justify-center">
+                <Icon name={tab.icon} size={15} color={view===tab.id?"#92400e":"#a07850"} sw={1.5}/>
+              </span>
               <span>{tab.label}</span>
             </button>
           ))}
@@ -425,8 +449,9 @@ function CommunicationCompass() {
               </div>
             ) : (
               <button onClick={handleLogin}
-                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-all">
-                <span>🔑</span> Googleログイン
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all"
+                style={{background:'rgba(146,64,14,0.08)',border:'1px solid rgba(146,64,14,0.2)',color:'#92400e'}}>
+                🔑 Googleログイン
               </button>
             )
           )}
@@ -437,7 +462,7 @@ function CommunicationCompass() {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
         {/* トップバー */}
-        <header className="bg-white border-b border-gray-200 px-4 py-2.5 flex items-center gap-3 flex-shrink-0">
+        <header className="px-4 py-2.5 flex items-center gap-3 flex-shrink-0" style={{background:'#fffcf7',borderBottom:'1px solid rgba(180,130,70,0.18)'}}>
           {/* ハンバーガー（モバイルのみ） */}
           <button className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 text-gray-600"
             onClick={() => setSidebarOpen(s => !s)}>
@@ -460,7 +485,7 @@ function CommunicationCompass() {
               value={searchQuery}
               onChange={e => handleSearch(e.target.value)}
               placeholder="血液型・特徴・アドバイスを検索…（A型 愛情、謝り方 など）"
-              className="w-full pl-9 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all"
+              className="w-full pl-9 pr-8 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all" style={{background:'#fdf4e8',border:'1px solid rgba(180,130,70,0.25)',outline:'none'}} onFocus={e=>{e.target.style.boxShadow='0 0 0 2px rgba(146,64,14,0.2)';e.target.style.borderColor='rgba(146,64,14,0.4)'}} onBlur={e=>{e.target.style.boxShadow='';e.target.style.borderColor='rgba(180,130,70,0.25)'}}
             />
             {searchQuery && (
               <button onClick={() => handleSearch('')}
@@ -473,17 +498,15 @@ function CommunicationCompass() {
 
         {/* タブバー（検索中は非表示・サイドバービュー時も非表示） */}
         {!searchQuery && !isSidebarView && (
-          <div className="bg-white border-b border-gray-200 px-4 flex-shrink-0">
-            <div className="flex gap-0.5 overflow-x-auto scrollbar-hide py-2">
+          <div className="px-4 flex-shrink-0" style={{background:'#fffcf7',borderBottom:'1px solid rgba(180,130,70,0.15)'}}>
+            <div className="flex gap-1 overflow-x-auto scrollbar-hide py-2">
               {mainTabs.map(tab => (
                 <button key={tab.id} onClick={() => handleViewChange(tab.id)}
-                  className={[
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex-shrink-0",
-                    view === tab.id
-                      ? "bg-indigo-600 text-white shadow-sm"
-                      : "text-gray-600 hover:bg-gray-100"
-                  ].join(' ')}>
-                  <span>{tab.icon}</span>
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex-shrink-0"
+                  style={view === tab.id
+                    ? {background:'linear-gradient(135deg,#92400e,#b45309)',color:'white',boxShadow:'0 2px 6px rgba(146,64,14,0.25)'}
+                    : {color:'#7c5c3e',background:'transparent'}}>
+                  <Icon name={tab.icon} size={13} color={view===tab.id?"white":"#92400e"} sw={1.5}/>
                   <span>{tab.label}</span>
                 </button>
               ))}
@@ -499,7 +522,7 @@ function CommunicationCompass() {
             {searchQuery ? (
               <SearchResults results={searchResults} query={searchQuery} onTabJump={(tab) => { handleSearch(''); handleViewChange(tab); }} />
             ) : (
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+              <div className="bg-white rounded-2xl p-5" style={{boxShadow:'0 1px 12px rgba(180,130,70,0.1)',border:'1px solid rgba(180,130,70,0.15)'}}>
                 {view==="toroku"    && <TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user} onLogin={handleLogin}/>}
                 {view==="pair"      && <PairView profiles={profiles} setProfiles={setProfiles} myId={myId}/>}
                 {view==="life"      && <LifeView/>}
@@ -515,28 +538,27 @@ function CommunicationCompass() {
         </div>
 
         {/* ── モバイル下部ナビ ── */}
-        <nav className="md:hidden bg-white border-t border-gray-200 flex items-center justify-around px-2 py-2 flex-shrink-0">
+        <nav className="md:hidden flex items-center justify-around px-1 py-2 flex-shrink-0" style={{background:'#2c1a0e',borderTop:'1px solid rgba(255,220,160,0.08)'}}>
           {[
-            { id:"toroku", icon:"👤", label:"自分" },
-            { id:"pair",   icon:"👥", label:"相手" },
-            { id:"compat", icon:"🔮", label:"相性" },
-            { id:"scene",  icon:"🎬", label:"シーン" },
-            { id:"ai",     icon:"🤖", label:"AI" },
+            { id:"toroku", icon:"user",   label:"自分" },
+            { id:"pair",   icon:"people", label:"相手" },
+            { id:"compat", icon:"heart",  label:"相性" },
+            { id:"scene",  icon:"chat",   label:"シーン" },
+            { id:"ai",     icon:"robot",  label:"AI" },
           ].map(item => (
             <button key={item.id} onClick={() => handleViewChange(item.id)}
-              className={[
-                "flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all",
-                view === item.id ? "text-indigo-600" : "text-gray-500"
-              ].join(' ')}>
-              <span className="text-xl leading-none">{item.icon}</span>
-              <span className="text-xs font-bold">{item.label}</span>
-              {view === item.id && <span className="w-1 h-1 rounded-full bg-indigo-600" />}
+              className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all flex-1"
+              style={view===item.id
+                ?{background:'linear-gradient(135deg,#92400e,#b45309)',boxShadow:'0 2px 8px rgba(146,64,14,0.5)'}
+                :{}}>
+              <Icon name={item.icon} size={20} color={view===item.id?"#fdf8f0":"rgba(253,248,240,0.38)"} sw={1.5}/>
+              <span className="text-xs font-bold" style={{color:view===item.id?"#fdf8f0":"rgba(253,248,240,0.38)"}}>{item.label}</span>
             </button>
           ))}
           <button onClick={() => setSidebarOpen(true)}
-            className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl text-gray-500">
-            <span className="text-xl leading-none">⋯</span>
-            <span className="text-xs font-bold">メニュー</span>
+            className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl flex-1">
+            <Icon name="menu" size={20} color="rgba(253,248,240,0.38)" sw={1.5}/>
+            <span className="text-xs font-bold" style={{color:"rgba(253,248,240,0.38)"}}>メニュー</span>
           </button>
         </nav>
 
