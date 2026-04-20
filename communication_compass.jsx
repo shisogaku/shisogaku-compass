@@ -58,10 +58,11 @@ function CompatView({ profiles = [], myId = null }) {
   return (
     <div className="space-y-4">
       {/* モード切替 */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
-        {[["pair","👥 ペア相性"],["group","🔷 グループ分析"]].map(([m,l])=>(
+      <div className="flex gap-1 rounded-xl p-1" style={{background:"#f1f0f8"}}>
+        {[["pair","ペア相性"],["group","グループ分析"]].map(([m,l])=>(
           <button key={m} onClick={()=>{setCompatMode(m);setGroupFocus(null);}}
-            className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${compatMode===m?"bg-white shadow text-indigo-600":"text-gray-500"}`}>{l}</button>
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all`}
+            style={compatMode===m?{background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",boxShadow:"0 2px 8px rgba(124,58,237,0.35)"}:{color:"#6b7280"}}>{l}</button>
         ))}
       </div>
 
@@ -71,10 +72,13 @@ function CompatView({ profiles = [], myId = null }) {
         <div>
           <div className="text-xs text-gray-500 mb-1 font-bold">血液型ベース相性マップ（タップで詳細）</div>
           <div className="grid grid-cols-5 gap-0.5 text-xs">
-            <div/>
-            {bloods.map(b=><div key={b} className="text-center font-bold py-1" style={{color:BC[b].color}}>{b}</div>)}
+            <div className="flex flex-col items-center justify-end pb-0.5 gap-0.5">
+              <div style={{fontSize:"8px",fontWeight:700,color:"#2563eb",background:"#dbeafe",borderRadius:"4px",padding:"1px 4px"}}>→男</div>
+              <div style={{fontSize:"8px",fontWeight:700,color:"#db2777",background:"#fce7f3",borderRadius:"4px",padding:"1px 4px"}}>↓女</div>
+            </div>
+            {bloods.map(b=><div key={b} className="text-center font-bold py-1 rounded" style={{color:"#1d4ed8",background:"#eff6ff"}}>{b}</div>)}
             {bloods.map(b1=>[
-              <div key={b1+"h"} className="font-bold flex items-center justify-center" style={{color:BC[b1].color}}>{b1}</div>,
+              <div key={b1+"h"} className="font-bold flex items-center justify-center rounded" style={{color:"#be185d",background:"#fdf2f8"}}>{b1}</div>,
               ...bloods.map(b2=>{
                 const k=COMPAT_KEY(b1,b2); const c=COMPAT[k];
                 return <div key={b1+b2} className="h-12 cursor-pointer rounded flex flex-col items-center justify-center text-center p-0.5"
@@ -280,7 +284,8 @@ function NendaiView() {
       <div>
         <div className="text-xs text-gray-500 font-bold mb-1">年代</div>
         <div className="flex gap-1">
-          {ages.map(a=><button key={a} onClick={()=>setSelAge(a)} className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${selAge===a?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 text-gray-600"}`}>{a}</button>)}
+          {ages.map(a=><button key={a} onClick={()=>setSelAge(a)} className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all"
+            style={selAge===a?{background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",boxShadow:"0 2px 8px rgba(124,58,237,0.3)"}:{background:"#f3f4f6",color:"#6b7280"}}>{a}</button>)}
         </div>
       </div>
       {data&&<div className="space-y-3">
@@ -812,7 +817,8 @@ function DetailView({blood,setBlood,gender,setGender}) {
       <div>
         <div className="text-xs text-gray-500 font-bold mb-1">STEP 1 — 性別</div>
         <div className="flex gap-2">
-          {genders.map(g=><button key={g.id} onClick={()=>{setGender(g.id);setBlood(null);setCategory(null);}} className={`flex-1 py-2 rounded-lg text-sm font-bold border-2 transition-all ${gender===g.id?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 bg-white text-gray-600"}`}>{g.icon} {g.label}</button>)}
+          {genders.map(g=><button key={g.id} onClick={()=>{setGender(g.id);setBlood(null);setCategory(null);}} className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all"
+            style={gender===g.id?{background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",boxShadow:"0 3px 12px rgba(124,58,237,0.35)"}:{background:"#f3f4f6",color:"#6b7280"}}>{g.icon} {g.label}</button>)}
         </div>
       </div>
       {/* 血液型 */}
@@ -833,7 +839,8 @@ function DetailView({blood,setBlood,gender,setGender}) {
       {blood&&gender&&<div>
         <div className="text-xs text-gray-500 font-bold mb-1">STEP 3 — カテゴリ</div>
         <div className="grid grid-cols-5 gap-1">
-          {CATS.map(c=><button key={c.id} onClick={()=>setCategory(c.id)} className={`py-1.5 rounded-lg text-xs font-bold border-2 transition-all flex flex-col items-center gap-0.5 ${category===c.id?"border-gray-800 bg-gray-800 text-white":"border-gray-200 text-gray-600 hover:border-gray-400"}`}>
+          {CATS.map(c=><button key={c.id} onClick={()=>setCategory(c.id)} className="py-1.5 rounded-xl text-xs font-bold transition-all flex flex-col items-center gap-0.5"
+            style={category===c.id?{background:"linear-gradient(135deg,#1e1b4b,#4338ca)",color:"white",boxShadow:"0 2px 10px rgba(67,56,202,0.35)"}:{background:"#f3f4f6",color:"#6b7280"}}>
             <span>{c.icon}</span><span>{c.id}</span>
           </button>)}
         </div>
@@ -3163,10 +3170,145 @@ function MsgConverter({ tips, targetLabel }) {
 }
 
 // ─────────────────────────────────────────
+// シンプル・フェミニン SVG アイコン
+// ─────────────────────────────────────────
+function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
+  const P = (d, op) => <path strokeLinecap="round" strokeLinejoin="round" d={d} opacity={op||1}/>;
+  const C = (cx,cy,r,f) => <circle cx={cx} cy={cy} r={r} fill={f||"none"}/>;
+  const icons = {
+    // ── ナビアイコン ──
+    compass:  <>{C(12,12,9)}{P("M14.5 9.5l-5 2.5 2.5 2.5 2.5-5z")}</>,
+    home:     <>{P("M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z")}{P("M9 21V13h6v8")}</>,
+    user:     <>{C(12,8,4)}{P("M4 20a8 8 0 0116 0")}</>,
+    heart:    <>{P("M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z")}</>,
+    sparkle:  <>{P("M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z")}{P("M18 9.75l-.26-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259A3.375 3.375 0 0017.74 3.3L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456L18 9.75z", .7)}</>,
+    book:     <>{P("M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25")}</>,
+    // ── フィーチャーカードアイコン ──
+    people:   <>{C(9,7,4)}{P("M3 21v-1a6 6 0 016-6h4a6 6 0 016 6v1", .65)}{P("M16 3.13a4 4 0 010 7.75", .45)}</>,
+    matrix:   <>{P("M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18")}</>,
+    journey:  <>{P("M3 17c2-5 4-2 6-4s4-8 6-6 4 6 6 2")}{C(3,17,1.5,color)}{C(9,13,1.5,color)}{C(15,7,1.5,color)}{C(21,9,1.5,color)}</>,
+    chat:     <>{P("M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z")}{P("M8 10h8M8 13h5", .45)}</>,
+    envelope: <>{P("M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z")}{P("M22 6l-10 7L2 6")}</>,
+    scroll:   <>{P("M4 19.5A2.5 2.5 0 016.5 17H20")}{P("M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z")}{P("M8 7h8M8 11h6", .45)}</>,
+    calender: <>{P("M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z")}{P("M16 1v4M8 1v4M3 9h18")}{P("M8 13h2M12 13h2M8 17h2", .55)}</>,
+  };
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+      {icons[name] || null}
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────
+// ホームダッシュボード
+// ─────────────────────────────────────────
+function HomeView({ profiles, myId, onNavigate }) {
+  const me = profiles.find(p => p.id === myId);
+  const featureGroups = [
+    { group:"関係を知る", items:[
+      {id:"pair",   icon:"people",   title:"ペア分析",       desc:"2人の相性・接し方・心理を詳しく分析", color:"#9333ea"},
+      {id:"compat", icon:"matrix",   title:"相性マトリクス", desc:"血液型×性別の全組み合わせを一覧比較", color:"#db2777"},
+      {id:"life",   icon:"journey",  title:"ライフステージ", desc:"出会いから幸せな終わりまでのロードマップ", color:"#b45309"},
+    ]},
+    { group:"ツールを使う", items:[
+      {id:"scene",    icon:"chat",     title:"シーン別ガイド",         desc:"デート・喧嘩・仕事…場面ごとの対処法", color:"#059669"},
+      {id:"simulate", icon:"envelope", title:"メッセージシミュレーター", desc:"送る前に相手の反応を予測できる",     color:"#4f46e5"},
+    ]},
+    { group:"深く学ぶ", items:[
+      {id:"power", icon:"sparkle",  title:"支礎学の知識",   desc:"XYマップ・4者の力関係・深層理論",          color:"#7c3aed"},
+      {id:"plan",  icon:"calender", title:"人生プランガイド", desc:"住宅・保険・転職を血液型の傾向で読み解く", color:"#0284c7"},
+    ]},
+  ];
+  return (
+    <div className="space-y-5">
+      {/* プロフィールサマリー or 登録誘導 */}
+      {me ? (
+        <div className="flex items-center gap-3 p-3 rounded-2xl" style={{background:"linear-gradient(135deg,#fdf0e0,#fae8d0)",border:"1px solid rgba(180,130,70,0.2)"}}>
+          <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold shadow" style={{background:BC[me.blood].color}}>{me.blood}</div>
+          <div className="flex-1">
+            <div className="font-bold text-sm" style={{color:"#2c1a0e"}}>{me.name}</div>
+            <div className="text-xs" style={{color:"rgba(80,50,20,0.6)"}}>{me.blood}型 {me.gender==="female"?"女性":"男性"}{me.age?` ・${me.age}`:""}</div>
+          </div>
+          <button onClick={()=>onNavigate("toroku")} className="text-xs px-3 py-1 rounded-lg font-bold" style={{color:"#92400e",background:"rgba(146,64,14,0.1)"}}>編集</button>
+        </div>
+      ) : (
+        <div className="text-center p-5 rounded-2xl" style={{background:"linear-gradient(135deg,#fdf4e8,#f5e9d4)"}}>
+          <div className="text-4xl mb-2">🧭</div>
+          <div className="text-sm font-bold mb-1" style={{color:"#2c1a0e"}}>まずはプロフィールを登録</div>
+          <div className="text-xs mb-3" style={{color:"rgba(80,50,20,0.55)"}}>血液型と性別を設定すると全機能が使えます</div>
+          <button onClick={()=>onNavigate("toroku")} className="px-6 py-2.5 rounded-xl text-sm font-bold shadow-md"
+            style={{background:"linear-gradient(135deg,#92400e,#b45309)",color:"#fdf8f0",boxShadow:"0 4px 14px rgba(146,64,14,0.35)"}}>登録する</button>
+        </div>
+      )}
+
+      {/* 機能カード */}
+      {featureGroups.map(g=>(
+        <div key={g.group}>
+          <div className="text-xs font-bold tracking-wider mb-2" style={{color:"rgba(80,50,20,0.4)"}}>{g.group}</div>
+          <div className="space-y-2">
+            {g.items.map(item=>(
+              <button key={item.id} onClick={()=>onNavigate(item.id)}
+                className="w-full flex items-center gap-3 p-3 rounded-2xl text-left transition-all active:scale-[0.98]"
+                style={{background:"#fdf8f2",border:"1px solid rgba(180,130,70,0.15)"}}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{background:item.color+"14"}}>
+                  <Icon name={item.icon} size={20} color={item.color} sw={1.5}/>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold" style={{color:"#2c1a0e"}}>{item.title}</div>
+                  <div className="text-xs leading-snug" style={{color:"rgba(80,50,20,0.55)"}}>{item.desc}</div>
+                </div>
+                <div className="text-lg flex-shrink-0" style={{color:"rgba(180,130,70,0.5)"}}>›</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* 登録人数サマリー */}
+      {profiles.length > 0 && (
+        <div className="flex items-center gap-2 p-3 rounded-xl" style={{background:"#fdf4e8",border:"1px solid rgba(180,130,70,0.15)"}}>
+          <div className="flex -space-x-2">
+            {profiles.slice(0,5).map(p=>(
+              <div key={p.id} className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white"
+                style={{background:BC[p.blood].color}}>{p.blood}</div>
+            ))}
+          </div>
+          <div className="text-xs" style={{color:"rgba(80,50,20,0.55)"}}>{profiles.length}人のプロフィールを登録済み</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
 // メイン
 // ─────────────────────────────────────────
+
+// ナビグループ定義
+const NAV_GROUPS = {
+  home:     { views:["home"],                 label:"ホーム", icon:"home"    },
+  my:       { views:["toroku"],               label:"マイ",   icon:"user"    },
+  relation: { views:["pair","compat","life"], label:"関係",   icon:"heart"   },
+  tools:    { views:["scene","simulate"],     label:"ツール", icon:"sparkle" },
+  learn:    { views:["power","plan"],         label:"学び",   icon:"book"    },
+};
+
+const SUB_LABELS = {
+  pair:"ペア分析", compat:"相性", life:"ライフ",
+  scene:"シーン別", simulate:"シミュレーター",
+  power:"知識", plan:"プラン",
+};
+
+const getNavGroup = (v) => {
+  for (const [g, def] of Object.entries(NAV_GROUPS)) {
+    if (def.views.includes(v)) return g;
+  }
+  return "home";
+};
+
 export default function CommunicationCompass() {
-  const [view,setView] = useState("toroku");
+  const [view,setView] = useState("home");
   const [blood,setBlood] = useState(null);
   const [gender,setGender] = useState(null);
   // 登録プロフィール（localStorage永続化）
@@ -3179,38 +3321,51 @@ export default function CommunicationCompass() {
   useEffect(() => { try { localStorage.setItem("shisogaku_profiles", JSON.stringify(profiles)); } catch {} }, [profiles]);
   useEffect(() => { try { if (myId) localStorage.setItem("shisogaku_myId", myId); else localStorage.removeItem("shisogaku_myId"); } catch {} }, [myId]);
 
-  const views = [
-    {id:"toroku",label:"登録",icon:"👤"},
-    {id:"pair",label:"ペア",icon:"👥"},
-    {id:"life",label:"ライフ",icon:"💑"},
-    {id:"compat",label:"相性",icon:"💑"},
-    {id:"scene",label:"シーン",icon:"🎬"},
-    {id:"power",label:"知識",icon:"📚"},
-    {id:"simulate",label:"シミュ",icon:"🎯"},
-    {id:"plan",label:"プラン",icon:"🏦"},
-  ];
+  const activeGroup = getNavGroup(view);
+  const groupDef = NAV_GROUPS[activeGroup];
+  const hasSubs = groupDef && groupDef.views.length > 1;
+
+  const handleNavClick = (groupId) => {
+    const def = NAV_GROUPS[groupId];
+    if (groupId === activeGroup && def.views.length === 1) return;
+    // 同じグループ内なら現在のviewを維持、別グループなら先頭に
+    if (groupId !== activeGroup) {
+      setView(def.views[0]);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-3">
-      <div className="max-w-lg mx-auto">
+    <div className="min-h-screen" style={{background:"linear-gradient(160deg,#fdf8f0 0%,#f5e9d4 50%,#fdf4e8 100%)"}}>
+      <div className="max-w-lg mx-auto px-3 pt-5 pb-28">
         {/* ヘッダー */}
-        <div className="text-center mb-3">
-          <h1 className="text-2xl font-black text-gray-800">支礎学コンパス</h1>
-          <p className="text-xs text-gray-500">全25回PDF統合 ｜ 血液型×性別 コミュニケーション完全版</p>
+        <div className="text-center mb-5">
+          <div className="inline-flex items-center gap-2 mb-1">
+            <div className="w-9 h-9 rounded-2xl flex items-center justify-center shadow-md" style={{background:"linear-gradient(135deg,#92400e,#b45309)"}}>
+              <Icon name="compass" size={20} color="#fdf8f0" sw={1.5}/>
+            </div>
+            <h1 className="text-2xl font-black tracking-tight" style={{color:"#2c1a0e"}}>支礎学コンパス</h1>
+          </div>
+          <p className="text-xs" style={{color:"rgba(80,50,20,0.45)"}}>全25回PDF統合 ｜ 血液型×性別 コミュニケーション完全版</p>
         </div>
-        {/* タブ（2段） */}
-        <div className="grid grid-cols-4 gap-0.5 mb-1 bg-white rounded-xl p-1 shadow-sm">
-          {views.slice(0,4).map(v=><button key={v.id} onClick={()=>setView(v.id)} className={`py-1.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${view===v.id?"bg-indigo-600 text-white shadow":"text-gray-500 hover:bg-gray-100"}`}>
-            <span>{v.icon}</span><span style={{fontSize:"9px"}}>{v.label}</span>
-          </button>)}
-        </div>
-        <div className="grid grid-cols-4 gap-0.5 mb-3 bg-white rounded-xl p-1 shadow-sm">
-          {views.slice(4).map(v=><button key={v.id} onClick={()=>setView(v.id)} className={`py-1.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${view===v.id?"bg-indigo-600 text-white shadow":"text-gray-500 hover:bg-gray-100"}`}>
-            <span>{v.icon}</span><span style={{fontSize:"9px"}}>{v.label}</span>
-          </button>)}
-        </div>
+
+        {/* サブタブ（グループ内に複数ビューがある場合） */}
+        {hasSubs && (
+          <div className="flex gap-1 mb-3 rounded-xl p-1" style={{background:"rgba(180,130,70,0.13)"}}>
+            {groupDef.views.map(v=>(
+              <button key={v} onClick={()=>setView(v)}
+                className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all"
+                style={view===v
+                  ?{background:"#ffffff",color:"#92400e",boxShadow:"0 2px 8px rgba(100,60,10,0.15)"}
+                  :{color:"rgba(80,50,20,0.5)"}}>
+                {SUB_LABELS[v]}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* カード */}
-        <div className="bg-white rounded-2xl shadow-md p-4">
+        <div className="rounded-3xl p-4 shadow-lg" style={{background:"#ffffff",border:"1px solid rgba(180,130,70,0.15)"}}>
+          {view==="home"&&<HomeView profiles={profiles} myId={myId} onNavigate={setView}/>}
           {view==="toroku"&&<TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId}/>}
           {view==="pair"&&<PairView profiles={profiles} setProfiles={setProfiles} myId={myId}/>}
           {view==="life"&&<LifeView/>}
@@ -3220,8 +3375,27 @@ export default function CommunicationCompass() {
           {view==="simulate"&&<SimulateView profiles={profiles} myId={myId}/>}
           {view==="plan"&&<PlanView/>}
         </div>
-        <div className="text-center text-xs text-gray-400 mt-3">
+
+        <div className="text-center text-xs mt-4" style={{color:"rgba(80,50,20,0.3)"}}>
           支礎学システム ｜ 第1〜25回 + 全会話データ統合版
+        </div>
+      </div>
+
+      {/* ボトムナビゲーション（5タブ） */}
+      <div className="fixed bottom-0 left-0 right-0 px-3 pb-4 pt-2" style={{background:"linear-gradient(to top,#fdf4e8 60%,transparent)"}}>
+        <div className="max-w-lg mx-auto">
+          <div className="flex rounded-2xl p-1.5 shadow-lg" style={{background:"#2c1a0e",border:"1px solid rgba(255,220,160,0.1)"}}>
+            {Object.entries(NAV_GROUPS).map(([gId, def])=>(
+              <button key={gId} onClick={()=>handleNavClick(gId)}
+                className="flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl transition-all"
+                style={activeGroup===gId
+                  ?{background:"linear-gradient(135deg,#92400e,#b45309)",color:"#fdf8f0",boxShadow:"0 2px 10px rgba(146,64,14,0.5)"}
+                  :{color:"rgba(253,248,240,0.35)"}}>
+                <Icon name={def.icon} size={20} color={activeGroup===gId?"#fdf8f0":"rgba(253,248,240,0.35)"} sw={1.5}/>
+                <span style={{fontSize:"9px",fontWeight:700}}>{def.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
