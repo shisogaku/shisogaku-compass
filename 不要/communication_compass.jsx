@@ -1,182 +1,8 @@
 import { useState, useEffect } from "react";
 import { BC, GS, NENDAI, COMPAT, COMPAT_KEY, MSG_TIPS, FEMALE_STAGES, ALL_PROFILES, CATS, SCENE_DB, STAGES, LIFE_PHASES, PLAN_DB, SCENE_CATS, MSG_CLASSIFY, classifyMsg, REACTION_DB, getReaction, TONE_OPTIONS, improveMsg, RADAR_AXES, RADAR_DATA, RADAR_DESC, LEVELUP_TIPS, AXIS_COLORS, AXIS_ICONS, LEVEL_STAGES } from "./communication_compass_data.js";
 
-// ─────────────────────────────────────────
-// Supabase 設定（supabase.com で取得した値に書き換えてください）
-// ─────────────────────────────────────────
-const SUPABASE_URL      = "https://nncwmltuwxbpwlgruvwn.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uY3dtbHR1d3hicHdsZ3J1dnduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcxMDgsImV4cCI6MjA5MTQyMzEwOH0._4tnMPtyFDmMr4gT2Ev3zQ-fSiyK34LZ6dsXCHlooMA";
-
-// Supabase クライアント（CDN から読み込み。未設定時は null）
-const _sb = (typeof window !== "undefined" && window.supabase &&
-  SUPABASE_URL !== "YOUR_SUPABASE_URL")
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true }
-    })
-  : null;
-
-// ─────────────────────────────────────────
-// Supabase データ操作ユーティリティ
-// ─────────────────────────────────────────
-const sbDb = {
-  // プロフィール一覧取得
-  async getProfiles(userId) {
-    if (!_sb || !userId) return null;
-    const { data, error } = await _sb.from("profiles").select("*").eq("user_id", userId);
-    if (error) { console.warn("[SB] getProfiles:", error.message); return null; }
-    return data.map(r => ({
-      id: r.profile_id, name: r.name, blood: r.blood, gender: r.gender,
-      age: r.age, marriage: r.marriage, divorce: r.divorce, kids: r.kids,
-      loveExp: r.love_exp, color: r.color,
-    }));
-  },
-  // myId 取得（is_me = true なプロフィールのprofile_id）
-  async getMyId(userId) {
-    if (!_sb || !userId) return null;
-    const { data } = await _sb.from("profiles").select("profile_id")
-      .eq("user_id", userId).eq("is_me", true).maybeSingle();
-    return data?.profile_id || null;
-  },
-  // プロフィール保存（upsert）
-  async saveProfile(userId, profile, isMe) {
-    if (!_sb || !userId) return;
-    const { error } = await _sb.from("profiles").upsert({
-      user_id: userId, profile_id: profile.id,
-      name: profile.name, blood: profile.blood, gender: profile.gender,
-      age: profile.age || "", marriage: profile.marriage || "",
-      divorce: profile.divorce || "", kids: profile.kids || "",
-      love_exp: profile.loveExp || "", color: profile.color || "",
-      is_me: !!isMe,
-    }, { onConflict: "user_id,profile_id" });
-    if (error) console.warn("[SB] saveProfile:", error.message);
-  },
-  // プロフィール is_me フラグ一括更新
-  async updateMyId(userId, myId, profiles) {
-    if (!_sb || !userId) return;
-    for (const p of profiles) {
-      await _sb.from("profiles").update({ is_me: p.id === myId })
-        .eq("user_id", userId).eq("profile_id", p.id);
-    }
-  },
-  // プロフィール削除
-  async deleteProfile(userId, profileId) {
-    if (!_sb || !userId) return;
-    await _sb.from("profiles").delete()
-      .eq("user_id", userId).eq("profile_id", profileId);
-  },
-  // レベルチェック取得
-  async getLevelChecks(userId, profileKey) {
-    if (!_sb || !userId) return null;
-    const { data } = await _sb.from("level_checks").select("checks")
-      .eq("user_id", userId).eq("profile_key", profileKey).maybeSingle();
-    return data?.checks || null;
-  },
-  // レベルチェック保存（upsert）
-  async saveLevelChecks(userId, profileKey, checks) {
-    if (!_sb || !userId) return;
-    await _sb.from("level_checks").upsert({
-      user_id: userId, profile_key: profileKey, checks,
-    }, { onConflict: "user_id,profile_key" }).catch(() => {});
-  },
-  // 利用ログ記録
-  async log(userId, action, metadata = {}) {
-    if (!_sb || !userId) return;
-    await _sb.from("usage_logs").insert({ user_id: userId, action, metadata }).catch(() => {});
-  },
-};
-
 
 // ===== 支礎学コンパス 完全統合版 =====
-
-// ─── ロゴアイコン ───────────────────────────
-function LogoIcon({ size = 52 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="lgBg" cx="40%" cy="35%" r="65%">
-          <stop offset="0%" stopColor="#ffe4f5"/>
-          <stop offset="100%" stopColor="#d9a8e8"/>
-        </radialGradient>
-        <linearGradient id="lgBorder" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#f9a8d4"/>
-          <stop offset="50%" stopColor="#c084fc"/>
-          <stop offset="100%" stopColor="#a78bfa"/>
-        </linearGradient>
-        <linearGradient id="lgNeedleUp" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#ff6eb4"/>
-          <stop offset="100%" stopColor="#ff9ed0"/>
-        </linearGradient>
-        <linearGradient id="lgNeedleDown" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#c4a5e8"/>
-          <stop offset="100%" stopColor="#a78bfa"/>
-        </linearGradient>
-        <filter id="lgShadow">
-          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#d8b4fe" floodOpacity="0.5"/>
-        </filter>
-        <filter id="lgGlow">
-          <feGaussianBlur stdDeviation="1.5" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      {/* 外枠 */}
-      <circle cx="60" cy="60" r="58" fill="url(#lgBorder)" filter="url(#lgShadow)"/>
-      {/* 本体 */}
-      <circle cx="60" cy="60" r="52" fill="url(#lgBg)"/>
-      {/* 薄い内リング */}
-      <circle cx="60" cy="60" r="52" fill="none" stroke="white" strokeWidth="1.5" opacity="0.4"/>
-      {/* 目盛り */}
-      <g stroke="#e9b8f0" strokeWidth="1.2" opacity="0.7">
-        <line x1="60" y1="10" x2="60" y2="18"/>
-        <line x1="60" y1="102" x2="60" y2="110"/>
-        <line x1="10" y1="60" x2="18" y2="60"/>
-        <line x1="102" y1="60" x2="110" y2="60"/>
-        <line x1="27" y1="27" x2="33" y2="33"/>
-        <line x1="93" y1="27" x2="87" y2="33"/>
-        <line x1="27" y1="93" x2="33" y2="87"/>
-        <line x1="93" y1="93" x2="87" y2="87"/>
-      </g>
-      {/* 血液型バッジ */}
-      {/* A（北） */}
-      <circle cx="60" cy="26" r="13" fill="white" opacity="0.92"/>
-      <circle cx="60" cy="26" r="13" fill="#ff6eb4" opacity="0.12"/>
-      <circle cx="60" cy="26" r="12" fill="none" stroke="#ffaad4" strokeWidth="1.5"/>
-      <text x="60" y="30.5" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#e05ba0" fontFamily="Arial,sans-serif">A</text>
-      {/* B（南） */}
-      <circle cx="60" cy="94" r="13" fill="white" opacity="0.92"/>
-      <circle cx="60" cy="94" r="13" fill="#a78bfa" opacity="0.12"/>
-      <circle cx="60" cy="94" r="12" fill="none" stroke="#c4b5fd" strokeWidth="1.5"/>
-      <text x="60" y="98.5" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#7c3aed" fontFamily="Arial,sans-serif">B</text>
-      {/* AB（東） */}
-      <circle cx="94" cy="60" r="13" fill="white" opacity="0.92"/>
-      <circle cx="94" cy="60" r="13" fill="#fb923c" opacity="0.08"/>
-      <circle cx="94" cy="60" r="12" fill="none" stroke="#fdba74" strokeWidth="1.5"/>
-      <text x="94" y="63.5" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#ea580c" fontFamily="Arial,sans-serif">AB</text>
-      {/* O（西） */}
-      <circle cx="26" cy="60" r="13" fill="white" opacity="0.92"/>
-      <circle cx="26" cy="60" r="13" fill="#34d399" opacity="0.08"/>
-      <circle cx="26" cy="60" r="12" fill="none" stroke="#6ee7b7" strokeWidth="1.5"/>
-      <text x="26" y="63.5" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#059669" fontFamily="Arial,sans-serif">O</text>
-      {/* コンパス針（上） */}
-      <g filter="url(#lgGlow)">
-        <polygon points="60,38 63.5,58 60,60 56.5,58" fill="url(#lgNeedleUp)"/>
-        {/* ハートチップ */}
-        <path d="M60,32 C60,32 54,26 51,29 C48,32 52,37 60,42 C68,37 72,32 69,29 C66,26 60,32 60,32Z" fill="#ff6eb4"/>
-        <path d="M60,32 C60,32 54,26 51,29 C48,32 52,37 60,42 C68,37 72,32 69,29 C66,26 60,32 60,32Z" fill="white" opacity="0.2"/>
-      </g>
-      {/* コンパス針（下） */}
-      <polygon points="60,82 63.5,62 60,60 56.5,62" fill="url(#lgNeedleDown)"/>
-      {/* 中心ボタン */}
-      <circle cx="60" cy="60" r="8" fill="white" opacity="0.9"/>
-      <circle cx="60" cy="60" r="6" fill="#f9a8d4"/>
-      <circle cx="60" cy="60" r="4" fill="white"/>
-      <circle cx="60" cy="60" r="2.5" fill="#c084fc"/>
-      <circle cx="58.5" cy="58.5" r="1" fill="white" opacity="0.6"/>
-      {/* キラキラ */}
-      <polygon points="43,43 44.3,47 48,48 44.3,49 43,53 41.7,49 38,48 41.7,47" fill="white" opacity="0.7"/>
-      <circle cx="78" cy="44" r="1.5" fill="white" opacity="0.6"/>
-    </svg>
-  );
-}
 // 全25回PDF + 全会話データ統合
 // XY軸: X=攻撃性(左-)↔消極性(右+) / Y=自己主張性(下-)↔社会従属性(上+)
 
@@ -232,10 +58,11 @@ function CompatView({ profiles = [], myId = null }) {
   return (
     <div className="space-y-4">
       {/* モード切替 */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
-        {[["pair","👥 ペア相性"],["group","🔷 グループ分析"]].map(([m,l])=>(
+      <div className="flex gap-1 rounded-xl p-1" style={{background:"#f1f0f8"}}>
+        {[["pair","ペア相性"],["group","グループ分析"]].map(([m,l])=>(
           <button key={m} onClick={()=>{setCompatMode(m);setGroupFocus(null);}}
-            className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${compatMode===m?"bg-white shadow text-indigo-600":"text-gray-500"}`}>{l}</button>
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all`}
+            style={compatMode===m?{background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",boxShadow:"0 2px 8px rgba(124,58,237,0.35)"}:{color:"#6b7280"}}>{l}</button>
         ))}
       </div>
 
@@ -245,10 +72,13 @@ function CompatView({ profiles = [], myId = null }) {
         <div>
           <div className="text-xs text-gray-500 mb-1 font-bold">血液型ベース相性マップ（タップで詳細）</div>
           <div className="grid grid-cols-5 gap-0.5 text-xs">
-            <div/>
-            {bloods.map(b=><div key={b} className="text-center font-bold py-1" style={{color:BC[b].color}}>{b}</div>)}
+            <div className="flex flex-col items-center justify-end pb-0.5 gap-0.5">
+              <div style={{fontSize:"8px",fontWeight:700,color:"#2563eb",background:"#dbeafe",borderRadius:"4px",padding:"1px 4px"}}>→男</div>
+              <div style={{fontSize:"8px",fontWeight:700,color:"#db2777",background:"#fce7f3",borderRadius:"4px",padding:"1px 4px"}}>↓女</div>
+            </div>
+            {bloods.map(b=><div key={b} className="text-center font-bold py-1 rounded" style={{color:"#1d4ed8",background:"#eff6ff"}}>{b}</div>)}
             {bloods.map(b1=>[
-              <div key={b1+"h"} className="font-bold flex items-center justify-center" style={{color:BC[b1].color}}>{b1}</div>,
+              <div key={b1+"h"} className="font-bold flex items-center justify-center rounded" style={{color:"#be185d",background:"#fdf2f8"}}>{b1}</div>,
               ...bloods.map(b2=>{
                 const k=COMPAT_KEY(b1,b2); const c=COMPAT[k];
                 return <div key={b1+b2} className="h-12 cursor-pointer rounded flex flex-col items-center justify-center text-center p-0.5"
@@ -454,7 +284,8 @@ function NendaiView() {
       <div>
         <div className="text-xs text-gray-500 font-bold mb-1">年代</div>
         <div className="flex gap-1">
-          {ages.map(a=><button key={a} onClick={()=>setSelAge(a)} className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${selAge===a?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 text-gray-600"}`}>{a}</button>)}
+          {ages.map(a=><button key={a} onClick={()=>setSelAge(a)} className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all"
+            style={selAge===a?{background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",boxShadow:"0 2px 8px rgba(124,58,237,0.3)"}:{background:"#f3f4f6",color:"#6b7280"}}>{a}</button>)}
         </div>
       </div>
       {data&&<div className="space-y-3">
@@ -986,7 +817,8 @@ function DetailView({blood,setBlood,gender,setGender}) {
       <div>
         <div className="text-xs text-gray-500 font-bold mb-1">STEP 1 — 性別</div>
         <div className="flex gap-2">
-          {genders.map(g=><button key={g.id} onClick={()=>{setGender(g.id);setBlood(null);setCategory(null);}} className={`flex-1 py-2 rounded-lg text-sm font-bold border-2 transition-all ${gender===g.id?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 bg-white text-gray-600"}`}>{g.icon} {g.label}</button>)}
+          {genders.map(g=><button key={g.id} onClick={()=>{setGender(g.id);setBlood(null);setCategory(null);}} className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all"
+            style={gender===g.id?{background:"linear-gradient(135deg,#7c3aed,#a855f7)",color:"white",boxShadow:"0 3px 12px rgba(124,58,237,0.35)"}:{background:"#f3f4f6",color:"#6b7280"}}>{g.icon} {g.label}</button>)}
         </div>
       </div>
       {/* 血液型 */}
@@ -1007,7 +839,8 @@ function DetailView({blood,setBlood,gender,setGender}) {
       {blood&&gender&&<div>
         <div className="text-xs text-gray-500 font-bold mb-1">STEP 3 — カテゴリ</div>
         <div className="grid grid-cols-5 gap-1">
-          {CATS.map(c=><button key={c.id} onClick={()=>setCategory(c.id)} className={`py-1.5 rounded-lg text-xs font-bold border-2 transition-all flex flex-col items-center gap-0.5 ${category===c.id?"border-gray-800 bg-gray-800 text-white":"border-gray-200 text-gray-600 hover:border-gray-400"}`}>
+          {CATS.map(c=><button key={c.id} onClick={()=>setCategory(c.id)} className="py-1.5 rounded-xl text-xs font-bold transition-all flex flex-col items-center gap-0.5"
+            style={category===c.id?{background:"linear-gradient(135deg,#1e1b4b,#4338ca)",color:"white",boxShadow:"0 2px 10px rgba(67,56,202,0.35)"}:{background:"#f3f4f6",color:"#6b7280"}}>
             <span>{c.icon}</span><span>{c.id}</span>
           </button>)}
         </div>
@@ -2040,7 +1873,7 @@ function SimulateView({ profiles, myId }) {
 // レベルアップ ノウハウ（弱点軸ごとの改善メソッド）
 // ─────────────────────────────────────────
 
-function LevelUpSection({ blood, gender, onChecksChange }) {
+function LevelUpSection({ blood, gender }) {
   const profileKey = `${blood}${gender === "female" ? "女性" : "男性"}`;
   const storageKey = `shisogaku_levelup_${profileKey}`;
 
@@ -2051,16 +1884,7 @@ function LevelUpSection({ blood, gender, onChecksChange }) {
 
   useEffect(() => {
     try { localStorage.setItem(storageKey, JSON.stringify(checks)); } catch {}
-    if (onChecksChange) onChecksChange(checks);
   }, [checks, storageKey]);
-
-  // 初回マウント時にも親へ通知
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(storageKey)) || {};
-      if (onChecksChange) onChecksChange(saved);
-    } catch {}
-  }, [storageKey]);
 
   const radarData = RADAR_DATA[profileKey];
   const tipData   = LEVELUP_TIPS[profileKey];
@@ -2311,10 +2135,9 @@ function LevelUpSection({ blood, gender, onChecksChange }) {
   );
 }
 
-function RadarChart({ blood, gender, color, overrideData }) {
+function RadarChart({ blood, gender, color }) {
   const key = `${blood}${gender === "female" ? "女性" : "男性"}`;
-  const baseData = RADAR_DATA[key];
-  const data = overrideData || baseData;
+  const data = RADAR_DATA[key];
   if (!data) return null;
 
   const W = 210, H = 190, CX = W / 2, CY = H / 2 + 6, R = 68;
@@ -2670,7 +2493,7 @@ function SelfForm({ blood, setBl, gender, setGe, name, setNa, age, setAg,
   );
 }
 
-function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin }) {
+function TorokuView({ profiles, setProfiles, myId, setMyId }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [blood, setBlood] = useState(null);
@@ -2680,45 +2503,8 @@ function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin }) {
   const [kids, setKids] = useState("");
   const [loveExp, setLoveExp] = useState("");
   const [divorce, setDivorce] = useState("");
-  const [levelChecks, setLevelChecks] = useState({});
 
   const me = profiles.find(p => p.id === myId);
-
-  // ── Supabase からレベルチェックを初期ロード ──
-  useEffect(() => {
-    if (!user || !me) return;
-    const pk = `${me.blood}${me.gender === "female" ? "女性" : "男性"}`;
-    sbDb.getLevelChecks(user.id, pk).then(sbChecks => {
-      if (sbChecks && Object.keys(sbChecks).length > 0) {
-        setLevelChecks(sbChecks);
-        // localStorageも更新
-        localStorage.setItem(`shisogaku_levelup_${pk}`, JSON.stringify(sbChecks));
-      }
-    });
-  }, [user?.id, me?.blood, me?.gender]);
-
-  // ── レベルチェック変化時に Supabase へ同期 ──
-  useEffect(() => {
-    if (!user || !me || Object.keys(levelChecks).length === 0) return;
-    const pk = `${me.blood}${me.gender === "female" ? "女性" : "男性"}`;
-    sbDb.saveLevelChecks(user.id, pk, levelChecks);
-  }, [levelChecks, user?.id]);
-
-  // チェック状態からレーダーチャートの有効データを計算
-  const effectiveRadarData = me ? (() => {
-    const pk = `${me.blood}${me.gender === "female" ? "女性" : "男性"}`;
-    const tipData = LEVELUP_TIPS[pk];
-    const baseData = RADAR_DATA[pk];
-    if (!baseData) return null;
-    return Object.fromEntries(
-      RADAR_AXES.map(ax => {
-        const v = baseData[ax];
-        const steps = tipData?.[ax]?.steps || [];
-        const done = steps.filter((_, si) => levelChecks[`${ax}_${si}`]).length;
-        return [ax, Math.min(v + done * 5, 95)];
-      })
-    );
-  })() : null;
 
   const startEdit = () => {
     if (me) {
@@ -2740,11 +2526,6 @@ function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin }) {
       setProfiles(prev => [...prev, newP]);
       setMyId(newP.id);
     }
-    // Supabase 同期
-    if (user) {
-      sbDb.saveProfile(user.id, newP, true);
-      sbDb.log(user.id, "save_profile", { blood: newP.blood, gender: newP.gender });
-    }
     setEditing(false);
   };
 
@@ -2756,35 +2537,13 @@ function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin }) {
       <div className="text-xs text-gray-500 text-center">まず自分の血液型・性別を登録してください</div>
 
       {!me && !editing && (
-        !user ? (
-          /* ── 未ログイン：Googleログインを促す ── */
-          <div className="text-center py-10 space-y-4">
-            <div className="text-5xl">🔐</div>
-            <div className="text-base font-bold text-gray-700">プロフィール登録にはログインが必要です</div>
-            <div className="text-xs text-gray-500">Googleアカウントで簡単にログインできます</div>
-            <button
-              onClick={onLogin}
-              className="flex items-center gap-2 mx-auto px-6 py-3 rounded-xl bg-white border-2 border-indigo-300 shadow text-sm font-bold text-indigo-700 hover:bg-indigo-50 transition-all">
-              <svg width="18" height="18" viewBox="0 0 48 48">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-              </svg>
-              Googleでログイン・登録
-            </button>
-            <div className="text-xs text-gray-400 pt-1">登録後、複数端末でデータが同期されます</div>
-          </div>
-        ) : (
-          /* ── ログイン済み：通常の登録ボタン ── */
-          <div className="text-center py-8 space-y-3">
-            <div className="text-4xl">👤</div>
-            <div className="text-sm text-gray-500">まだ登録されていません</div>
-            <button onClick={startEdit} className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700">
-              ＋ 自分を登録する
-            </button>
-          </div>
-        )
+        <div className="text-center py-8 space-y-3">
+          <div className="text-4xl">👤</div>
+          <div className="text-sm text-gray-500">まだ登録されていません</div>
+          <button onClick={startEdit} className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700">
+            ＋ 自分を登録する
+          </button>
+        </div>
       )}
 
       {editing && (
@@ -2832,10 +2591,10 @@ function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin }) {
             {/* レーダーチャート */}
             <div className="border-t border-indigo-200 pt-3">
               <div className="text-xs font-bold text-indigo-600 text-center mb-1">📊 強み・弱み分析</div>
-              <RadarChart blood={me.blood} gender={me.gender} color={me.color} overrideData={effectiveRadarData} />
+              <RadarChart blood={me.blood} gender={me.gender} color={me.color} />
             </div>
             {/* レベルアップ */}
-            <LevelUpSection blood={me.blood} gender={me.gender} onChecksChange={setLevelChecks} />
+            <LevelUpSection blood={me.blood} gender={me.gender} />
             {/* カード出力 */}
             <div className="border-t border-indigo-200 pt-3">
               <button onClick={()=>{
@@ -3411,157 +3170,203 @@ function MsgConverter({ tips, targetLabel }) {
 }
 
 // ─────────────────────────────────────────
+// シンプル・フェミニン SVG アイコン
+// ─────────────────────────────────────────
+function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
+  const P = (d, op) => <path strokeLinecap="round" strokeLinejoin="round" d={d} opacity={op||1}/>;
+  const C = (cx,cy,r,f) => <circle cx={cx} cy={cy} r={r} fill={f||"none"}/>;
+  const icons = {
+    // ── ナビアイコン ──
+    compass:  <>{C(12,12,9)}{P("M14.5 9.5l-5 2.5 2.5 2.5 2.5-5z")}</>,
+    home:     <>{P("M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z")}{P("M9 21V13h6v8")}</>,
+    user:     <>{C(12,8,4)}{P("M4 20a8 8 0 0116 0")}</>,
+    heart:    <>{P("M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z")}</>,
+    sparkle:  <>{P("M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z")}{P("M18 9.75l-.26-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259A3.375 3.375 0 0017.74 3.3L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456L18 9.75z", .7)}</>,
+    book:     <>{P("M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25")}</>,
+    // ── フィーチャーカードアイコン ──
+    people:   <>{C(9,7,4)}{P("M3 21v-1a6 6 0 016-6h4a6 6 0 016 6v1", .65)}{P("M16 3.13a4 4 0 010 7.75", .45)}</>,
+    matrix:   <>{P("M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18")}</>,
+    journey:  <>{P("M3 17c2-5 4-2 6-4s4-8 6-6 4 6 6 2")}{C(3,17,1.5,color)}{C(9,13,1.5,color)}{C(15,7,1.5,color)}{C(21,9,1.5,color)}</>,
+    chat:     <>{P("M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z")}{P("M8 10h8M8 13h5", .45)}</>,
+    envelope: <>{P("M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z")}{P("M22 6l-10 7L2 6")}</>,
+    scroll:   <>{P("M4 19.5A2.5 2.5 0 016.5 17H20")}{P("M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z")}{P("M8 7h8M8 11h6", .45)}</>,
+    calender: <>{P("M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z")}{P("M16 1v4M8 1v4M3 9h18")}{P("M8 13h2M12 13h2M8 17h2", .55)}</>,
+  };
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+      {icons[name] || null}
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────
+// ホームダッシュボード
+// ─────────────────────────────────────────
+function HomeView({ profiles, myId, onNavigate }) {
+  const me = profiles.find(p => p.id === myId);
+  const featureGroups = [
+    { group:"関係を知る", items:[
+      {id:"pair",   icon:"people",   title:"ペア分析",       desc:"2人の相性・接し方・心理を詳しく分析", color:"#9333ea"},
+      {id:"compat", icon:"matrix",   title:"相性マトリクス", desc:"血液型×性別の全組み合わせを一覧比較", color:"#db2777"},
+      {id:"life",   icon:"journey",  title:"ライフステージ", desc:"出会いから幸せな終わりまでのロードマップ", color:"#b45309"},
+    ]},
+    { group:"ツールを使う", items:[
+      {id:"scene",    icon:"chat",     title:"シーン別ガイド",         desc:"デート・喧嘩・仕事…場面ごとの対処法", color:"#059669"},
+      {id:"simulate", icon:"envelope", title:"メッセージシミュレーター", desc:"送る前に相手の反応を予測できる",     color:"#4f46e5"},
+    ]},
+    { group:"深く学ぶ", items:[
+      {id:"power", icon:"sparkle",  title:"支礎学の知識",   desc:"XYマップ・4者の力関係・深層理論",          color:"#7c3aed"},
+      {id:"plan",  icon:"calender", title:"人生プランガイド", desc:"住宅・保険・転職を血液型の傾向で読み解く", color:"#0284c7"},
+    ]},
+  ];
+  return (
+    <div className="space-y-5">
+      {/* プロフィールサマリー or 登録誘導 */}
+      {me ? (
+        <div className="flex items-center gap-3 p-3 rounded-2xl" style={{background:"linear-gradient(135deg,#fdf0e0,#fae8d0)",border:"1px solid rgba(180,130,70,0.2)"}}>
+          <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold shadow" style={{background:BC[me.blood].color}}>{me.blood}</div>
+          <div className="flex-1">
+            <div className="font-bold text-sm" style={{color:"#2c1a0e"}}>{me.name}</div>
+            <div className="text-xs" style={{color:"rgba(80,50,20,0.6)"}}>{me.blood}型 {me.gender==="female"?"女性":"男性"}{me.age?` ・${me.age}`:""}</div>
+          </div>
+          <button onClick={()=>onNavigate("toroku")} className="text-xs px-3 py-1 rounded-lg font-bold" style={{color:"#92400e",background:"rgba(146,64,14,0.1)"}}>編集</button>
+        </div>
+      ) : (
+        <div className="text-center p-5 rounded-2xl" style={{background:"linear-gradient(135deg,#fdf4e8,#f5e9d4)"}}>
+          <div className="text-4xl mb-2">🧭</div>
+          <div className="text-sm font-bold mb-1" style={{color:"#2c1a0e"}}>まずはプロフィールを登録</div>
+          <div className="text-xs mb-3" style={{color:"rgba(80,50,20,0.55)"}}>血液型と性別を設定すると全機能が使えます</div>
+          <button onClick={()=>onNavigate("toroku")} className="px-6 py-2.5 rounded-xl text-sm font-bold shadow-md"
+            style={{background:"linear-gradient(135deg,#92400e,#b45309)",color:"#fdf8f0",boxShadow:"0 4px 14px rgba(146,64,14,0.35)"}}>登録する</button>
+        </div>
+      )}
+
+      {/* 機能カード */}
+      {featureGroups.map(g=>(
+        <div key={g.group}>
+          <div className="text-xs font-bold tracking-wider mb-2" style={{color:"rgba(80,50,20,0.4)"}}>{g.group}</div>
+          <div className="space-y-2">
+            {g.items.map(item=>(
+              <button key={item.id} onClick={()=>onNavigate(item.id)}
+                className="w-full flex items-center gap-3 p-3 rounded-2xl text-left transition-all active:scale-[0.98]"
+                style={{background:"#fdf8f2",border:"1px solid rgba(180,130,70,0.15)"}}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{background:item.color+"14"}}>
+                  <Icon name={item.icon} size={20} color={item.color} sw={1.5}/>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold" style={{color:"#2c1a0e"}}>{item.title}</div>
+                  <div className="text-xs leading-snug" style={{color:"rgba(80,50,20,0.55)"}}>{item.desc}</div>
+                </div>
+                <div className="text-lg flex-shrink-0" style={{color:"rgba(180,130,70,0.5)"}}>›</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* 登録人数サマリー */}
+      {profiles.length > 0 && (
+        <div className="flex items-center gap-2 p-3 rounded-xl" style={{background:"#fdf4e8",border:"1px solid rgba(180,130,70,0.15)"}}>
+          <div className="flex -space-x-2">
+            {profiles.slice(0,5).map(p=>(
+              <div key={p.id} className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white"
+                style={{background:BC[p.blood].color}}>{p.blood}</div>
+            ))}
+          </div>
+          <div className="text-xs" style={{color:"rgba(80,50,20,0.55)"}}>{profiles.length}人のプロフィールを登録済み</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
 // メイン
 // ─────────────────────────────────────────
+
+// ナビグループ定義
+const NAV_GROUPS = {
+  home:     { views:["home"],                 label:"ホーム", icon:"home"    },
+  my:       { views:["toroku"],               label:"マイ",   icon:"user"    },
+  relation: { views:["pair","compat","life"], label:"関係",   icon:"heart"   },
+  tools:    { views:["scene","simulate"],     label:"ツール", icon:"sparkle" },
+  learn:    { views:["power","plan"],         label:"学び",   icon:"book"    },
+};
+
+const SUB_LABELS = {
+  pair:"ペア分析", compat:"相性", life:"ライフ",
+  scene:"シーン別", simulate:"シミュレーター",
+  power:"知識", plan:"プラン",
+};
+
+const getNavGroup = (v) => {
+  for (const [g, def] of Object.entries(NAV_GROUPS)) {
+    if (def.views.includes(v)) return g;
+  }
+  return "home";
+};
+
 export default function CommunicationCompass() {
-  const [view,setView] = useState("toroku");
+  const [view,setView] = useState("home");
   const [blood,setBlood] = useState(null);
   const [gender,setGender] = useState(null);
-
-  // ── 認証状態 ──
-  const [user, setUser] = useState(null);       // Supabase ユーザー
-  const [authLoading, setAuthLoading] = useState(!!_sb);
-
-  // ── プロフィール（localStorage + Supabase）──
+  // 登録プロフィール（localStorage永続化）
   const [profiles, setProfiles] = useState(() => {
     try { return JSON.parse(localStorage.getItem("shisogaku_profiles")) || []; } catch { return []; }
   });
   const [myId, setMyId] = useState(() => {
     try { return localStorage.getItem("shisogaku_myId") || null; } catch { return null; }
   });
-
-  // localStorage への永続化
   useEffect(() => { try { localStorage.setItem("shisogaku_profiles", JSON.stringify(profiles)); } catch {} }, [profiles]);
   useEffect(() => { try { if (myId) localStorage.setItem("shisogaku_myId", myId); else localStorage.removeItem("shisogaku_myId"); } catch {} }, [myId]);
 
-  // ── Supabase 認証初期化 ──
-  useEffect(() => {
-    if (!_sb) return;
-    // 現在のセッションを確認
-    _sb.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-      if (session?.user) loadFromSupabase(session.user.id);
-    });
-    // 認証状態変化を監視
-    const { data: { subscription } } = _sb.auth.onAuthStateChange((_event, session) => {
-      const u = session?.user ?? null;
-      setUser(u);
-      setAuthLoading(false);
-      if (u) {
-        loadFromSupabase(u.id);
-        sbDb.log(u.id, "login", { provider: session?.user?.app_metadata?.provider });
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+  const activeGroup = getNavGroup(view);
+  const groupDef = NAV_GROUPS[activeGroup];
+  const hasSubs = groupDef && groupDef.views.length > 1;
 
-  // Supabase からデータを読み込んで上書き
-  const loadFromSupabase = async (userId) => {
-    const [sbProfiles, sbMyId] = await Promise.all([
-      sbDb.getProfiles(userId),
-      sbDb.getMyId(userId),
-    ]);
-    if (sbProfiles !== null) {
-      setProfiles(sbProfiles);
-      localStorage.setItem("shisogaku_profiles", JSON.stringify(sbProfiles));
-    }
-    if (sbMyId !== null) {
-      setMyId(sbMyId);
-      localStorage.setItem("shisogaku_myId", sbMyId);
+  const handleNavClick = (groupId) => {
+    const def = NAV_GROUPS[groupId];
+    if (groupId === activeGroup && def.views.length === 1) return;
+    // 同じグループ内なら現在のviewを維持、別グループなら先頭に
+    if (groupId !== activeGroup) {
+      setView(def.views[0]);
     }
   };
-
-  // Google ログイン
-  const handleLogin = async () => {
-    if (!_sb) return;
-    await _sb.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.href }
-    });
-  };
-
-  // ログアウト
-  const handleLogout = async () => {
-    if (!_sb) return;
-    await _sb.auth.signOut();
-    setUser(null);
-  };
-
-  // タブ切り替え時にログ記録
-  const handleViewChange = (v) => {
-    setView(v);
-    if (user) sbDb.log(user.id, "view_tab", { tab: v });
-  };
-
-  const views = [
-    {id:"toroku",label:"登録",icon:"👤"},
-    {id:"pair",label:"ペア",icon:"👥"},
-    {id:"life",label:"ライフ",icon:"💑"},
-    {id:"compat",label:"相性",icon:"💑"},
-    {id:"scene",label:"シーン",icon:"🎬"},
-    {id:"power",label:"知識",icon:"📚"},
-    {id:"simulate",label:"シミュ",icon:"🎯"},
-    {id:"plan",label:"プラン",icon:"🏦"},
-  ];
-
-  const sbConfigured = SUPABASE_URL !== "YOUR_SUPABASE_URL";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-3">
-      <div className="max-w-lg mx-auto">
+    <div className="min-h-screen" style={{background:"linear-gradient(160deg,#fdf8f0 0%,#f5e9d4 50%,#fdf4e8 100%)"}}>
+      <div className="max-w-lg mx-auto px-3 pt-5 pb-28">
         {/* ヘッダー */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2.5">
-            <LogoIcon size={52} />
-            <div>
-              <h1 className="text-2xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent leading-tight">支礎学コンパス</h1>
-              <p className="text-xs text-gray-500">全25回PDF統合 ｜ 血液型×性別 完全版</p>
+        <div className="text-center mb-5">
+          <div className="inline-flex items-center gap-2 mb-1">
+            <div className="w-9 h-9 rounded-2xl flex items-center justify-center shadow-md" style={{background:"linear-gradient(135deg,#92400e,#b45309)"}}>
+              <Icon name="compass" size={20} color="#fdf8f0" sw={1.5}/>
             </div>
+            <h1 className="text-2xl font-black tracking-tight" style={{color:"#2c1a0e"}}>支礎学コンパス</h1>
           </div>
-          {/* 認証ボタン */}
-          {sbConfigured && (
-            authLoading ? (
-              <div className="text-xs text-gray-400">読込中…</div>
-            ) : user ? (
-              <div className="flex items-center gap-1.5">
-                <div className="text-right">
-                  <div className="text-xs font-bold text-gray-700 max-w-24 truncate">
-                    {user.user_metadata?.full_name || user.email}
-                  </div>
-                  <div className="text-xs text-green-600 font-bold">☁️ 同期中</div>
-                </div>
-                {user.user_metadata?.avatar_url && (
-                  <img src={user.user_metadata.avatar_url} alt="avatar"
-                    className="w-8 h-8 rounded-full border-2 border-green-400" />
-                )}
-                <button onClick={handleLogout}
-                  className="text-xs px-2 py-1 rounded-lg bg-gray-100 text-gray-500 border border-gray-200">
-                  ログアウト
-                </button>
-              </div>
-            ) : (
-              <button onClick={handleLogin}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border-2 border-indigo-200 shadow-sm text-xs font-bold text-indigo-700 hover:bg-indigo-50 transition-all">
-                <span>🔑</span> Googleログイン
+          <p className="text-xs" style={{color:"rgba(80,50,20,0.45)"}}>全25回PDF統合 ｜ 血液型×性別 コミュニケーション完全版</p>
+        </div>
+
+        {/* サブタブ（グループ内に複数ビューがある場合） */}
+        {hasSubs && (
+          <div className="flex gap-1 mb-3 rounded-xl p-1" style={{background:"rgba(180,130,70,0.13)"}}>
+            {groupDef.views.map(v=>(
+              <button key={v} onClick={()=>setView(v)}
+                className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all"
+                style={view===v
+                  ?{background:"#ffffff",color:"#92400e",boxShadow:"0 2px 8px rgba(100,60,10,0.15)"}
+                  :{color:"rgba(80,50,20,0.5)"}}>
+                {SUB_LABELS[v]}
               </button>
-            )
-          )}
-        </div>
-        {/* タブ（2段） */}
-        <div className="grid grid-cols-4 gap-0.5 mb-1 bg-white rounded-xl p-1 shadow-sm">
-          {views.slice(0,4).map(v=><button key={v.id} onClick={()=>handleViewChange(v.id)} className={`py-1.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${view===v.id?"bg-indigo-600 text-white shadow":"text-gray-500 hover:bg-gray-100"}`}>
-            <span>{v.icon}</span><span style={{fontSize:"9px"}}>{v.label}</span>
-          </button>)}
-        </div>
-        <div className="grid grid-cols-4 gap-0.5 mb-3 bg-white rounded-xl p-1 shadow-sm">
-          {views.slice(4).map(v=><button key={v.id} onClick={()=>handleViewChange(v.id)} className={`py-1.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${view===v.id?"bg-indigo-600 text-white shadow":"text-gray-500 hover:bg-gray-100"}`}>
-            <span>{v.icon}</span><span style={{fontSize:"9px"}}>{v.label}</span>
-          </button>)}
-        </div>
+            ))}
+          </div>
+        )}
+
         {/* カード */}
-        <div className="bg-white rounded-2xl shadow-md p-4">
-          {view==="toroku"&&<TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user} onLogin={handleLogin}/>}
+        <div className="rounded-3xl p-4 shadow-lg" style={{background:"#ffffff",border:"1px solid rgba(180,130,70,0.15)"}}>
+          {view==="home"&&<HomeView profiles={profiles} myId={myId} onNavigate={setView}/>}
+          {view==="toroku"&&<TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId}/>}
           {view==="pair"&&<PairView profiles={profiles} setProfiles={setProfiles} myId={myId}/>}
           {view==="life"&&<LifeView/>}
           {view==="compat"&&<CompatView profiles={profiles} myId={myId}/>}
@@ -3570,9 +3375,27 @@ export default function CommunicationCompass() {
           {view==="simulate"&&<SimulateView profiles={profiles} myId={myId}/>}
           {view==="plan"&&<PlanView/>}
         </div>
-        <div className="text-center text-xs text-gray-400 mt-3">
+
+        <div className="text-center text-xs mt-4" style={{color:"rgba(80,50,20,0.3)"}}>
           支礎学システム ｜ 第1〜25回 + 全会話データ統合版
-          {user && <span className="text-green-500 ml-2">☁️ Supabase 同期中</span>}
+        </div>
+      </div>
+
+      {/* ボトムナビゲーション（5タブ） */}
+      <div className="fixed bottom-0 left-0 right-0 px-3 pb-4 pt-2" style={{background:"linear-gradient(to top,#fdf4e8 60%,transparent)"}}>
+        <div className="max-w-lg mx-auto">
+          <div className="flex rounded-2xl p-1.5 shadow-lg" style={{background:"#2c1a0e",border:"1px solid rgba(255,220,160,0.1)"}}>
+            {Object.entries(NAV_GROUPS).map(([gId, def])=>(
+              <button key={gId} onClick={()=>handleNavClick(gId)}
+                className="flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl transition-all"
+                style={activeGroup===gId
+                  ?{background:"linear-gradient(135deg,#92400e,#b45309)",color:"#fdf8f0",boxShadow:"0 2px 10px rgba(146,64,14,0.5)"}
+                  :{color:"rgba(253,248,240,0.35)"}}>
+                <Icon name={def.icon} size={20} color={activeGroup===gId?"#fdf8f0":"rgba(253,248,240,0.35)"} sw={1.5}/>
+                <span style={{fontSize:"9px",fontWeight:700}}>{def.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
