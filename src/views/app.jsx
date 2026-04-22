@@ -84,6 +84,133 @@ export function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
 // 検索インデックス構築
 // ─────────────────────────────────────────
 // ─────────────────────────────────────────
+// 初回起動オンボーディング（3ステップ）
+// ─────────────────────────────────────────
+export function WelcomeModal({ onClose }) {
+  const [step, setStep] = useState(0);
+  const steps = [
+    {
+      title: '支礎学コンパスへようこそ',
+      body: (
+        <>
+          <p className="text-gray-600 leading-relaxed">
+            <span className="font-bold text-gray-800">血液型コミュニケーション</span>の視点で、
+            自分と周りの人との関わりかたを見つけるツールです。
+          </p>
+          <p className="text-gray-500 text-sm leading-relaxed mt-3">
+            プロフィールを登録すると、相性・シーン別会話のヒント・長期プランまで、
+            あなたと相手に合わせた提案が見られるようになります。
+          </p>
+          <p className="text-xs text-gray-400 mt-4 leading-relaxed">
+            ※ 血液型による性格論は娯楽目的の参考としてお楽しみください。
+          </p>
+        </>
+      ),
+    },
+    {
+      title: 'まず「自分」を登録',
+      body: (
+        <>
+          <div className="flex justify-center gap-2 mb-4">
+            {['O','A','B','AB'].map(b => (
+              <div key={b}
+                className="w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-sm shadow"
+                style={{backgroundColor:BC[b].color}}>{b}</div>
+            ))}
+          </div>
+          <p className="text-gray-600 leading-relaxed">
+            左のメニュー <span className="font-bold text-amber-700">「自分」</span> から、
+            あなたの名前と血液型を登録してください。
+          </p>
+          <p className="text-gray-500 text-sm leading-relaxed mt-3">
+            入力は端末とSupabaseに保存されます。ログインすれば別端末からも同じデータが使えます。
+          </p>
+        </>
+      ),
+    },
+    {
+      title: '「相手」を登録して相性チェック',
+      body: (
+        <>
+          <p className="text-gray-600 leading-relaxed">
+            続けて <span className="font-bold text-amber-700">「相手」</span> タブから、
+            気になる人（家族・同僚・パートナーなど）を登録。
+          </p>
+          <p className="text-gray-500 text-sm leading-relaxed mt-3">
+            自分と相手が揃うと、 <span className="font-bold">相性</span>・<span className="font-bold">シーン別の伝え方</span>・
+            <span className="font-bold">プラン</span>タブでぐっと情報が増えます。
+          </p>
+          <p className="text-gray-500 text-sm leading-relaxed mt-3">
+            上部の検索バーでキーワード検索もできます（「O型 仕事」「恋愛 A」など）。
+          </p>
+        </>
+      ),
+    },
+  ];
+
+  const isLast = step === steps.length - 1;
+  const cur = steps[step];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{background:'rgba(0,0,0,0.45)', backdropFilter:'blur(4px)'}}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        style={{border:'1px solid rgba(180,130,70,0.18)'}}>
+
+        {/* ヘッダー */}
+        <div className="px-6 pt-6 pb-3 flex items-start gap-3">
+          <LogoIcon size={40}/>
+          <div className="flex-1">
+            <div className="text-lg font-bold text-gray-800 leading-tight">{cur.title}</div>
+            <div className="text-xs text-gray-400 mt-0.5">ステップ {step+1} / {steps.length}</div>
+          </div>
+          <button onClick={onClose} aria-label="閉じる"
+            className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1">×</button>
+        </div>
+
+        {/* 進捗バー */}
+        <div className="px-6 pb-4">
+          <div className="flex gap-1.5">
+            {steps.map((_, i) => (
+              <div key={i} className="flex-1 h-1 rounded-full transition-colors"
+                style={{background: i <= step
+                  ? 'linear-gradient(90deg,#f472b6,#a78bfa)'
+                  : '#f3e8ff'}} />
+            ))}
+          </div>
+        </div>
+
+        {/* 本文 */}
+        <div className="px-6 pb-5 min-h-[180px]">
+          {cur.body}
+        </div>
+
+        {/* フッター */}
+        <div className="px-6 py-4 bg-gray-50 flex items-center justify-between">
+          <button onClick={onClose}
+            className="text-sm text-gray-500 hover:text-gray-700 font-medium px-2 py-2">
+            スキップ
+          </button>
+          <div className="flex items-center gap-2">
+            {step > 0 && (
+              <button onClick={() => setStep(step-1)}
+                className="text-sm text-gray-600 hover:bg-gray-100 font-medium px-4 py-2 rounded-lg">
+                戻る
+              </button>
+            )}
+            <button onClick={() => isLast ? onClose() : setStep(step+1)}
+              className="text-sm font-bold text-white px-5 py-2 rounded-lg shadow transition-all"
+              style={{background:'linear-gradient(135deg,#f472b6,#a78bfa)'}}>
+              {isLast ? 'はじめる' : '次へ'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
 // 検索用テキスト正規化
 //  - 大文字↔小文字、全角↔半角、カタカナ↔ひらがな、血液型の表記ゆれを吸収
 // ─────────────────────────────────────────
@@ -255,6 +382,15 @@ export function CommunicationCompass() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
+  // ── 初回起動時のオンボーディング表示 ──
+  const [showWelcome, setShowWelcome] = useState(() => {
+    try { return !localStorage.getItem('sg_onboarded'); } catch { return false; }
+  });
+  const closeWelcome = () => {
+    try { localStorage.setItem('sg_onboarded', '1'); } catch {}
+    setShowWelcome(false);
+  };
+
   // 検索インデックス（初回のみ構築、正規化テキストもキャッシュ）
   const searchIndexRef = React.useRef(null);
   const getIndex = () => {
@@ -411,6 +547,9 @@ export function CommunicationCompass() {
   // ── レンダー ──
   return (
     <div className="flex h-screen overflow-hidden" style={{background:'#fdf9f3'}}>
+
+      {/* ── 初回オンボーディング ── */}
+      {showWelcome && <WelcomeModal onClose={closeWelcome} />}
 
       {/* ── サイドバー（デスクトップ固定 / モバイルオーバーレイ）── */}
       {sidebarOpen && (
