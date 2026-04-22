@@ -83,6 +83,32 @@ export function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
 // ─────────────────────────────────────────
 // 検索インデックス構築
 // ─────────────────────────────────────────
+// ─────────────────────────────────────────
+// 検索用テキスト正規化
+//  - 大文字↔小文字、全角↔半角、カタカナ↔ひらがな、血液型の表記ゆれを吸収
+// ─────────────────────────────────────────
+function normalizeForSearch(s) {
+  if (!s) return '';
+  let t = String(s);
+  // 全角英数 → 半角
+  t = t.replace(/[！-～]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
+  // 大文字 → 小文字（ただし日本語には影響なし）
+  t = t.toLowerCase();
+  // カタカナ → ひらがな（濁点付きもまとめて）
+  t = t.replace(/[\u30A1-\u30F6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+  // 血液型の表記ゆれ → 統一形（長音 ー を含むパターンを先に処理）
+  //   これにより「おがた」などの名前を O型 と誤解釈しない
+  t = t.replace(/えーびー型/g, 'ab型');
+  t = t.replace(/おー型/g, 'o型');
+  t = t.replace(/えー型/g, 'a型');
+  t = t.replace(/びー型/g, 'b型');
+  // 残った長音 ー を削除（例：「バランス」→「ばらんす」）
+  t = t.replace(/ー/g, '');
+  // 空白正規化
+  t = t.replace(/\s+/g, ' ').trim();
+  return t;
+}
+
 function buildSearchIndex() {
   const entries = [];
 
@@ -229,22 +255,42 @@ export function CommunicationCompass() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
-  // 検索インデックス（初回のみ構築）
+  // 検索インデックス（初回のみ構築、正規化テキストもキャッシュ）
   const searchIndexRef = React.useRef(null);
   const getIndex = () => {
-    if (!searchIndexRef.current) searchIndexRef.current = buildSearchIndex();
+    if (!searchIndexRef.current) {
+      const raw = buildSearchIndex();
+      searchIndexRef.current = raw.map(e => ({
+        ...e,
+        _ntext: normalizeForSearch(e.text),
+        _nlabel: normalizeForSearch(e.label),
+      }));
+    }
     return searchIndexRef.current;
   };
 
-  // 検索実行
+  // 検索実行（正規化 + スコアリング）
   const handleSearch = (q) => {
     setSearchQuery(q);
     if (!q.trim()) { setSearchResults([]); return; }
-    const lower = q.toLowerCase();
-    const results = getIndex()
-      .filter(e => e.text.toLowerCase().includes(lower) || e.label.toLowerCase().includes(lower))
-      .slice(0, 30);
-    setSearchResults(results);
+    const nq = normalizeForSearch(q);
+    if (!nq) { setSearchResults([]); return; }
+
+    const scored = [];
+    for (const e of getIndex()) {
+      let score = 0;
+      // label 一致は強め
+      if (e._nlabel.includes(nq)) score += 3;
+      // text の前方一致は真ん中、部分一致は最小
+      const ti = e._ntext.indexOf(nq);
+      if (ti === 0) score += 2;
+      else if (ti > 0) score += 1;
+      // 単語境界的な一致（前後が日本語/英数以外）をさらに加点
+      if (ti > 0 && /[\s、。・（）「」]/.test(e._ntext[ti-1])) score += 1;
+      if (score > 0) scored.push({ ...e, _score: score });
+    }
+    scored.sort((a, b) => b._score - a._score);
+    setSearchResults(scored.slice(0, 30));
   };
 
   // ── 認証状態 ──
