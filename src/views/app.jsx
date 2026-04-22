@@ -1,12 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BC, PLAN_DB, SCENE_DB } from '../data.js';
 import { _sb, sbDb, SUPABASE_URL } from '../lib/supabase.js';
+
+// 初期表示ビューは eager（ファーストペイントで Suspense 待ちにならないよう）
 import { TorokuView } from './profile.jsx';
 import { PairView } from './pair.jsx';
+// life.jsx は profile / pair から共通コンポーネント（RadarChart など）が
+// 静的に import されているため、ここでも eager のまま読み込む
 import { LifeView } from './life.jsx';
-import { CompatView, SceneView, SimulateView } from './social.jsx';
-import { PowerView } from './knowledge.jsx';
-import { AIView, PlanView } from './plan.jsx';
+
+// それ以外は必要時にロードして初期バンドルを軽くする
+const CompatView   = lazy(() => import('./social.jsx').then(m => ({ default: m.CompatView })));
+const SceneView    = lazy(() => import('./social.jsx').then(m => ({ default: m.SceneView })));
+const SimulateView = lazy(() => import('./social.jsx').then(m => ({ default: m.SimulateView })));
+const PowerView    = lazy(() => import('./knowledge.jsx').then(m => ({ default: m.PowerView })));
+const AIView       = lazy(() => import('./plan.jsx').then(m => ({ default: m.AIView })));
+const PlanView     = lazy(() => import('./plan.jsx').then(m => ({ default: m.PlanView })));
+
+// 遅延ロード中のフォールバック
+function ViewLoading() {
+  return (
+    <div className="flex items-center justify-center py-16" role="status" aria-live="polite">
+      <div className="flex items-center gap-3 text-sm text-amber-800">
+        <span className="inline-block w-4 h-4 border-2 border-amber-300 border-t-amber-700 rounded-full animate-spin" aria-hidden="true"/>
+        <span>読み込み中…</span>
+      </div>
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────
 // ロゴ
@@ -777,15 +798,17 @@ export function CommunicationCompass() {
               <SearchResults results={searchResults} query={searchQuery} onTabJump={(tab) => { handleSearch(''); handleViewChange(tab); }} />
             ) : (
               <div className="bg-white rounded-2xl p-5" style={{boxShadow:'0 1px 12px rgba(180,130,70,0.1)',border:'1px solid rgba(180,130,70,0.15)'}}>
-                {view==="toroku"    && <TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user} onLogin={handleLogin}/>}
-                {view==="pair"      && <PairView profiles={profiles} setProfiles={setProfiles} myId={myId}/>}
-                {view==="life"      && <LifeView/>}
-                {view==="compat"    && <CompatView profiles={profiles} myId={myId}/>}
-                {view==="scene"     && <SceneView profiles={profiles} myId={myId}/>}
-                {view==="power"     && <PowerView profiles={profiles}/>}
-                {view==="simulate"  && <SimulateView profiles={profiles} myId={myId}/>}
-                {view==="plan"      && <PlanView/>}
-                {view==="ai"        && <AIView profiles={profiles} myId={myId} user={user}/>}
+                <Suspense fallback={<ViewLoading/>}>
+                  {view==="toroku"    && <TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user} onLogin={handleLogin}/>}
+                  {view==="pair"      && <PairView profiles={profiles} setProfiles={setProfiles} myId={myId}/>}
+                  {view==="life"      && <LifeView/>}
+                  {view==="compat"    && <CompatView profiles={profiles} myId={myId}/>}
+                  {view==="scene"     && <SceneView profiles={profiles} myId={myId}/>}
+                  {view==="power"     && <PowerView profiles={profiles}/>}
+                  {view==="simulate"  && <SimulateView profiles={profiles} myId={myId}/>}
+                  {view==="plan"      && <PlanView/>}
+                  {view==="ai"        && <AIView profiles={profiles} myId={myId} user={user}/>}
+                </Suspense>
               </div>
             )}
           </div>
