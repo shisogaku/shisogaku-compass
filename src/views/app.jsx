@@ -88,6 +88,25 @@ export function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
 // ─────────────────────────────────────────
 export function WelcomeModal({ onClose }) {
   const [step, setStep] = useState(0);
+  const titleId = 'welcome-modal-title';
+  const descId = 'welcome-modal-desc';
+  const dialogRef = React.useRef(null);
+  const closeBtnRef = React.useRef(null);
+
+  // Escape で閉じる / 表示中は body スクロール抑制 / 初期フォーカス
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    // モーダル表示時は閉じるボタンにフォーカス（明示的な離脱手段へ）
+    closeBtnRef.current?.focus();
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose]);
+
   const steps = [
     {
       title: '支礎学コンパスへようこそ',
@@ -153,24 +172,36 @@ export function WelcomeModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{background:'rgba(0,0,0,0.45)', backdropFilter:'blur(4px)'}}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+      style={{background:'rgba(0,0,0,0.45)', backdropFilter:'blur(4px)'}}
+      onClick={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descId}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
         style={{border:'1px solid rgba(180,130,70,0.18)'}}>
 
         {/* ヘッダー */}
         <div className="px-6 pt-6 pb-3 flex items-start gap-3">
-          <LogoIcon size={40}/>
+          <span aria-hidden="true" className="flex items-start"><LogoIcon size={40}/></span>
           <div className="flex-1">
-            <div className="text-lg font-bold text-gray-800 leading-tight">{cur.title}</div>
-            <div className="text-xs text-gray-400 mt-0.5">ステップ {step+1} / {steps.length}</div>
+            <h2 id={titleId} className="text-lg font-bold text-gray-800 leading-tight">{cur.title}</h2>
+            <div className="text-xs text-gray-400 mt-0.5" aria-live="polite">ステップ {step+1} / {steps.length}</div>
           </div>
-          <button onClick={onClose} aria-label="閉じる"
-            className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1">×</button>
+          <button ref={closeBtnRef} onClick={onClose} aria-label="オンボーディングを閉じる"
+            type="button"
+            className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1"><span aria-hidden="true">×</span></button>
         </div>
 
         {/* 進捗バー */}
-        <div className="px-6 pb-4">
-          <div className="flex gap-1.5">
+        <div className="px-6 pb-4"
+          role="progressbar"
+          aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={step+1}
+          aria-label="オンボーディング進捗">
+          <div className="flex gap-1.5" aria-hidden="true">
             {steps.map((_, i) => (
               <div key={i} className="flex-1 h-1 rounded-full transition-colors"
                 style={{background: i <= step
@@ -181,24 +212,27 @@ export function WelcomeModal({ onClose }) {
         </div>
 
         {/* 本文 */}
-        <div className="px-6 pb-5 min-h-[180px]">
+        <div id={descId} className="px-6 pb-5 min-h-[180px]">
           {cur.body}
         </div>
 
         {/* フッター */}
         <div className="px-6 py-4 bg-gray-50 flex items-center justify-between">
           <button onClick={onClose}
+            type="button"
             className="text-sm text-gray-500 hover:text-gray-700 font-medium px-2 py-2">
             スキップ
           </button>
           <div className="flex items-center gap-2">
             {step > 0 && (
               <button onClick={() => setStep(step-1)}
+                type="button"
                 className="text-sm text-gray-600 hover:bg-gray-100 font-medium px-4 py-2 rounded-lg">
                 戻る
               </button>
             )}
             <button onClick={() => isLast ? onClose() : setStep(step+1)}
+              type="button"
               className="text-sm font-bold text-white px-5 py-2 rounded-lg shadow transition-all"
               style={{background:'linear-gradient(135deg,#f472b6,#a78bfa)'}}>
               {isLast ? 'はじめる' : '次へ'}
@@ -548,16 +582,23 @@ export function CommunicationCompass() {
   return (
     <div className="flex h-screen overflow-hidden" style={{background:'#fdf9f3'}}>
 
+      {/* キーボードユーザー向けスキップリンク（フォーカス時のみ表示） */}
+      <a href="#main-content" className="skip-link">本文へスキップ</a>
+
       {/* ── 初回オンボーディング ── */}
       {showWelcome && <WelcomeModal onClose={closeWelcome} />}
 
       {/* ── サイドバー（デスクトップ固定 / モバイルオーバーレイ）── */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 z-20 md:hidden"
+        <button type="button"
+          className="fixed inset-0 bg-black bg-opacity-30 z-20 md:hidden"
+          aria-label="メニューを閉じる"
           onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={[
+      <aside id="primary-sidebar"
+        aria-label="メインナビゲーション"
+        className={[
         "flex flex-col z-30 transition-transform duration-300",
         "fixed md:static inset-y-0 left-0 w-56",
         sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
@@ -580,11 +621,13 @@ export function CommunicationCompass() {
 
           {sidebarItems.map(item => (
             <button key={item.id} onClick={() => handleViewChange(item.id)}
+              type="button"
+              aria-current={view === item.id ? 'page' : undefined}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
               style={view === item.id
                 ? {background:'linear-gradient(135deg,#92400e,#b45309)',color:'white',boxShadow:'0 2px 8px rgba(146,64,14,0.3)'}
                 : {color:'#5c3d1e'}}>
-              <span className="w-5 flex items-center justify-center">
+              <span aria-hidden="true" className="w-5 flex items-center justify-center">
                 <Icon name={item.icon} size={16} color={view===item.id?"white":"#92400e"} sw={1.5}/>
               </span>
               <span className="flex-1 text-left">{item.label}</span>
@@ -606,11 +649,13 @@ export function CommunicationCompass() {
 
           {mainTabs.map(tab => (
             <button key={tab.id} onClick={() => handleViewChange(tab.id)}
+              type="button"
+              aria-current={view === tab.id ? 'page' : undefined}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all"
               style={view === tab.id
                 ? {background:'rgba(146,64,14,0.09)',color:'#92400e',fontWeight:700}
                 : {color:'#7c5c3e'}}>
-              <span className="w-5 flex items-center justify-center">
+              <span aria-hidden="true" className="w-5 flex items-center justify-center">
                 <Icon name={tab.icon} size={15} color={view===tab.id?"#92400e":"#a07850"} sw={1.5}/>
               </span>
               <span>{tab.label}</span>
@@ -660,8 +705,12 @@ export function CommunicationCompass() {
         <header className="px-4 py-2.5 flex items-center gap-3 flex-shrink-0" style={{background:'#fffcf7',borderBottom:'1px solid rgba(180,130,70,0.18)'}}>
           {/* ハンバーガー（モバイルのみ） */}
           <button className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 text-gray-600"
+            type="button"
+            aria-label={sidebarOpen ? "メニューを閉じる" : "メニューを開く"}
+            aria-expanded={sidebarOpen}
+            aria-controls="primary-sidebar"
             onClick={() => setSidebarOpen(s => !s)}>
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
             </svg>
           </button>
@@ -673,10 +722,14 @@ export function CommunicationCompass() {
           </div>
 
           {/* 検索バー */}
-          <div className="flex-1 relative max-w-xl">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">🔍</span>
+          <div role="search" className="flex-1 relative max-w-xl">
+            <span aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">🔍</span>
+            <label htmlFor="global-search" className="sr-only">血液型・特徴・アドバイスの検索</label>
             <input
-              type="text"
+              id="global-search"
+              type="search"
+              inputMode="search"
+              autoComplete="off"
               value={searchQuery}
               onChange={e => handleSearch(e.target.value)}
               placeholder="血液型・特徴・アドバイスを検索…（A型 愛情、謝り方 など）"
@@ -684,8 +737,10 @@ export function CommunicationCompass() {
             />
             {searchQuery && (
               <button onClick={() => handleSearch('')}
+                type="button"
+                aria-label="検索をクリア"
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold">
-                ✕
+                <span aria-hidden="true">✕</span>
               </button>
             )}
           </div>
@@ -693,24 +748,28 @@ export function CommunicationCompass() {
 
         {/* タブバー（検索中は非表示・サイドバービュー時も非表示） */}
         {!searchQuery && !isSidebarView && (
-          <div className="px-4 flex-shrink-0" style={{background:'#fffcf7',borderBottom:'1px solid rgba(180,130,70,0.15)'}}>
+          <nav aria-label="機能タブ" className="px-4 flex-shrink-0" style={{background:'#fffcf7',borderBottom:'1px solid rgba(180,130,70,0.15)'}}>
             <div className="flex gap-1 overflow-x-auto scrollbar-hide py-2">
               {mainTabs.map(tab => (
                 <button key={tab.id} onClick={() => handleViewChange(tab.id)}
+                  type="button"
+                  aria-current={view === tab.id ? 'page' : undefined}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex-shrink-0"
                   style={view === tab.id
                     ? {background:'linear-gradient(135deg,#92400e,#b45309)',color:'white',boxShadow:'0 2px 6px rgba(146,64,14,0.25)'}
                     : {color:'#7c5c3e',background:'transparent'}}>
-                  <Icon name={tab.icon} size={13} color={view===tab.id?"white":"#92400e"} sw={1.5}/>
+                  <span aria-hidden="true" className="flex items-center">
+                    <Icon name={tab.icon} size={13} color={view===tab.id?"white":"#92400e"} sw={1.5}/>
+                  </span>
                   <span>{tab.label}</span>
                 </button>
               ))}
             </div>
-          </div>
+          </nav>
         )}
 
         {/* コンテンツエリア */}
-        <div className="flex-1 overflow-y-auto">
+        <main id="main-content" tabIndex={-1} aria-live="polite" className="flex-1 overflow-y-auto">
           <div className="max-w-2xl mx-auto p-4">
 
             {/* 検索結果 */}
@@ -730,10 +789,10 @@ export function CommunicationCompass() {
               </div>
             )}
           </div>
-        </div>
+        </main>
 
         {/* ── モバイル下部ナビ ── */}
-        <nav className="md:hidden flex items-center justify-around px-1 py-2 flex-shrink-0" style={{background:'#2c1a0e',borderTop:'1px solid rgba(255,220,160,0.08)'}}>
+        <nav aria-label="主要ナビゲーション（モバイル）" className="md:hidden flex items-center justify-around px-1 py-2 flex-shrink-0" style={{background:'#2c1a0e',borderTop:'1px solid rgba(255,220,160,0.08)'}}>
           {[
             { id:"toroku", icon:"user",   label:"自分" },
             { id:"pair",   icon:"people", label:"相手" },
@@ -742,17 +801,26 @@ export function CommunicationCompass() {
             { id:"ai",     icon:"robot",  label:"AI" },
           ].map(item => (
             <button key={item.id} onClick={() => handleViewChange(item.id)}
+              type="button"
+              aria-current={view === item.id ? 'page' : undefined}
               className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all flex-1"
               style={view===item.id
                 ?{background:'linear-gradient(135deg,#92400e,#b45309)',boxShadow:'0 2px 8px rgba(146,64,14,0.5)'}
                 :{}}>
-              <Icon name={item.icon} size={20} color={view===item.id?"#fdf8f0":"rgba(253,248,240,0.38)"} sw={1.5}/>
+              <span aria-hidden="true" className="flex items-center">
+                <Icon name={item.icon} size={20} color={view===item.id?"#fdf8f0":"rgba(253,248,240,0.38)"} sw={1.5}/>
+              </span>
               <span className="text-xs font-bold" style={{color:view===item.id?"#fdf8f0":"rgba(253,248,240,0.38)"}}>{item.label}</span>
             </button>
           ))}
           <button onClick={() => setSidebarOpen(true)}
+            type="button"
+            aria-label="メニューを開く"
+            aria-controls="primary-sidebar"
             className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl flex-1">
-            <Icon name="menu" size={20} color="rgba(253,248,240,0.38)" sw={1.5}/>
+            <span aria-hidden="true" className="flex items-center">
+              <Icon name="menu" size={20} color="rgba(253,248,240,0.38)" sw={1.5}/>
+            </span>
             <span className="text-xs font-bold" style={{color:"rgba(253,248,240,0.38)"}}>メニュー</span>
           </button>
         </nav>
