@@ -1,4 +1,8 @@
-function AIView({ profiles = [], myId = null, user = null }) {
+import { useState } from 'react';
+import { BC, COMPAT, PLAN_DB } from '../data.js';
+import { EDGE_URL } from '../lib/supabase.js';
+
+export function AIView({ profiles = [], myId = null, user = null }) {
   const bloods  = ["O","A","B","AB"];
   const genders = ["男性","女性"];
 
@@ -204,7 +208,7 @@ function AIView({ profiles = [], myId = null, user = null }) {
 // ─────────────────────────────────────────
 // 人生プランデータ（住宅・保険・転職・資産）
 // ─────────────────────────────────────────
-function PlanView() {
+export function PlanView() {
   const [selCat, setSelCat] = useState(null);
   const [selBlood, setSelBlood] = useState(null);
 

@@ -1,4 +1,7 @@
-function NendaiView() {
+import { useState } from 'react';
+import { ALL_PROFILES, BC, CATS, FEMALE_STAGES, GS, MSG_TIPS, NENDAI } from '../data.js';
+
+export function NendaiView() {
   const [selBlood, setSelBlood] = useState("O");
   const [selAge, setSelAge] = useState("20代");
   const ages = ["10代","20代","30代","40代","50代","60代","70代"];
@@ -52,7 +55,7 @@ function NendaiView() {
 // ─────────────────────────────────────────
 // メッセージ変換ビュー
 // ─────────────────────────────────────────
-function HenkanView() {
+export function HenkanView() {
   const [targetKey, setTargetKey] = useState(null);
   const [inputMsg, setInputMsg] = useState("");
   const [result, setResult] = useState("");
@@ -125,7 +128,7 @@ function HenkanView() {
 // ─────────────────────────────────────────
 // XYマップビュー
 // ─────────────────────────────────────────
-function MapView({blood,gender,setBlood,setView}) {
+export function MapView({blood,gender,setBlood,setView}) {
   const svgW=340,svgH=300,cx=170,cy=150,sc=1.15;
   const bloods=["O","A","B","AB"];
   return (
@@ -169,7 +172,7 @@ function MapView({blood,gender,setBlood,setView}) {
 // ─────────────────────────────────────────
 // 力関係ビュー
 // ─────────────────────────────────────────
-function PowerView({ profiles = [] }) {
+export function PowerView({ profiles = [] }) {
   const [timerBlood, setTimerBlood] = useState(null);
   const [timerSec, setTimerSec] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
@@ -528,7 +531,7 @@ function PowerView({ profiles = [] }) {
 // ─────────────────────────────────────────
 // 詳細ビュー
 // ─────────────────────────────────────────
-function DetailView({blood,setBlood,gender,setGender}) {
+export function DetailView({blood,setBlood,gender,setGender}) {
   const [category,setCategory] = useState(null);
   const bloods=["O","A","B","AB"];
   const genders=[{id:"female",label:"女性",icon:"👩"},{id:"male",label:"男性",icon:"👨"}];

@@ -1,7 +1,17 @@
+import React, { useState, useEffect } from 'react';
+import { BC, PLAN_DB, SCENE_DB } from '../data.js';
+import { _sb, sbDb, SUPABASE_URL } from '../lib/supabase.js';
+import { TorokuView } from './profile.jsx';
+import { PairView } from './pair.jsx';
+import { LifeView } from './life.jsx';
+import { CompatView, SceneView, SimulateView } from './social.jsx';
+import { PowerView } from './knowledge.jsx';
+import { AIView, PlanView } from './plan.jsx';
+
 // ─────────────────────────────────────────
 // ロゴ
 // ─────────────────────────────────────────
-function LogoIcon({ size = 44 }) {
+export function LogoIcon({ size = 44 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style={{flexShrink:0}}>
       <defs>
@@ -46,7 +56,7 @@ function LogoIcon({ size = 44 }) {
 // ─────────────────────────────────────────
 // シンプル SVGアイコン（フェミニン・細線）
 // ─────────────────────────────────────────
-function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
+export function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
   const P = (d, op) => <path strokeLinecap="round" strokeLinejoin="round" d={d} opacity={op||1}/>;
   const C = (cx,cy,r,f) => <circle cx={cx} cy={cy} r={r} fill={f||"none"}/>;
   const icons = {
@@ -156,7 +166,7 @@ function buildSearchIndex() {
 // ─────────────────────────────────────────
 // 検索結果コンポーネント
 // ─────────────────────────────────────────
-function SearchResults({ results, query, onTabJump }) {
+export function SearchResults({ results, query, onTabJump }) {
   if (!query.trim()) return null;
 
   const highlight = (text) => {
@@ -213,7 +223,7 @@ function SearchResults({ results, query, onTabJump }) {
 // ─────────────────────────────────────────
 // メイン
 // ─────────────────────────────────────────
-function CommunicationCompass() {
+export function CommunicationCompass() {
   const [view, setView] = useState("toroku");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -567,5 +577,5 @@ function CommunicationCompass() {
   );
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(CommunicationCompass));
+
+export default CommunicationCompass;

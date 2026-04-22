@@ -1,4 +1,7 @@
-function CompatView({ profiles = [], myId = null }) {
+import { useState } from 'react';
+import { ALL_PROFILES, BC, COMPAT, COMPAT_KEY, SCENE_CATS, SCENE_DB, TONE_OPTIONS, classifyMsg, getReaction, improveMsg } from '../data.js';
+
+export function CompatView({ profiles = [], myId = null }) {
   const [compatMode, setCompatMode] = useState("pair"); // "pair" | "group"
   const [myP, setMyP] = useState(null);
   const [tarP, setTarP] = useState(null);
@@ -229,7 +232,7 @@ function CompatView({ profiles = [], myId = null }) {
 // ─────────────────────────────────────────
 // 年代別ビュー
 // ─────────────────────────────────────────
-function SceneView({ profiles = [], myId = null }) {
+export function SceneView({ profiles = [], myId = null }) {
   const [selScene, setSelScene] = useState(null);
   const [selBlood, setSelBlood] = useState(null);
   const [selGender, setSelGender] = useState(null);
@@ -366,7 +369,7 @@ function SceneView({ profiles = [], myId = null }) {
 // ─────────────────────────────────────────
 // 反応シミュレーターメインビュー
 // ─────────────────────────────────────────
-function SimulateView({ profiles, myId }) {
+export function SimulateView({ profiles, myId }) {
   const [simTab, setSimTab] = useState("simulate");
   const [targetId, setTargetId] = useState(null);
   const [inputMsg, setInputMsg] = useState("");

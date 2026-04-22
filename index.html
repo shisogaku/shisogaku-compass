@@ -4,57 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>支礎学コンパス</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3520702239934146"
-             crossorigin="anonymous"></script>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3520702239934146"
+          crossorigin="anonymous"></script>
 </head>
 <body>
   <div id="root"></div>
-
-  <!-- データ定数 -->
-  <script src="data.js"></script>
-  <!-- Supabase設定 -->
-  <script src="supabase.js"></script>
-
-  <!-- 動的コンポーネントローダー -->
-  <script>
-    const { useState, useEffect } = React;
-
-    const VIEW_FILES = [
-      'views/knowledge.jsx',
-      'views/life.jsx',
-      'views/social.jsx',
-      'views/plan.jsx',
-      'views/profile.jsx',
-      'views/pair.jsx',
-      'views/app.jsx',
-    ];
-
-    async function loadApp() {
-      for (const file of VIEW_FILES) {
-        try {
-          const res = await fetch(file + '?v=' + Date.now());
-          if (!res.ok) throw new Error(`HTTP ${res.status}: ${file}`);
-          const code = await res.text();
-          const transpiled = Babel.transform(code, { presets: ['react'] }).code;
-          const s = document.createElement('script');
-          s.textContent = transpiled;
-          document.head.appendChild(s);
-        } catch (e) {
-          console.error('[loadApp] Failed to load', file, e);
-          document.getElementById('root').innerHTML =
-            `<div style="color:red;padding:20px">⚠️ ロード失敗: ${file}<br>${e.message}</div>`;
-          return;
-        }
-      }
-    }
-
-    window.addEventListener('load', loadApp);
-  </script>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

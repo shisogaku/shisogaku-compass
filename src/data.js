@@ -1,4 +1,4 @@
-const BC = {
+export const BC = {
   O: {
     label:"O型", color:"#E91E8C", type:"イヌタイプ",
     keywords:["面倒見が良い","頼られる","みんなの母"],
@@ -267,7 +267,7 @@ const BC = {
   },
 };
 
-const GS = {
+export const GS = {
   "O型女性":{ 対応:["「助けてほしい」と伝えると距離感が大きく縮まる（最重要）","母性本能に訴える言葉が効果的","頼られることで喜びを感じる","感謝を言葉でしっかり伝える","一緒に過ごす時間を大切にする","女性の心の動き段階：信頼→気になる→心配→ドキドキ→独占欲→本母性"], 危険:["束縛するような言葉はNG（自由を大切にする）","制限・コントロールしようとすると離れる","甘えすぎ・依存しすぎると重く感じられる","怒りが爆発したら一度距離を置くこと","誠意が伝わらないと信頼関係が崩れる"] },
   "O型男性":{ 対応:["「尊敬しています」「すごいですね」で距離が縮まる（最重要）","リーダーとして扱い、意見を立てる","相談を持ちかけると懐に入りやすい","プライドを傷つけない形での称賛が有効","チームや仲間の一員として認める言葉"], 危険:["プライドが傷つく言葉・行動はNG","弱みを公衆の面前でさらすのはNG","感情的な攻撃は蓄積して大爆発の原因になる","頼られない・必要とされないと意欲が落ちる","放置されすぎるのも嫌"] },
   "A型女性":{ 対応:["「几帳面だね」「細かいところまで気を使ってるね」と褒める","計画を立てて誘う（急な誘いはNG）","感謝をきちんと言葉にする","礼儀正しく、礼を尽くした接し方","約束・時間を厳守する"], 危険:["「助けてほしい」は響かない","急な変更・遅刻・マナー違反はNG","いい加減な態度・準備不足は致命的","感情的すぎる対応は引かれる","ミスを公に指摘されるのが最もNG"] },
@@ -278,7 +278,7 @@ const GS = {
   "AB型男性":{ 対応:["「知っている、理解してると思うけど」という前置きで響く（最重要）","論理的・理性的な対話","知的好奇心を刺激する話題","独自の世界観・視点を認める","焦らず時間をかけて信頼を築く"], 危険:["感情的な圧力・押しつけはNG","論理的でない要求は受け入れにくい","一人の時間・ペースを乱すのはNG","過度な社交・人付き合いの強制はNG"] },
 };
 
-const NENDAI = {
+export const NENDAI = {
   O: {
     "10代":{ title:"仲間志向期", traits:["仲間と一緒にいることが最優先","グループの空気に合わせる","感情的になりやすい","好き嫌いが激しい"], approach:"一緒に楽しめることを提案する。グループに受け入れてもらう姿勢が大切" },
     "20代":{ title:"リーダー期", traits:["リーダーシップが開花してくる","面倒見の良さが評価される","責任感が強まる","恋愛・仕事の両立に奮闘"], approach:"尊重しながら頼ること。信頼を積み重ねるフェーズ" },
@@ -317,7 +317,7 @@ const NENDAI = {
   },
 };
 
-const COMPAT = {
+export const COMPAT = {
   "O×O":{ stars:4, label:"安心の鏡", summary:"温かく安定した関係。同じ価値観で居心地が良い", good:["お互いに頼り合える。助け合いが自然に発生する","集団・チームとして最強タッグ","どちらも穏やかで衝突が少ない"], care:["馴れ合いになり成長が止まりやすい","どちらも爆発型のため限界時に共倒れのリスク","感情の蓄積が重なると突然崩壊することも"], tip:"日常のちょっとした変化・刺激を意識的に入れること" },
   "O×A":{ stars:3, label:"補完と支配", summary:"OがAに動かされやすい。AのルールにOが合わせる構図", good:["AのきっちりさとOの温かさが補完","仕事では役割分担がしやすい","Oがソフトランディングを担う"], care:["AがOを支配しようとする傾向（4者の力関係）","OはAの完璧主義についていくのが大変","Aの怒り言葉をOが蓄積→大爆発のリスク"], tip:"Aは完璧主義を緩めること。Oは言いたいことを溜め込まず小出しに伝えること" },
   "O×B":{ stars:2, label:"直撃と爆発", summary:"BがOを直接攻撃しやすい構図。正直でわかりやすい関係でもある", good:["BはOに正直に接する（隠し事がない）","Oの包容力がBの自由を受け止めることも","短期的な楽しさは生まれやすい"], care:["B型がO型を直接攻撃しやすい（4者の力関係）","Oが蓄積→掛け算爆発すると関係消去","Bの自由奔放さがOの秩序感を乱す"], tip:"BはOへの直接批判を控えること。OはBの言葉を真に受けすぎないこと" },
@@ -330,12 +330,12 @@ const COMPAT = {
   "AB×AB":{ stars:2, label:"孤独の共鳴", summary:"理解し合えるが、お互いに距離を置くため関係が深まりにくい", good:["お互いの一人時間・ペースを完全尊重できる","論理的な対話が成立する","価値観の衝突は少ない"], care:["4血液型中、最も関係が深まりにくい組み合わせ","二人とも距離を置くため親密さが育ちにくい","どちらも爆発型のため蓄積が重なると突然終わる"], tip:"意識的に共有体験を増やすこと。感情を溜め込まず定期的に対話する習慣を持つこと" },
 };
 
-const COMPAT_KEY = (b1,b2) => {
+export const COMPAT_KEY = (b1,b2) => {
   const o=["O","A","B","AB"]; const i=o.indexOf(b1),j=o.indexOf(b2);
   return i<=j?`${b1}×${b2}`:`${b2}×${b1}`;
 };
 
-const MSG_TIPS = {
+export const MSG_TIPS = {
   "O型女性":{
     prefix:"頼りにしているので〜", style:"頼る・感謝・一緒に", avoid:"命令・束縛・制限の言葉",
     frank:  (msg)=>`ねえ、最近どう？${msg}助けてくれると嬉しいな😊`,
@@ -394,7 +394,7 @@ const MSG_TIPS = {
   },
 };
 
-const FEMALE_STAGES = [
+export const FEMALE_STAGES = [
   { name:"友達ライン", trigger:"信用・信頼", level:1, ok:"×", desc:"信用・信頼が最低条件。なければ選手にすらなれない" },
   { name:"親友ライン", trigger:"気になる", level:2, ok:"×", desc:"相手の雰囲気・会話・態度を見て気遣いを感じるライン" },
   { name:"前母性ライン", trigger:"心配する", level:3, ok:"×", desc:"本当に心配されることで母性本能が呼び起こされる" },
@@ -403,7 +403,7 @@ const FEMALE_STAGES = [
   { name:"本母性ライン", trigger:"制約=愛情", level:10, ok:"○", desc:"この人に尽くしたい。子供と同等の価値を感じる最深部" },
 ];
 
-const ALL_PROFILES = [
+export const ALL_PROFILES = [
   { key:"O女", blood:"O", gender:"female", label:"O型女性", short:"O♀", color:"#E91E8C" },
   { key:"O男", blood:"O", gender:"male",   label:"O型男性", short:"O♂", color:"#C2185B" },
   { key:"A女", blood:"A", gender:"female", label:"A型女性", short:"A♀", color:"#3F51B5" },
@@ -414,7 +414,7 @@ const ALL_PROFILES = [
   { key:"AB男", blood:"AB", gender:"male",   label:"AB型男性", short:"AB♂", color:"#4A148C" },
 ];
 
-const SCENE_DB = {
+export const SCENE_DB = {
   誘い: {
     label: "デート・お出かけの誘い方", icon: "🗓️",
     tips: {
@@ -677,7 +677,7 @@ const SCENE_DB = {
   },
 };
 
-const STAGES = [
+export const STAGES = [
   { id:1, emoji:"🙂", label:"友達ライン", desc:"表面的な付き合い。礼儀正しく接するが本音はまだ出さない段階", next:"相手の話を親身に聞く。悩みを共有できる機会を作る。急に親密になろうとしない", avoid:"馴れ馴れしい言動・プライベートへの踏み込み・突然の誘い", color:"#94a3b8" },
   { id:2, emoji:"😊", label:"親友ライン", desc:"少し心を開いている。悩みや本音を話せる関係が形成されている", next:"困った時に助ける存在になる。「守ってあげたい」感覚を引き出す行動をする", avoid:"約束を破る・期待を裏切る行動・一貫性のない言動", color:"#60a5fa" },
   { id:3, emoji:"🌸", label:"前母性ライン", desc:"「世話を焼きたい」感覚が出始める。信頼が固まっている", next:"弱みや不完全さを少し見せる。「あなたがいると安心」という空気を作る", avoid:"完璧すぎる振る舞い・頼ることを拒む・距離を置く", color:"#fb7185" },
@@ -686,7 +686,7 @@ const STAGES = [
   { id:6, emoji:"💝", label:"本母性ライン", desc:"深い愛情と安心感。無条件に支えたいという本能が働く。関係が安定している", next:"この関係を大切に維持する。感謝と尊重を忘れない。一緒に成長し続ける", avoid:"当たり前だと思う・感謝を忘れる・変化を拒む", color:"#a855f7" },
 ];
 
-const LIFE_PHASES = [
+export const LIFE_PHASES = [
   {
     id:"meet", label:"出会い", icon:"👋", color:"#60a5fa",
     desc:"初対面〜存在を認識する段階",
@@ -843,7 +843,7 @@ const LIFE_PHASES = [
   },
 ];
 
-const PLAN_DB = {
+export const PLAN_DB = {
   house: {
     label:"住宅購入", icon:"🏠", color:"#10b981",
     subtitle:"賃貸 vs 購入・物件選び・パートナーとの決め方",
@@ -1029,7 +1029,7 @@ const PLAN_DB = {
   },
 };
 
-const SCENE_CATS = {
+export const SCENE_CATS = {
   all:    { label:"すべて", icon:"🔍", keys: null },
   love:   { label:"恋愛",   icon:"💕", keys:["片思い","恋人","NG恋人"] },
   work:   { label:"仕事",   icon:"💼", keys:["仕事社内","仕事社外","NG職場"] },
@@ -1039,7 +1039,7 @@ const SCENE_CATS = {
   special:{ label:"特殊",   icon:"✨", keys:["パトロン","キャバ嬢","ホスト"] },
 };
 
-const MSG_CLASSIFY = {
+export const MSG_CLASSIFY = {
   誘い:    ["デート","会いたい","会おう","一緒に行","遊ぼう","来ない","来てよ","どこか"],
   依頼:    ["お願い","手伝って","助けて","やってほしい","頼みたい","できる？","してほしい"],
   承認:    ["すごい","さすが","かっこいい","素敵","尊敬","頼りになる","センスいい","才能"],
@@ -1050,14 +1050,14 @@ const MSG_CLASSIFY = {
   謝罪:    ["ごめん","申し訳","すまない","悪かった","反省"],
 };
 
-const classifyMsg = (msg) => {
+export const classifyMsg = (msg) => {
   for (const [type, words] of Object.entries(MSG_CLASSIFY)) {
     if (words.some(w => msg.includes(w))) return type;
   }
   return "その他";
 };
 
-const REACTION_DB = {
+export const REACTION_DB = {
   "O型女性": {
     誘い: {
       恋人: { emoji:"😊", react:"嬉しい！一緒に過ごせることに喜びを感じる", score:85, why:"O型女性は一緒に過ごす時間＝愛情。恋人なら段階を踏んでいるので素直に喜べる", warn:null },
@@ -1158,7 +1158,7 @@ const REACTION_DB = {
   },
 };
 
-const getReaction = (targetLabel, msgType, relation) => {
+export const getReaction = (targetLabel, msgType, relation) => {
   const db = REACTION_DB[targetLabel];
   if (!db) return null;
   const typeData = db[msgType] || db["その他"];
@@ -1166,13 +1166,13 @@ const getReaction = (targetLabel, msgType, relation) => {
   return typeData[relation] || typeData["default"] || null;
 };
 
-const TONE_OPTIONS = [
+export const TONE_OPTIONS = [
   { id:"フランク", icon:"😄", label:"フランク", desc:"砕けた・親しみやすい" },
   { id:"普通",    icon:"💬", label:"普通",    desc:"ちょうど良いバランス" },
   { id:"丁寧",    icon:"🎩", label:"丁寧",    desc:"礼儀正しい・敬語" },
 ];
 
-const improveMsg = (original, targetLabel, msgType, tone = "普通") => {
+export const improveMsg = (original, targetLabel, msgType, tone = "普通") => {
   const tips = MSG_TIPS[targetLabel];
   if (!tips) return { converted: original, hint: null };
   const toneKey = tone === "フランク" ? "frank" : tone === "丁寧" ? "polite" : "normal";
@@ -1192,9 +1192,9 @@ const improveMsg = (original, targetLabel, msgType, tone = "普通") => {
   return { converted: base, hint: hint || null };
 };
 
-const RADAR_AXES = ["社交力","行動力","計画性","感情安定","協調性","独創性"];
+export const RADAR_AXES = ["社交力","行動力","計画性","感情安定","協調性","独創性"];
 
-const RADAR_DATA = {
+export const RADAR_DATA = {
   "O女性":  { 社交力:88, 行動力:62, 計画性:52, 感情安定:55, 協調性:90, 独創性:38 },
   "O男性":  { 社交力:78, 行動力:72, 計画性:50, 感情安定:60, 協調性:82, 独創性:42 },
   "A女性":  { 社交力:62, 行動力:52, 計画性:90, 感情安定:38, 協調性:85, 独創性:42 },
@@ -1205,7 +1205,7 @@ const RADAR_DATA = {
   "AB男性": { 社交力:42, 行動力:68, 計画性:85, 感情安定:58, 協調性:55, 独創性:88 },
 };
 
-const RADAR_DESC = {
+export const RADAR_DESC = {
   社交力:  { high:"人付き合いが得意で場を盛り上げる", low:"一人の時間を好み深い関係を大切にする" },
   行動力:  { high:"思い立ったらすぐ動く行動派",        low:"じっくり考えてから動く慎重派" },
   計画性:  { high:"段取り上手でミスが少ない",          low:"直感とノリで動くフリースタイル派" },
@@ -1214,7 +1214,7 @@ const RADAR_DESC = {
   独創性:  { high:"ユニークな発想でアイデアが豊富",     low:"実績あるやり方を好む安定志向" },
 };
 
-const LEVELUP_TIPS = {
+export const LEVELUP_TIPS = {
   "O女性": {
     "独創性": {
       root: "周囲への気配りを優先するため、自分の発想を前に出す機会が少ない",
@@ -1409,17 +1409,17 @@ const LEVELUP_TIPS = {
   },
 };
 
-const AXIS_COLORS = {
+export const AXIS_COLORS = {
   社交力: "#ec4899", 行動力: "#f97316", 計画性: "#3b82f6",
   感情安定: "#22c55e", 協調性: "#8b5cf6", 独創性: "#eab308",
 };
 
-const AXIS_ICONS = {
+export const AXIS_ICONS = {
   社交力: "🗣️", 行動力: "⚡", 計画性: "📋",
   感情安定: "🧘", 協調性: "🤝", 独創性: "💡",
 };
 
-const LEVEL_STAGES = {
+export const LEVEL_STAGES = {
   社交力: [
     { min:0,  icon:"🌱", name:"入門",   desc:"自分から話しかけることが少なく、会話が途切れがち",                          next:"挨拶に「最近どうですか？」を一言追加する練習だけでOK" },
     { min:40, icon:"📈", name:"気づき", desc:"話しかけられれば応じられるが、自分から輪を広げるのが苦手",                   next:"相手の話に「それ面白いですね」とリアクション練習を1週間続ける" },
@@ -1460,7 +1460,7 @@ const LEVEL_STAGES = {
 
 
 
-const CATS = [
+export const CATS = [
   { id:"対応",     icon:"✅", label:"対応法" },
   { id:"危険",     icon:"⚠️", label:"危険行動" },
   { id:"心理",     icon:"🧠", label:"深層心理" },

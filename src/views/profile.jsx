@@ -1,4 +1,9 @@
-function ProfileHistoryFields({ marriage, setMarriage, kids, setKids, loveExp, setLoveExp, divorce, setDivorce }) {
+import { useState, useEffect } from 'react';
+import { BC, LEVELUP_TIPS, RADAR_AXES, RADAR_DATA, RADAR_DESC } from '../data.js';
+import { sbDb } from '../lib/supabase.js';
+import { LevelUpSection, RadarChart, RelationshipInsights } from './life.jsx';
+
+export function ProfileHistoryFields({ marriage, setMarriage, kids, setKids, loveExp, setLoveExp, divorce, setDivorce }) {
   return (
     <div className="space-y-2.5 p-3 bg-white rounded-xl border border-gray-200">
       <div className="text-xs font-bold text-gray-600 flex items-center gap-1">📋 恋愛・婚姻歴（任意）</div>
@@ -50,7 +55,7 @@ function ProfileHistoryFields({ marriage, setMarriage, kids, setKids, loveExp, s
   );
 }
 
-function SelfForm({ blood, setBl, gender, setGe, name, setNa, age, setAg,
+export function SelfForm({ blood, setBl, gender, setGe, name, setNa, age, setAg,
                     marriage, setMarriage, kids, setKids, loveExp, setLoveExp, divorce, setDivorce,
                     onSave, onCancel, isEdit }) {
   const AGES = ["10代","20代","30代","40代","50代","60代","70代"];
@@ -122,7 +127,7 @@ function SelfForm({ blood, setBl, gender, setGe, name, setNa, age, setAg,
   );
 }
 
-function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin }) {
+export function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [blood, setBlood] = useState(null);

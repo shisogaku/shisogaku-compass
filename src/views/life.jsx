@@ -1,4 +1,7 @@
-function LifeView() {
+import { useState, useEffect } from 'react';
+import { AXIS_COLORS, AXIS_ICONS, BC, LEVELUP_TIPS, LEVEL_STAGES, LIFE_PHASES, RADAR_AXES, RADAR_DATA, RADAR_DESC } from '../data.js';
+
+export function LifeView() {
   const [lifeTab, setLifeTab] = useState("phase"); // "phase" | "temp"
   const [selPhase, setSelPhase] = useState(null);
   const [selBlood, setSelBlood] = useState(null);
@@ -397,9 +400,8 @@ function LifeView() {
 // ─────────────────────────────────────────
 // AI相談ビュー
 // ─────────────────────────────────────────
-const EDGE_URL = "https://nncwmltuwxbpwlgruvwn.supabase.co/functions/v1/ai-analyze";
 
-function LevelUpSection({ blood, gender, onChecksChange }) {
+export function LevelUpSection({ blood, gender, onChecksChange }) {
   const profileKey = `${blood}${gender === "female" ? "女性" : "男性"}`;
   const storageKey = `shisogaku_levelup_${profileKey}`;
 
@@ -670,7 +672,7 @@ function LevelUpSection({ blood, gender, onChecksChange }) {
   );
 }
 
-function RadarChart({ blood, gender, color, overrideData }) {
+export function RadarChart({ blood, gender, color, overrideData }) {
   const key = `${blood}${gender === "female" ? "女性" : "男性"}`;
   const baseData = RADAR_DATA[key];
   const data = overrideData || baseData;
@@ -866,7 +868,7 @@ function getRelationshipInsights(profile) {
   return insights;
 }
 
-function RelationshipInsights({ profile }) {
+export function RelationshipInsights({ profile }) {
   const [open, setOpen] = useState({});
   const insights = getRelationshipInsights(profile);
   if (insights.length === 0) return null;

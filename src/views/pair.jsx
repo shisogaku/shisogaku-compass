@@ -1,4 +1,9 @@
-function PairView({ profiles, setProfiles, myId }) {
+import { useState } from 'react';
+import { BC, COMPAT, COMPAT_KEY, GS, MSG_TIPS, NENDAI, STAGES } from '../data.js';
+import { ProfileHistoryFields } from './profile.jsx';
+import { RadarChart, RelationshipInsights } from './life.jsx';
+
+export function PairView({ profiles, setProfiles, myId }) {
   const [targetId, setTargetId] = useState(null);
   const [pairTab, setPairTab] = useState("overview");
   const [stageNum, setStageNum] = useState(null);
@@ -509,7 +514,7 @@ function PairView({ profiles, setProfiles, myId }) {
 }
 
 // シンプルなメッセージ変換コンポーネント（ペアビュー内用）
-function MsgConverter({ tips, targetLabel }) {
+export function MsgConverter({ tips, targetLabel }) {
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
   return (

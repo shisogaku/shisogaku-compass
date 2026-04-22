@@ -9,3 +9,9 @@ zz/
 
 # node_modules
 node_modules/
+
+# Vite ビルド出力
+dist/
+
+# Vite キャッシュ
+.vite/
