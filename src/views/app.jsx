@@ -399,19 +399,25 @@ export function SearchResults({ results, query, onTabJump }) {
   };
 
   return (
-    <div className="space-y-2">
-      <div className="text-xs text-gray-500 font-medium mb-3">
+    <section aria-label="検索結果" className="space-y-2">
+      <div className="text-xs text-gray-500 font-medium mb-3" role="status" aria-live="polite">
         「{query}」の検索結果：{results.length} 件{results.length === 30 ? '（上位30件）' : ''}
       </div>
       {results.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          <div className="text-3xl mb-2">🔍</div>
-          <div className="text-sm">一致する内容が見つかりませんでした</div>
+        <div className="text-center py-12 text-gray-500" role="status">
+          <div className="text-3xl mb-2" aria-hidden="true">🔍</div>
+          <div className="text-sm font-medium text-gray-700">一致する内容が見つかりませんでした</div>
+          <div className="text-xs text-gray-400 mt-3 leading-relaxed max-w-xs mx-auto">
+            たとえば「<span className="font-bold text-amber-700">A型 愛情</span>」や
+            「<span className="font-bold text-amber-700">謝り方</span>」のように、<br/>
+            血液型 + 状況の言葉を組み合わせて検索してみてください。
+          </div>
         </div>
       ) : results.map(r => (
-        <div key={r.id}
+        <button key={r.id}
+          type="button"
           onClick={() => onTabJump(r.tab)}
-          className="bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-indigo-300 hover:shadow-sm cursor-pointer transition-all">
+          className="w-full text-left bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-indigo-300 hover:shadow-sm transition-all">
           <div className="flex items-center gap-2 mb-1.5">
             <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${catColor[r.category] || 'bg-gray-100 text-gray-600'}`}>
               {r.category}
@@ -422,9 +428,9 @@ export function SearchResults({ results, query, onTabJump }) {
             {highlight(r.text)}
           </div>
           <div className="text-xs text-indigo-500 mt-1.5 font-medium">→ {r.tab === 'power' ? '知識' : r.tab === 'plan' ? 'プラン' : 'シーン'}タブで見る</div>
-        </div>
+        </button>
       ))}
-    </div>
+    </section>
   );
 }
 
@@ -688,7 +694,10 @@ export function CommunicationCompass() {
         <div className="border-t border-gray-100 p-3">
           {sbConfigured && (
             authLoading ? (
-              <div className="text-xs text-gray-400 px-2">読込中…</div>
+              <div className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1" role="status" aria-live="polite">
+                <span className="inline-block w-3 h-3 border-2 border-amber-200 border-t-amber-600 rounded-full animate-spin" aria-hidden="true"/>
+                <span>ログイン状態を確認中…</span>
+              </div>
             ) : user ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 px-2">

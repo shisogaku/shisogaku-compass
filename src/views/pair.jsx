@@ -79,10 +79,12 @@ export function PairView({ profiles, setProfiles, myId }) {
   ];
 
   if (!me) return (
-    <div className="text-center py-12 space-y-2">
-      <div className="text-4xl">👤</div>
-      <div className="font-bold text-gray-700">まず「登録」タブで自分を登録してください</div>
-      <div className="text-xs text-gray-500">自分のプロフィールを「自分に★」に設定すると使えます</div>
+    <div role="status" className="text-center py-12 space-y-2">
+      <div className="text-4xl" aria-hidden="true">👤</div>
+      <div className="font-bold text-gray-700">まず「自分の登録」から自分を登録してください</div>
+      <div className="text-xs text-gray-500 leading-relaxed max-w-xs mx-auto">
+        登録後にこの「相手」タブで、家族・同僚・気になる人などを追加できます。
+      </div>
     </div>
   );
 
@@ -181,8 +183,14 @@ export function PairView({ profiles, setProfiles, myId }) {
 
         {/* メンバー一覧 */}
         {others.length === 0 && !showMemberForm && (
-          <div className="text-center py-4 text-gray-400 text-xs">
-            「＋ 追加」から相手を登録してください
+          <div role="status" className="text-center py-6 px-4 rounded-xl"
+               style={{background:'#fdf4e8', border:'1px dashed rgba(180,130,70,0.35)'}}>
+            <div className="text-3xl mb-1.5" aria-hidden="true">👥</div>
+            <div className="text-sm font-bold text-amber-800">まだ相手が登録されていません</div>
+            <div className="text-xs text-gray-500 mt-1.5 leading-relaxed">
+              上の「＋ 追加」から、家族・恋人・同僚などを登録すると<br/>
+              相性 / シーン別の伝え方 / プランがすべて使えるようになります。
+            </div>
           </div>
         )}
         <div className="space-y-1">
