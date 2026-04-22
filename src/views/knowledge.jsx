@@ -252,7 +252,7 @@ export function PowerView({ profiles = [] }) {
           {["O","A","B","AB"].map(b=>(
             <button key={b} onClick={()=>startTimer(b)}
               className="py-2 rounded-xl text-xs font-bold text-white transition-all"
-              style={{backgroundColor: timerBlood===b?"opacity-100":BC[b].color, opacity: timerBlood && timerBlood!==b?0.5:1, backgroundColor:BC[b].color}}>
+              style={{backgroundColor: BC[b].color, opacity: timerBlood && timerBlood!==b ? 0.5 : 1}}>
               {b}型
             </button>
           ))}
