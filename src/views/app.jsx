@@ -688,6 +688,32 @@ export function CommunicationCompass() {
             </button>
           ))}
 
+          {/* 血液型クイック検索 */}
+          <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase">血液型</div>
+          <div className="grid grid-cols-4 gap-1 px-2 pb-1">
+            {["A","B","O","AB"].map(b => {
+              const color = BC[b]?.color || "#999";
+              const active = searchQuery === `${b}型`;
+              return (
+                <button
+                  key={b}
+                  type="button"
+                  onClick={() => {
+                    handleSearch(`${b}型`);
+                    setSidebarOpen(false);
+                  }}
+                  aria-label={`${b}型で検索`}
+                  aria-pressed={active}
+                  className="py-1.5 rounded-lg text-xs font-black border-2 transition-all"
+                  style={active
+                    ? { backgroundColor: color, borderColor: color, color: "white", boxShadow: `0 2px 8px ${color}66` }
+                    : { borderColor: color + "55", color: color, backgroundColor: color + "10" }}>
+                  {b}型
+                </button>
+              );
+            })}
+          </div>
+
           <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase">Features</div>
 
           {mainTabs.map(tab => (
