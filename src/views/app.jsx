@@ -17,6 +17,10 @@ const PowerView    = lazy(() => import('./knowledge.jsx').then(m => ({ default: 
 const AIView       = lazy(() => import('./plan.jsx').then(m => ({ default: m.AIView })));
 const PlanView     = lazy(() => import('./plan.jsx').then(m => ({ default: m.PlanView })));
 
+// フィーチャーフラグ: AI相談タブの表示 ON/OFF（Anthropic APIクレジット・
+// レート制限の設定が整うまでは false にして非表示にする）
+const AI_TAB_ENABLED = false;
+
 // 遅延ロード中のフォールバック
 function ViewLoading() {
   return (
@@ -591,7 +595,7 @@ export function CommunicationCompass() {
   const sidebarItems = [
     { id:"toroku", label:"自分の登録", icon:"user",   badge: me ? (me.blood + '型') : null, badgeColor: me?.color },
     { id:"pair",   label:"相手の登録", icon:"people", badge: partners.length > 0 ? String(partners.length) : null },
-    { id:"ai",     label:"AIに確認",  icon:"robot" },
+    ...(AI_TAB_ENABLED ? [{ id:"ai", label:"AIに確認", icon:"robot" }] : []),
   ];
   const mainTabs = [
     { id:"life",     label:"ライフ",  icon:"journey"  },
@@ -816,7 +820,7 @@ export function CommunicationCompass() {
                   {view==="power"     && <PowerView profiles={profiles}/>}
                   {view==="simulate"  && <SimulateView profiles={profiles} myId={myId}/>}
                   {view==="plan"      && <PlanView/>}
-                  {view==="ai"        && <AIView profiles={profiles} myId={myId} user={user}/>}
+                  {view==="ai" && AI_TAB_ENABLED && <AIView profiles={profiles} myId={myId} user={user}/>}
                 </Suspense>
               </div>
             )}
@@ -830,7 +834,7 @@ export function CommunicationCompass() {
             { id:"pair",   icon:"people", label:"相手" },
             { id:"compat", icon:"heart",  label:"相性" },
             { id:"scene",  icon:"chat",   label:"シーン" },
-            { id:"ai",     icon:"robot",  label:"AI" },
+            ...(AI_TAB_ENABLED ? [{ id:"ai", icon:"robot", label:"AI" }] : []),
           ].map(item => (
             <button key={item.id} onClick={() => handleViewChange(item.id)}
               type="button"
