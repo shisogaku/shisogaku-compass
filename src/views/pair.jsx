@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { BC, COMPAT, COMPAT_KEY, GS, MSG_TIPS, NENDAI, STAGES } from '../data.js';
+import { sbDb } from '../lib/supabase.js';
 import { ProfileHistoryFields } from './profile.jsx';
 import { RadarChart, RelationshipInsights } from './life.jsx';
 
-export function PairView({ profiles, setProfiles, myId }) {
+export function PairView({ profiles, setProfiles, myId, user = null }) {
   const [targetId, setTargetId] = useState(null);
   const [pairTab, setPairTab] = useState("overview");
   const [stageNum, setStageNum] = useState(null);
@@ -47,11 +48,18 @@ export function PairView({ profiles, setProfiles, myId }) {
       setProfiles(prev => [...prev, newP]);
       setTargetId(newP.id);
     }
+    // ログイン中なら Supabase にも保存（タブ切り替え・再ログイン後も消えないように）
+    if (user?.id) {
+      sbDb.saveProfile(user.id, newP, false);
+    }
     setShowMemberForm(false);
   };
   const removeMember = (id) => {
     setProfiles(prev => prev.filter(p => p.id !== id));
     if (targetId === id) setTargetId(null);
+    if (user?.id) {
+      sbDb.deleteProfile(user.id, id);
+    }
   };
 
   const me = profiles.find(p => p.id === myId);

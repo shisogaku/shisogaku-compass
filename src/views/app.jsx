@@ -551,19 +551,31 @@ export function CommunicationCompass() {
     let localMyId = null;
     try { localProfiles = JSON.parse(localStorage.getItem("shisogaku_profiles")) || []; } catch {}
     try { localMyId = localStorage.getItem("shisogaku_myId") || null; } catch {}
-    if (sbProfiles !== null && sbProfiles.length > 0) {
-      setProfiles(sbProfiles);
-      localStorage.setItem("shisogaku_profiles", JSON.stringify(sbProfiles));
-    } else if (localProfiles.length > 0) {
-      setProfiles(localProfiles);
-      for (const p of localProfiles) {
-        const isMe = p.id === localMyId;
-        await sbDb.saveProfile(userId, p, isMe);
+
+    // Supabase + local を id でマージ（Supabase 側を優先。ローカルにしか
+    // 無いものは Supabase に back-fill する）
+    const sb = Array.isArray(sbProfiles) ? sbProfiles : [];
+    const sbIds = new Set(sb.map(p => p.id));
+    const onlyLocal = localProfiles.filter(p => !sbIds.has(p.id));
+    const merged = [...sb, ...onlyLocal];
+
+    if (merged.length > 0) {
+      setProfiles(merged);
+      try { localStorage.setItem("shisogaku_profiles", JSON.stringify(merged)); } catch {}
+    }
+
+    // ローカルにしか無いものを Supabase に反映（主に旧クライアントで
+    // 登録された相手の救済）
+    if (onlyLocal.length > 0) {
+      const effectiveMyId = sbMyId || localMyId;
+      for (const p of onlyLocal) {
+        await sbDb.saveProfile(userId, p, p.id === effectiveMyId);
       }
     }
+
     if (sbMyId !== null) {
       setMyId(sbMyId);
-      localStorage.setItem("shisogaku_myId", sbMyId);
+      try { localStorage.setItem("shisogaku_myId", sbMyId); } catch {}
     } else if (localMyId) {
       setMyId(localMyId);
     }
@@ -813,7 +825,7 @@ export function CommunicationCompass() {
               <div className="bg-white rounded-2xl p-5" style={{boxShadow:'0 1px 12px rgba(180,130,70,0.1)',border:'1px solid rgba(180,130,70,0.15)'}}>
                 <Suspense fallback={<ViewLoading/>}>
                   {view==="toroku"    && <TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user} onLogin={handleLogin}/>}
-                  {view==="pair"      && <PairView profiles={profiles} setProfiles={setProfiles} myId={myId}/>}
+                  {view==="pair"      && <PairView profiles={profiles} setProfiles={setProfiles} myId={myId} user={user}/>}
                   {view==="life"      && <LifeView/>}
                   {view==="compat"    && <CompatView profiles={profiles} myId={myId}/>}
                   {view==="scene"     && <SceneView profiles={profiles} myId={myId}/>}
