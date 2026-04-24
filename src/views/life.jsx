@@ -902,8 +902,8 @@ export function RelationshipInsights({ profile }) {
   );
 }
 
-const MARRIAGE_OPTIONS = ["未婚","1回","2回","3回以上"];
-const KIDS_OPTIONS     = ["なし","あり"];
-const LOVE_OPTIONS     = ["少ない","普通","豊富"];
-const DIVORCE_OPTIONS  = ["なし","1回","2回以上"];
+export const MARRIAGE_OPTIONS = ["未婚","1回","2回","3回以上"];
+export const KIDS_OPTIONS     = ["なし","あり"];
+export const LOVE_OPTIONS     = ["少ない","普通","豊富"];
+export const DIVORCE_OPTIONS  = ["なし","1回","2回以上"];
 

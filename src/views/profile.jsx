@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BC, LEVELUP_TIPS, RADAR_AXES, RADAR_DATA, RADAR_DESC } from '../data.js';
 import { sbDb } from '../lib/supabase.js';
-import { LevelUpSection, RadarChart, RelationshipInsights } from './life.jsx';
+import { LevelUpSection, RadarChart, RelationshipInsights, MARRIAGE_OPTIONS, KIDS_OPTIONS, LOVE_OPTIONS, DIVORCE_OPTIONS } from './life.jsx';
 
 export function ProfileHistoryFields({ marriage, setMarriage, kids, setKids, loveExp, setLoveExp, divorce, setDivorce }) {
   return (
