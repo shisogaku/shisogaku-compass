@@ -243,7 +243,10 @@ export function SceneView({ profiles = [], myId = null }) {
     ? allKeys.filter(k => SCENE_CATS[cat].keys.includes(k))
     : allKeys;
 
-  const targetKey = selBlood && selGender ? `${selBlood}型${selGender==="female"?"女性":"男性"}` : null;
+  const currentScene = selScene ? SCENE_DB[selScene] : null;
+  const genderLock = currentScene?.genderLock || null;
+  const effectiveGender = genderLock || selGender;
+  const targetKey = selBlood && effectiveGender ? `${selBlood}型${effectiveGender==="female"?"女性":"男性"}` : null;
   const tip = selScene && targetKey ? SCENE_DB[selScene]?.tips[targetKey] : null;
 
   // 登録済み相手（自分以外）
@@ -312,14 +315,22 @@ export function SceneView({ profiles = [], myId = null }) {
           {/* 手動選択 */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="text-xs text-gray-500 font-bold mb-1">相手の性別</div>
+              <div className="text-xs text-gray-500 font-bold mb-1">
+                相手の性別{genderLock && <span className="ml-1 text-indigo-500">（このシーンは{genderLock==="female"?"女性":"男性"}固定）</span>}
+              </div>
               <div className="flex gap-1">
-                {[{id:"female",label:"👩女性"},{id:"male",label:"👨男性"}].map(g => (
-                  <button key={g.id} onClick={() => setSelGender(g.id)}
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${selGender===g.id?"border-indigo-500 bg-indigo-100 text-indigo-700":"border-gray-200 text-gray-600"}`}>
-                    {g.label}
-                  </button>
-                ))}
+                {[{id:"female",label:"👩女性"},{id:"male",label:"👨男性"}]
+                  .filter(g => !genderLock || g.id === genderLock)
+                  .map(g => {
+                    const isActive = effectiveGender === g.id;
+                    return (
+                      <button key={g.id} onClick={() => !genderLock && setSelGender(g.id)}
+                        disabled={!!genderLock}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${isActive?"border-indigo-500 bg-indigo-100 text-indigo-700":"border-gray-200 text-gray-600"} ${genderLock?"cursor-default":""}`}>
+                        {g.label}
+                      </button>
+                    );
+                  })}
               </div>
             </div>
             <div>
@@ -350,8 +361,10 @@ export function SceneView({ profiles = [], myId = null }) {
                 </button>
               </div>
             </div>
-          ) : !selBlood || !selGender ? (
-            <div className="text-center text-gray-400 text-xs py-4">性別と血液型を選ぶとガイドが表示されます</div>
+          ) : !selBlood || !effectiveGender ? (
+            <div className="text-center text-gray-400 text-xs py-4">
+              {genderLock ? "血液型を選ぶとガイドが表示されます" : "性別と血液型を選ぶとガイドが表示されます"}
+            </div>
           ) : null}
         </>
       )}
