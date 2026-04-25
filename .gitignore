@@ -36,6 +36,13 @@ dist/
 .idea/
 *.swp
 
+# Claude のローカル設定
+.claude/
+
+# Vite が一時的に作るタイムスタンプファイル
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
 # ローカルログ
 *.log
 npm-debug.log*
