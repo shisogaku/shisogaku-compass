@@ -1,8 +1,20 @@
-# Google OAuth クライアントシークレット（絶対にGitHubにあげない）
+# ===== シークレット類（絶対にGitHubにあげない）=====
+# Google OAuth クライアントシークレット
 client_secret*.json
+# Anthropic / OpenAI / その他サービスのキーを書きがちな雑記ファイル
+*.rtf
+# 各種 API キーや Supabase service_role キーを置きがちな環境変数ファイル
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
 
 # zz/ フォルダ全体（退避・バックアップ用）
 zz/
+# 不要/ も同じく公開リポジトリに置く必要なし（過去版の漏洩リスクを下げる）
+不要/
 
 # macOS
 .DS_Store
@@ -15,3 +27,17 @@ dist/
 
 # Vite キャッシュ
 .vite/
+
+# 誤って `git checkout > master` などで作られがちな空ファイル
+/master
+
+# エディタ・IDE
+.vscode/
+.idea/
+*.swp
+
+# ローカルログ
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
