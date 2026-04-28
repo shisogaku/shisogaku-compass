@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="ogBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#fdf9f3"/>
+      <stop offset="55%" stop-color="#fff0f6"/>
+      <stop offset="100%" stop-color="#efe1ff"/>
+    </linearGradient>
+    <radialGradient id="ogBall" cx="40%" cy="35%" r="65%">
+      <stop offset="0%"  stop-color="#ffe4f5"/>
+      <stop offset="100%" stop-color="#d9a8e8"/>
+    </radialGradient>
+    <linearGradient id="ogBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#f9a8d4"/>
+      <stop offset="50%"  stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="ogNeedleUp" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff6eb4"/>
+      <stop offset="100%" stop-color="#ff9ed0"/>
+    </linearGradient>
+    <linearGradient id="ogNeedleDown" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c4a5e8"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#ogBg)"/>
+
+  <!-- 装飾 -->
+  <circle cx="1080" cy="80"  r="140" fill="#f9a8d4" opacity="0.18"/>
+  <circle cx="120"  cy="560" r="180" fill="#a78bfa" opacity="0.14"/>
+
+  <!-- ロゴ（左側） -->
+  <g transform="translate(90,180) scale(2.2)">
+    <circle cx="60" cy="60" r="55" fill="url(#ogBall)" stroke="url(#ogBorder)" stroke-width="3.5"/>
+    <circle cx="60" cy="60" r="6" fill="#ffffff" opacity="0.9"/>
+    <circle cx="60" cy="60" r="3" fill="#c084fc"/>
+    <line x1="60" y1="54" x2="60" y2="12" stroke="url(#ogNeedleUp)"   stroke-width="5" stroke-linecap="round"/>
+    <line x1="60" y1="66" x2="60" y2="100" stroke="url(#ogNeedleDown)" stroke-width="4" stroke-linecap="round"/>
+    <line x1="60" y1="60" x2="95" y2="60" stroke="#e9d5ff" stroke-width="3" stroke-linecap="round"/>
+    <line x1="60" y1="60" x2="25" y2="60" stroke="#e9d5ff" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="60" cy="12" r="5" fill="#ff6eb4"/>
+  </g>
+
+  <!-- テキスト（右側） -->
+  <g font-family="'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif" fill="#5b3b7a">
+    <text x="420" y="240" font-size="74" font-weight="900" letter-spacing="2">支礎学コンパス</text>
+    <text x="420" y="320" font-size="32" font-weight="700" fill="#7c5c8a">血液型で、自分と相手を橋渡し。</text>
+    <text x="420" y="380" font-size="24" fill="#826a94">相性 / シーン別の伝え方 / 長期プランまで</text>
+
+    <!-- 血液型バッジ -->
+    <g transform="translate(420,430)">
+      <circle cx="35" cy="35" r="35" fill="#ef4444"/>
+      <text x="35" y="48" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">O</text>
+
+      <circle cx="115" cy="35" r="35" fill="#3b82f6"/>
+      <text x="115" y="48" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">A</text>
+
+      <circle cx="195" cy="35" r="35" fill="#f59e0b"/>
+      <text x="195" y="48" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">B</text>
+
+      <circle cx="275" cy="35" r="35" fill="#8b5cf6"/>
+      <text x="275" y="48" font-size="26" font-weight="900" fill="#ffffff" text-anchor="middle">AB</text>
+    </g>
+  </g>
+</svg>

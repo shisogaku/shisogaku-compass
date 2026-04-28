@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#fdf9f3" />
+
+  <!-- ===== セキュリティ系メタタグ（GitHub Pages はヘッダー返せないので meta で指定）===== -->
+  <!-- XSS の影響を最小化する Content Security Policy。
+       AdSense と Supabase（API + Auth + Edge Functions）を許可。 -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    base-uri 'self';
+    object-src 'none';
+    frame-ancestors 'self';
+    img-src 'self' data: blob: https://*.supabase.co https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com;
+    font-src 'self' data: https://fonts.gstatic.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.googletagservices.com https://tpc.googlesyndication.com;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net;
+    frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com;
+    form-action 'self';
+    upgrade-insecure-requests;
+  " />
+  <!-- Referrer は same-origin のみフルパス、それ以外はオリジンだけ送る -->
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <!-- MIME スニッフィング無効化（GitHub Pages はヘッダーで送れないので meta で代替） -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <!-- 不要なブラウザ機能をデフォルト無効化 -->
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()" />
+
+  <title>支礎学コンパス｜血液型で見つける、自分と相手との関わりかた</title>
+  <meta name="description"
+        content="血液型コミュニケーションの視点で、自分と相手との関わりかたを整えるツール。相性・シーン別の伝え方・長期プランまで、あなた専用の提案が見られます。" />
+  <meta name="keywords" content="血液型,相性,コミュニケーション,性格,O型,A型,B型,AB型,支礎学,支礎学コンパス" />
+  <link rel="canonical" href="https://shisogaku.github.io/shisogaku-compass/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:site_name"   content="支礎学コンパス" />
+  <meta property="og:title"       content="支礎学コンパス｜血液型で見つける、自分と相手との関わりかた" />
+  <meta property="og:description" content="相性・シーン別の伝え方・長期プランまで、血液型コミュニケーションであなたと相手を橋渡し。" />
+  <meta property="og:url"         content="https://shisogaku.github.io/shisogaku-compass/" />
+  <meta property="og:locale"      content="ja_JP" />
+  <meta property="og:image"       content="https://shisogaku.github.io/shisogaku-compass/og.png" />
+  <meta property="og:image:alt"   content="支礎学コンパス ロゴ" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="支礎学コンパス" />
+  <meta name="twitter:description" content="血液型コミュニケーションで、自分と相手との関わりかたを整える。" />
+  <meta name="twitter:image"       content="https://shisogaku.github.io/shisogaku-compass/og.png" />
+
+  <!-- PWA / iOS -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="支礎学コンパス" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- robots / format -->
+  <meta name="robots" content="index,follow" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3520702239934146"
+          crossorigin="anonymous"></script>
+  <script type="module" crossorigin src="/shisogaku-compass/assets/index-DAF9hQVr.js"></script>
+  <link rel="modulepreload" crossorigin href="/shisogaku-compass/assets/vendor-react-D7f9BLy3.js">
+  <link rel="modulepreload" crossorigin href="/shisogaku-compass/assets/vendor-Cgi6DKmr.js">
+  <link rel="modulepreload" crossorigin href="/shisogaku-compass/assets/vendor-supabase-Cm3lU5kN.js">
+  <link rel="stylesheet" crossorigin href="/shisogaku-compass/assets/index-Bl58D30j.css">
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
