@@ -265,8 +265,9 @@ export function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin
               <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
                 style={{ backgroundColor: me.color }}>{me.blood}型</div>
               <div className="flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-black text-lg text-gray-800">{me.name}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full text-white font-bold" style={{ backgroundColor: me.color }}>{me.blood}型</span>
                   <span className="text-xs px-2 py-0.5 rounded-full text-white font-bold" style={{ backgroundColor: me.color }}>自分 ★</span>
                 </div>
                 <div className="text-sm text-gray-600">
