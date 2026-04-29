@@ -16,6 +16,7 @@ const SimulateView = lazy(() => import('./social.jsx').then(m => ({ default: m.S
 const PowerView    = lazy(() => import('./knowledge.jsx').then(m => ({ default: m.PowerView })));
 const AIView       = lazy(() => import('./plan.jsx').then(m => ({ default: m.AIView })));
 const PlanView     = lazy(() => import('./plan.jsx').then(m => ({ default: m.PlanView })));
+const EvaluationFormView = lazy(() => import('./evaluate.jsx').then(m => ({ default: m.EvaluationFormView })));
 
 // フィーチャーフラグ: AI相談タブの表示 ON/OFF（Anthropic APIクレジット・
 // レート制限の設定が整うまでは false にして非表示にする）
@@ -442,6 +443,13 @@ export function SearchResults({ results, query, onTabJump }) {
 // メイン
 // ─────────────────────────────────────────
 export function CommunicationCompass() {
+  // #/evaluate/[token] ルート検出
+  const evalToken = (() => {
+    const hash = window.location.hash;
+    const m = hash.match(/^#\/evaluate\/([a-f0-9]+)$/);
+    return m ? m[1] : null;
+  })();
+
   const [view, setView] = useState("toroku");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -850,15 +858,16 @@ export function CommunicationCompass() {
             ) : (
               <div className="bg-white rounded-2xl p-5" style={{boxShadow:'0 1px 12px rgba(180,130,70,0.1)',border:'1px solid rgba(180,130,70,0.15)'}}>
                 <Suspense fallback={<ViewLoading/>}>
-                  {view==="toroku"    && <TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user} onLogin={handleLogin}/>}
-                  {view==="pair"      && <PairView profiles={profiles} setProfiles={setProfiles} myId={myId} user={user}/>}
-                  {view==="life"      && <LifeView/>}
-                  {view==="compat"    && <CompatView profiles={profiles} myId={myId}/>}
-                  {view==="scene"     && <SceneView profiles={profiles} myId={myId}/>}
-                  {view==="power"     && <PowerView profiles={profiles}/>}
-                  {view==="simulate"  && <SimulateView profiles={profiles} myId={myId}/>}
-                  {view==="plan"      && <PlanView/>}
-                  {view==="ai" && AI_TAB_ENABLED && <AIView profiles={profiles} myId={myId} user={user}/>}
+                  {evalToken && <EvaluationFormView token={evalToken} user={user}/>}
+                  {!evalToken && view==="toroku"    && <TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user} onLogin={handleLogin}/>}
+                  {!evalToken && view==="pair"      && <PairView profiles={profiles} setProfiles={setProfiles} myId={myId} user={user}/>}
+                  {!evalToken && view==="life"      && <LifeView/>}
+                  {!evalToken && view==="compat"    && <CompatView profiles={profiles} myId={myId}/>}
+                  {!evalToken && view==="scene"     && <SceneView profiles={profiles} myId={myId}/>}
+                  {!evalToken && view==="power"     && <PowerView profiles={profiles}/>}
+                  {!evalToken && view==="simulate"  && <SimulateView profiles={profiles} myId={myId}/>}
+                  {!evalToken && view==="plan"      && <PlanView/>}
+                  {!evalToken && view==="ai" && AI_TAB_ENABLED && <AIView profiles={profiles} myId={myId} user={user}/>}
                 </Suspense>
               </div>
             )}

@@ -68,4 +68,48 @@ export const sbDb = {
     if (!_sb || !userId) return;
     await _sb.from("usage_logs").insert({ user_id: userId, action, metadata }).catch(() => {});
   },
+
+  // ── ピア評価 ──────────────────────────────
+  async createEvaluationRequest(userId, profileKey, requesterName) {
+    if (!_sb || !userId) return null;
+    const token = crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+    const { data, error } = await _sb.from("evaluation_requests").insert({
+      requester_id: userId, token, profile_key: profileKey, requester_name: requesterName,
+    }).select("token").single();
+    if (error) { console.warn("[SB] createEvaluationRequest:", error.message); return null; }
+    return data.token;
+  },
+  async getEvaluationRequest(token) {
+    if (!_sb || !token) return null;
+    const { data } = await _sb.from("evaluation_requests").select("*")
+      .eq("token", token).maybeSingle();
+    return data;
+  },
+  async submitEvaluationResponse(requestId, evaluatorId, scores) {
+    if (!_sb) return false;
+    const { error } = await _sb.from("evaluation_responses").upsert({
+      request_id: requestId, evaluator_id: evaluatorId, scores,
+    }, { onConflict: "request_id,evaluator_id" });
+    if (error) { console.warn("[SB] submitEvaluationResponse:", error.message); return false; }
+    return true;
+  },
+  async getEvaluationResults(userId, profileKey) {
+    if (!_sb || !userId) return null;
+    // 自分のリクエストを取得
+    const { data: req } = await _sb.from("evaluation_requests").select("id")
+      .eq("requester_id", userId).eq("profile_key", profileKey)
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    if (!req) return null;
+    // そのリクエストへの全回答を取得
+    const { data: responses } = await _sb.from("evaluation_responses").select("scores, created_at")
+      .eq("request_id", req.id);
+    return responses || [];
+  },
+  async getMyEvaluationToken(userId, profileKey) {
+    if (!_sb || !userId) return null;
+    const { data } = await _sb.from("evaluation_requests").select("token")
+      .eq("requester_id", userId).eq("profile_key", profileKey)
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    return data?.token || null;
+  },
 };

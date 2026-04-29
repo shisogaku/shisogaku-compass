@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BC, LEVELUP_TIPS, RADAR_AXES, RADAR_DATA, RADAR_DESC } from '../data.js';
 import { sbDb } from '../lib/supabase.js';
 import { LevelUpSection, RadarChart, RelationshipInsights, MARRIAGE_OPTIONS, KIDS_OPTIONS, LOVE_OPTIONS, DIVORCE_OPTIONS } from './life.jsx';
+import { EvaluationPanel } from './evaluate.jsx';
 
 export function ProfileHistoryFields({ marriage, setMarriage, kids, setKids, loveExp, setLoveExp, divorce, setDivorce }) {
   return (
@@ -294,6 +295,13 @@ export function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin
             </div>
             {/* レベルアップ */}
             <LevelUpSection blood={me.blood} gender={me.gender} onChecksChange={setLevelChecks} />
+            {/* ピア評価 */}
+            <EvaluationPanel
+              user={user}
+              profileKey={`${me.blood}${me.gender === "female" ? "女性" : "男性"}`}
+              requesterName={me.name}
+              selfChecks={levelChecks}
+            />
             {/* カード出力 */}
             <div className="border-t border-indigo-200 pt-3">
               <button onClick={()=>{
