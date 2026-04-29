@@ -261,8 +261,8 @@ export function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin
         <div className="space-y-3">
           {/* 自分カード */}
           <div className="p-4 rounded-xl border-2 border-indigo-400 bg-indigo-50">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 mt-0.5"
                 style={{ backgroundColor: me.color }}>{me.blood}型</div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -281,12 +281,12 @@ export function TorokuView({ profiles, setProfiles, myId, setMyId, user, onLogin
                     {me.loveExp && <span className="text-xs px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold">恋愛経験{me.loveExp}</span>}
                   </div>
                 )}
-                <RelationshipInsights profile={me} />
               </div>
-              <button onClick={startEdit} className="px-3 py-1.5 rounded-lg text-xs border border-gray-300 text-gray-600 bg-white">
+              <button onClick={startEdit} className="px-3 py-1.5 rounded-lg text-xs border border-gray-300 text-gray-600 bg-white flex-shrink-0">
                 編集
               </button>
             </div>
+            <RelationshipInsights profile={me} />
             {/* レーダーチャート */}
             <div className="border-t border-indigo-200 pt-3">
               <div className="text-xs font-bold text-indigo-600 text-center mb-1">📊 強み・弱み分析</div>
