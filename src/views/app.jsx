@@ -98,6 +98,7 @@ export function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
     journey:  <>{P("M3 17c2-5 4-2 6-4s4-8 6-6 4 6 6 2")}{C(3,17,1.5,color)}{C(9,13,1.5,color)}{C(15,7,1.5,color)}</>,
     robot:    <>{P("M9 3H7a2 2 0 00-2 2v2M15 3h2a2 2 0 012 2v2M5 7h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z")}{C(9,13,1.5)}{C(15,13,1.5)}{P("M9 17h6",.6)}</>,
     menu:     <>{P("M4 6h16M4 12h16M4 18h16")}</>,
+    external: <>{P("M14 3h7v7")}{P("M10 14L21 3")}{P("M21 14v6a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h6")}</>,
   };
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
@@ -737,6 +738,22 @@ export function CommunicationCompass() {
               </span>
               <span>{tab.label}</span>
             </button>
+          ))}
+
+          <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase">コミュニティ</div>
+          {[
+            { url:"https://community.camp-fire.jp/projects/view/697850", label:"人間支礎学コミュニティ" },
+            { url:"https://community.camp-fire.jp/projects/view/365771", label:"テキトーくんコミュニティ" },
+          ].map(link => (
+            <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
+              onClick={() => setSidebarOpen(false)}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all hover:bg-orange-50"
+              style={{color:'#7c5c3e'}}>
+              <span aria-hidden="true" className="w-5 flex items-center justify-center">
+                <Icon name="external" size={15} color="#a07850" sw={1.5}/>
+              </span>
+              <span className="flex-1 truncate">{link.label}</span>
+            </a>
           ))}
         </nav>
 
