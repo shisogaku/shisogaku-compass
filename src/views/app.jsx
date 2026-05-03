@@ -657,35 +657,35 @@ export function CommunicationCompass() {
       ].join(' ')} style={{background:'#fffcf7',borderRight:'1px solid rgba(180,130,70,0.18)'}}>
 
         {/* ロゴ */}
-        <div className="flex items-center gap-2.5 px-4 py-4" style={{borderBottom:'1px solid rgba(180,130,70,0.15)'}}>
-          <LogoIcon size={36} />
+        <div className="flex items-center gap-2 px-3 py-2.5" style={{borderBottom:'1px solid rgba(180,130,70,0.15)'}}>
+          <LogoIcon size={28} />
           <div>
-            <div className="text-sm font-black bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent leading-tight">
+            <div className="text-xs font-black bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent leading-tight">
               支礎学コンパス
             </div>
-            <div className="text-xs text-gray-400">血液型コミュニティ</div>
+            <div className="text-[10px] text-gray-400">血液型コミュニティ</div>
           </div>
         </div>
 
-        {/* ナビ */}
-        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          <div className="text-xs font-bold text-gray-400 px-2 pt-2 pb-1.5 tracking-wider uppercase">Profile</div>
+        {/* ナビ（スクロール可能） */}
+        <nav className="flex-1 px-2 pt-1 pb-0 space-y-0.5 overflow-y-auto">
+          <div className="text-[10px] font-bold text-gray-400 px-2 pt-2 pb-1 tracking-wider uppercase">Profile</div>
 
           {sidebarItems.map(item => (
             <button key={item.id} onClick={() => handleViewChange(item.id)}
               type="button"
               aria-current={view === item.id ? 'page' : undefined}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all"
               style={view === item.id
                 ? {background:'linear-gradient(135deg,#92400e,#b45309)',color:'white',boxShadow:'0 2px 8px rgba(146,64,14,0.3)'}
                 : {color:'#5c3d1e'}}>
-              <span aria-hidden="true" className="w-5 flex items-center justify-center">
-                <Icon name={item.icon} size={16} color={view===item.id?"white":"#92400e"} sw={1.5}/>
+              <span aria-hidden="true" className="w-4 flex items-center justify-center">
+                <Icon name={item.icon} size={14} color={view===item.id?"white":"#92400e"} sw={1.5}/>
               </span>
               <span className="flex-1 text-left">{item.label}</span>
               {item.badge && (
                 <span className={[
-                  "text-xs px-1.5 py-0.5 rounded-full font-bold",
+                  "text-[10px] px-1.5 py-0.5 rounded-full font-bold",
                   view === item.id
                     ? "bg-white bg-opacity-25 text-white"
                     : "bg-gray-100 text-gray-600"
@@ -698,8 +698,8 @@ export function CommunicationCompass() {
           ))}
 
           {/* 血液型クイック検索 */}
-          <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase">血液型</div>
-          <div className="grid grid-cols-4 gap-1 px-2 pb-1">
+          <div className="text-[10px] font-bold text-gray-400 px-2 pt-2.5 pb-1 tracking-wider uppercase">血液型</div>
+          <div className="grid grid-cols-4 gap-1 px-2 pb-0.5">
             {["A","B","O","AB"].map(b => {
               const color = BC[b]?.color || "#999";
               const active = searchQuery === `${b}型`;
@@ -713,7 +713,7 @@ export function CommunicationCompass() {
                   }}
                   aria-label={`${b}型で検索`}
                   aria-pressed={active}
-                  className="py-1.5 rounded-lg text-xs font-black border-2 transition-all"
+                  className="py-1 rounded-lg text-[10px] font-black border-2 transition-all"
                   style={active
                     ? { backgroundColor: color, borderColor: color, color: "white", boxShadow: `0 2px 8px ${color}66` }
                     : { borderColor: color + "55", color: color, backgroundColor: color + "10" }}>
@@ -723,25 +723,25 @@ export function CommunicationCompass() {
             })}
           </div>
 
-          <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase">Features</div>
+          <div className="text-[10px] font-bold text-gray-400 px-2 pt-2.5 pb-1 tracking-wider uppercase">Features</div>
 
           {mainTabs.map(tab => (
             <button key={tab.id} onClick={() => handleViewChange(tab.id)}
               type="button"
               aria-current={view === tab.id ? 'page' : undefined}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all"
+              className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
               style={view === tab.id
                 ? {background:'rgba(146,64,14,0.09)',color:'#92400e',fontWeight:700}
                 : {color:'#7c5c3e'}}>
-              <span aria-hidden="true" className="w-5 flex items-center justify-center">
-                <Icon name={tab.icon} size={15} color={view===tab.id?"#92400e":"#a07850"} sw={1.5}/>
+              <span aria-hidden="true" className="w-4 flex items-center justify-center">
+                <Icon name={tab.icon} size={13} color={view===tab.id?"#92400e":"#a07850"} sw={1.5}/>
               </span>
               <span>{tab.label}</span>
             </button>
           ))}
 
-          <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase">テキトーくんLinks</div>
-          <div className="space-y-1.5 px-2 pb-1">
+          <div className="text-[10px] font-bold text-gray-400 px-2 pt-2.5 pb-1 tracking-wider uppercase">テキトーくんLinks</div>
+          <div className="space-y-1 px-2 pb-1">
             {[
               { url:"https://twitter.com/KunTekito",                          label:"X Twitter（情報発信用）", color:"#000000" },
               { url:"https://www.youtube.com/c/tekitokun",                    label:"YouTube（初・中級編）",   color:"#ff0000" },
@@ -750,49 +750,46 @@ export function CommunicationCompass() {
             ].map(link => (
               <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-[11px] font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
+                className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl text-[10px] font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
                 style={{
                   background: `linear-gradient(135deg, ${link.color}, ${link.color}dd)`,
-                  boxShadow: `0 2px 8px ${link.color}55`,
+                  boxShadow: `0 2px 6px ${link.color}44`,
                 }}>
                 <span aria-hidden="true" className="flex-shrink-0">
-                  <Icon name="external" size={11} color="white" sw={2.2}/>
+                  <Icon name="external" size={10} color="white" sw={2.2}/>
                 </span>
                 <span className="truncate">{link.label}</span>
               </a>
             ))}
           </div>
-
-          <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase flex items-baseline gap-1.5">
-            <span>PR</span>
-            <span className="text-[9px] font-normal opacity-70">広告</span>
-          </div>
-          <div className="px-2 pb-1">
-            <div className="text-[9px] text-gray-500 leading-tight px-1 mb-1">
-              人間関係の悩みを<br/>プロに相談したい時は
-            </div>
-            <a href="https://px.a8.net/svt/ejp?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
-              rel="nofollow noopener noreferrer sponsored"
-              target="_blank"
-              onClick={() => setSidebarOpen(false)}
-              className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-[11px] font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
-              style={{
-                background:'linear-gradient(135deg, #a855f7, #ec4899)',
-                boxShadow:'0 2px 8px rgba(168,85,247,0.4)',
-              }}>
-              <span aria-hidden="true" className="flex-shrink-0">
-                <Icon name="external" size={11} color="white" sw={2.2}/>
-              </span>
-              <span className="truncate">ココナラでお悩み相談・カウンセリング</span>
-            </a>
-            <img src="https://www13.a8.net/0.gif?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
-              alt="" width="1" height="1"
-              style={{border:0,position:'absolute',pointerEvents:'none',width:1,height:1}}/>
-          </div>
         </nav>
 
+        {/* PR固定エリア（スクロール外・常に表示） */}
+        <div className="flex-shrink-0 px-2 pt-1.5 pb-1" style={{borderTop:'1px solid rgba(180,130,70,0.12)'}}>
+          <div className="text-[9px] font-bold text-gray-400 px-1 pb-1 flex items-baseline gap-1">
+            <span>PR</span><span className="font-normal opacity-70">広告</span>
+          </div>
+          <a href="https://px.a8.net/svt/ejp?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
+            rel="nofollow noopener noreferrer sponsored"
+            target="_blank"
+            onClick={() => setSidebarOpen(false)}
+            className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl text-[10px] font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
+            style={{
+              background:'linear-gradient(135deg, #a855f7, #ec4899)',
+              boxShadow:'0 2px 8px rgba(168,85,247,0.4)',
+            }}>
+            <span aria-hidden="true" className="flex-shrink-0">
+              <Icon name="external" size={10} color="white" sw={2.2}/>
+            </span>
+            <span className="truncate">ココナラでお悩み相談・カウンセリング</span>
+          </a>
+          <img src="https://www13.a8.net/0.gif?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
+            alt="" width="1" height="1"
+            style={{border:0,position:'absolute',pointerEvents:'none',width:1,height:1}}/>
+        </div>
+
         {/* 認証エリア */}
-        <div className="border-t border-gray-100 p-3">
+        <div className="border-t border-gray-100 p-2">
           {sbConfigured && (
             authLoading ? (
               <div className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1" role="status" aria-live="polite">
@@ -820,7 +817,7 @@ export function CommunicationCompass() {
               </div>
             ) : (
               <button onClick={handleLogin}
-                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all"
+                className="w-full flex items-center justify-center gap-2 py-1.5 rounded-xl text-xs font-bold transition-all"
                 style={{background:'rgba(146,64,14,0.08)',border:'1px solid rgba(146,64,14,0.2)',color:'#92400e'}}>
                 🔑 Googleログイン
               </button>
