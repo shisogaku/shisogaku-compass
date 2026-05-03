@@ -763,6 +763,33 @@ export function CommunicationCompass() {
               </a>
             ))}
           </div>
+
+          <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase flex items-baseline gap-1.5">
+            <span>PR</span>
+            <span className="text-[9px] font-normal opacity-70">広告</span>
+          </div>
+          <div className="px-2 pb-1">
+            <div className="text-[9px] text-gray-500 leading-tight px-1 mb-1">
+              人間関係の悩みを<br/>プロに相談したい時は
+            </div>
+            <a href="https://px.a8.net/svt/ejp?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
+              rel="nofollow noopener noreferrer sponsored"
+              target="_blank"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-[11px] font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
+              style={{
+                background:'linear-gradient(135deg, #a855f7, #ec4899)',
+                boxShadow:'0 2px 8px rgba(168,85,247,0.4)',
+              }}>
+              <span aria-hidden="true" className="flex-shrink-0">
+                <Icon name="external" size={11} color="white" sw={2.2}/>
+              </span>
+              <span className="truncate">ココナラでお悩み相談・カウンセリング</span>
+            </a>
+            <img src="https://www13.a8.net/0.gif?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
+              alt="" width="1" height="1"
+              style={{border:0,position:'absolute',pointerEvents:'none',width:1,height:1}}/>
+          </div>
         </nav>
 
         {/* 認証エリア */}
