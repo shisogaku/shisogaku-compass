@@ -740,22 +740,24 @@ export function CommunicationCompass() {
             </button>
           ))}
 
-          <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase">コミュニティ</div>
-          <div className="space-y-2 px-2 pb-1">
+          <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase">テキトーくんLinks</div>
+          <div className="space-y-1.5 px-2 pb-1">
             {[
-              { url:"https://community.camp-fire.jp/projects/view/697850", label:"人間支礎学コミュニティ", color:"#e2342d" },
-              { url:"https://community.camp-fire.jp/projects/view/365771", label:"魂学コミュニティ", color:"#f59e0b" },
-              { url:"https://www.youtube.com/c/tekitokun", label:"YouTube", color:"#ff0000" },
+              { url:"https://twitter.com/KunTekito",                          label:"X Twitter（情報発信用）", color:"#000000" },
+              { url:"https://www.youtube.com/c/tekitokun",                    label:"YouTube（初・中級編）",   color:"#ff0000" },
+              { url:"https://community.camp-fire.jp/projects/view/365771",    label:"魂学コミュニティ（上級編）", color:"#f59e0b" },
+              { url:"https://community.camp-fire.jp/projects/view/697850",    label:"人間支礎学コミュ",         color:"#e2342d" },
+              { url:"https://suzuri.jp/Tekito-Kun",                           label:"グッズ通販 SUZURI",       color:"#ec4899" },
             ].map(link => (
               <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
+                className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-[11px] font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
                 style={{
                   background: `linear-gradient(135deg, ${link.color}, ${link.color}dd)`,
                   boxShadow: `0 2px 8px ${link.color}55`,
                 }}>
-                <span aria-hidden="true">
-                  <Icon name="external" size={12} color="white" sw={2.2}/>
+                <span aria-hidden="true" className="flex-shrink-0">
+                  <Icon name="external" size={11} color="white" sw={2.2}/>
                 </span>
                 <span className="truncate">{link.label}</span>
               </a>
