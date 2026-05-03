@@ -747,7 +747,6 @@ export function CommunicationCompass() {
               { url:"https://www.youtube.com/c/tekitokun",                    label:"YouTube（初・中級編）",   color:"#ff0000" },
               { url:"https://community.camp-fire.jp/projects/view/365771",    label:"魂学コミュニティ（上級編）", color:"#f59e0b" },
               { url:"https://community.camp-fire.jp/projects/view/697850",    label:"人間支礎学コミュ",         color:"#e2342d" },
-              { url:"https://suzuri.jp/Tekito-Kun",                           label:"グッズ通販 SUZURI",       color:"#ec4899" },
             ].map(link => (
               <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
                 onClick={() => setSidebarOpen(false)}
