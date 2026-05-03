@@ -741,20 +741,25 @@ export function CommunicationCompass() {
           ))}
 
           <div className="text-xs font-bold text-gray-400 px-2 pt-4 pb-1.5 tracking-wider uppercase">コミュニティ</div>
-          {[
-            { url:"https://community.camp-fire.jp/projects/view/697850", label:"人間支礎学コミュニティ" },
-            { url:"https://community.camp-fire.jp/projects/view/365771", label:"テキトーくんコミュニティ" },
-          ].map(link => (
-            <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
-              onClick={() => setSidebarOpen(false)}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all hover:bg-orange-50"
-              style={{color:'#7c5c3e'}}>
-              <span aria-hidden="true" className="w-5 flex items-center justify-center">
-                <Icon name="external" size={15} color="#a07850" sw={1.5}/>
-              </span>
-              <span className="flex-1 truncate">{link.label}</span>
-            </a>
-          ))}
+          <div className="space-y-2 px-2 pb-1">
+            {[
+              { url:"https://community.camp-fire.jp/projects/view/697850", label:"人間支礎学コミュニティ", color:"#e2342d" },
+              { url:"https://community.camp-fire.jp/projects/view/365771", label:"テキトーくんコミュニティ", color:"#f59e0b" },
+            ].map(link => (
+              <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
+                onClick={() => setSidebarOpen(false)}
+                className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
+                style={{
+                  background: `linear-gradient(135deg, ${link.color}, ${link.color}dd)`,
+                  boxShadow: `0 2px 8px ${link.color}55`,
+                }}>
+                <span aria-hidden="true">
+                  <Icon name="external" size={12} color="white" sw={2.2}/>
+                </span>
+                <span className="truncate">{link.label}</span>
+              </a>
+            ))}
+          </div>
         </nav>
 
         {/* 認証エリア */}
