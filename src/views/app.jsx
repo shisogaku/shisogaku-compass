@@ -744,7 +744,8 @@ export function CommunicationCompass() {
           <div className="space-y-2 px-2 pb-1">
             {[
               { url:"https://community.camp-fire.jp/projects/view/697850", label:"人間支礎学コミュニティ", color:"#e2342d" },
-              { url:"https://community.camp-fire.jp/projects/view/365771", label:"テキトーくんコミュニティ", color:"#f59e0b" },
+              { url:"https://community.camp-fire.jp/projects/view/365771", label:"魂学コミュニティ", color:"#f59e0b" },
+              { url:"https://www.youtube.com/c/tekitokun", label:"YouTube", color:"#ff0000" },
             ].map(link => (
               <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
                 onClick={() => setSidebarOpen(false)}
