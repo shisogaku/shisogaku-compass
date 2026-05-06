@@ -781,7 +781,7 @@ export function CommunicationCompass() {
             <span aria-hidden="true" className="flex-shrink-0">
               <Icon name="external" size={10} color="white" sw={2.2}/>
             </span>
-            <span className="truncate">ココナラでお悩み相談・カウンセリング</span>
+            <span className="truncate">お悩み相談・カウンセリング</span>
           </a>
           <img src="https://www13.a8.net/0.gif?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
             alt="" width="1" height="1"
