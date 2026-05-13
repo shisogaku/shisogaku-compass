@@ -17,6 +17,7 @@ const PowerView    = lazy(() => import('./knowledge.jsx').then(m => ({ default: 
 const AIView       = lazy(() => import('./plan.jsx').then(m => ({ default: m.AIView })));
 const PlanView     = lazy(() => import('./plan.jsx').then(m => ({ default: m.PlanView })));
 const EvaluationFormView = lazy(() => import('./evaluate.jsx').then(m => ({ default: m.EvaluationFormView })));
+const ManualView         = lazy(() => import('./manual.jsx').then(m => ({ default: m.ManualView })));
 
 // フィーチャーフラグ: AI相談タブの表示 ON/OFF（Anthropic APIクレジット・
 // レート制限の設定が整うまでは false にして非表示にする）
@@ -619,6 +620,7 @@ export function CommunicationCompass() {
     ...(AI_TAB_ENABLED ? [{ id:"ai", label:"AIに確認", icon:"robot" }] : []),
   ];
   const mainTabs = [
+    { id:"manual",   label:"取説",    icon:"sparkle"  },
     { id:"life",     label:"ライフ",  icon:"journey"  },
     { id:"compat",   label:"相性",    icon:"heart"    },
     { id:"scene",    label:"シーン",  icon:"chat"     },
@@ -907,6 +909,7 @@ export function CommunicationCompass() {
               <div className="bg-white rounded-2xl p-5" style={{boxShadow:'0 1px 12px rgba(180,130,70,0.1)',border:'1px solid rgba(180,130,70,0.15)'}}>
                 <Suspense fallback={<ViewLoading/>}>
                   {evalToken && <EvaluationFormView token={evalToken} user={user}/>}
+                  {!evalToken && view==="manual"    && <ManualView/>}
                   {!evalToken && view==="toroku"    && <TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user} onLogin={handleLogin}/>}
                   {!evalToken && view==="pair"      && <PairView profiles={profiles} setProfiles={setProfiles} myId={myId} user={user}/>}
                   {!evalToken && view==="life"      && <LifeView/>}
