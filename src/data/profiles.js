@@ -1,7 +1,7 @@
 // 血液型・性別・年代別プロフィール
 export const BC = {
   O: {
-    label:"O型", color:"#E91E8C", type:"イヌタイプ",
+    label:"O型", color:"#C4607A", type:"イヌタイプ",
     keywords:["面倒見が良い","頼られる","みんなの母"],
     xy_f:{x:35,y:55}, xy_m:{x:45,y:45},
     心理:[
@@ -72,7 +72,7 @@ export const BC = {
   },
 
   A: {
-    label:"A型", color:"#3F51B5", type:"イヌタイプ",
+    label:"A型", color:"#6070A8", type:"イヌタイプ",
     keywords:["几帳面","完璧主義","気配り屋"],
     xy_f:{x:-65,y:65}, xy_m:{x:-55,y:55},
     心理:[
@@ -138,7 +138,7 @@ export const BC = {
   },
 
   B: {
-    label:"B型", color:"#FF9800", type:"ネコタイプ",
+    label:"B型", color:"#C88B45", type:"ネコタイプ",
     keywords:["自由人","正直","本物志向"],
     xy_f:{x:-45,y:-50}, xy_m:{x:-55,y:-60},
     心理:[
@@ -203,7 +203,7 @@ export const BC = {
   },
 
   AB: {
-    label:"AB型", color:"#9C27B0", type:"見た目ネコ・実はイヌ",
+    label:"AB型", color:"#8B70A8", type:"見た目ネコ・実はイヌ",
     keywords:["論理的","多面的","神秘的"],
     xy_f:{x:50,y:-45}, xy_m:{x:60,y:-55},
     心理:[
@@ -319,14 +319,14 @@ export const NENDAI = {
 };
 
 export const ALL_PROFILES = [
-  { key:"O女", blood:"O", gender:"female", label:"O型女性", short:"O♀", color:"#E91E8C" },
-  { key:"O男", blood:"O", gender:"male",   label:"O型男性", short:"O♂", color:"#C2185B" },
-  { key:"A女", blood:"A", gender:"female", label:"A型女性", short:"A♀", color:"#3F51B5" },
-  { key:"A男", blood:"A", gender:"male",   label:"A型男性", short:"A♂", color:"#1A237E" },
-  { key:"B女", blood:"B", gender:"female", label:"B型女性", short:"B♀", color:"#FF9800" },
-  { key:"B男", blood:"B", gender:"male",   label:"B型男性", short:"B♂", color:"#E65100" },
-  { key:"AB女", blood:"AB", gender:"female", label:"AB型女性", short:"AB♀", color:"#9C27B0" },
-  { key:"AB男", blood:"AB", gender:"male",   label:"AB型男性", short:"AB♂", color:"#4A148C" },
+  { key:"O女", blood:"O", gender:"female", label:"O型女性", short:"O♀", color:"#C4607A" },
+  { key:"O男", blood:"O", gender:"male",   label:"O型男性", short:"O♂", color:"#A04C68" },
+  { key:"A女", blood:"A", gender:"female", label:"A型女性", short:"A♀", color:"#6070A8" },
+  { key:"A男", blood:"A", gender:"male",   label:"A型男性", short:"A♂", color:"#485088" },
+  { key:"B女", blood:"B", gender:"female", label:"B型女性", short:"B♀", color:"#C88B45" },
+  { key:"B男", blood:"B", gender:"male",   label:"B型男性", short:"B♂", color:"#A06830" },
+  { key:"AB女", blood:"AB", gender:"female", label:"AB型女性", short:"AB♀", color:"#8B70A8" },
+  { key:"AB男", blood:"AB", gender:"male",   label:"AB型男性", short:"AB♂", color:"#604880" },
 ];
 
 export const CATS = [

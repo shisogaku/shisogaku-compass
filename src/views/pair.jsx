@@ -113,7 +113,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
         <div className="flex items-center justify-between">
           <div className="text-xs text-gray-500 font-bold">相手・メンバー（{others.length}人）</div>
           <button onClick={openAddForm}
-            className="flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700">
+            className="flex items-center gap-1 px-3 py-1 bg-stone-600 text-white rounded-lg text-xs font-bold hover:bg-stone-700">
             ＋ 追加
           </button>
         </div>
@@ -124,7 +124,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
             <div className="font-bold text-sm text-gray-700">{editMemberId ? "✏️ 編集" : "＋ 相手を追加"}</div>
             <div>
               <div className="text-xs text-gray-500 mb-1 font-bold">名前</div>
-              <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-400"
+              <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-stone-400"
                 placeholder="例：田中さん、山田くん" value={mName} onChange={e => setMName(e.target.value)} />
             </div>
             <div>
@@ -132,7 +132,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
               <div className="flex flex-wrap gap-1">
                 {MRELATIONS.map(r => (
                   <button key={r} onClick={() => setMRelation(r)}
-                    className={`px-2 py-0.5 rounded text-xs font-bold border transition-all ${mRelation === r ? "bg-indigo-600 text-white border-indigo-600" : "border-gray-300 text-gray-600"}`}>
+                    className={`px-2 py-0.5 rounded text-xs font-bold border transition-all ${mRelation === r ? "bg-stone-600 text-white border-stone-600" : "border-gray-300 text-gray-600"}`}>
                     {r}
                   </button>
                 ))}
@@ -143,7 +143,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
               <div className="flex gap-2">
                 {[{id:"female",label:"👩 女性"},{id:"male",label:"👨 男性"}].map(g => (
                   <button key={g.id} onClick={() => setMGender(g.id)}
-                    className={`flex-1 py-1.5 rounded-lg text-sm font-bold border-2 transition-all ${mGender === g.id ? "border-indigo-500 bg-indigo-100 text-indigo-700" : "border-gray-200 text-gray-600"}`}>
+                    className={`flex-1 py-1.5 rounded-lg text-sm font-bold border-2 transition-all ${mGender === g.id ? "border-stone-500 bg-stone-100 text-stone-700" : "border-gray-200 text-gray-600"}`}>
                     {g.label}
                   </button>
                 ))}
@@ -178,7 +178,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
               divorce={mDivorce} setDivorce={setMDivorce} />
             <div className="flex gap-2">
               <button onClick={saveMember} disabled={!mName.trim() || !mBlood || !mGender}
-                className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all ${mName.trim() && mBlood && mGender ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-400"}`}>
+                className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all ${mName.trim() && mBlood && mGender ? "bg-stone-600 text-white" : "bg-gray-200 text-gray-400"}`}>
                 {editMemberId ? "更新" : "追加"}
               </button>
               <button onClick={() => setShowMemberForm(false)}
@@ -220,7 +220,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
                           {p.marriage && <span className="text-xs px-1 py-0 rounded bg-rose-100 text-rose-600 font-bold">💍{p.marriage}</span>}
                           {p.divorce && p.divorce!=="なし" && <span className="text-xs px-1 py-0 rounded bg-orange-100 text-orange-600 font-bold">離{p.divorce}</span>}
                           {p.kids && <span className="text-xs px-1 py-0 rounded bg-green-100 text-green-600 font-bold">👶{p.kids}</span>}
-                          {p.loveExp && <span className="text-xs px-1 py-0 rounded bg-indigo-100 text-indigo-600 font-bold">恋{p.loveExp}</span>}
+                          {p.loveExp && <span className="text-xs px-1 py-0 rounded bg-stone-100 text-stone-600 font-bold">恋{p.loveExp}</span>}
                         </div>
                       )}
                     </div>
@@ -272,7 +272,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
           <div className="flex gap-0.5 overflow-x-auto bg-gray-100 rounded-lg p-0.5" style={{scrollbarWidth:"none"}}>
             {PAIR_TABS.map(t => (
               <button key={t.id} onClick={() => setPairTab(t.id)}
-                className={`py-1.5 px-2 rounded text-xs font-bold flex flex-col items-center gap-0.5 transition-all flex-shrink-0 ${pairTab===t.id?"bg-white shadow text-indigo-600":"text-gray-500"}`}>
+                className={`py-1.5 px-2 rounded text-xs font-bold flex flex-col items-center gap-0.5 transition-all flex-shrink-0 ${pairTab===t.id?"bg-white shadow text-stone-600":"text-gray-500"}`}>
                 <span>{t.icon}</span><span style={{fontSize:"8px"}}>{t.label}</span>
               </button>
             ))}
@@ -294,8 +294,8 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
                 <div className="text-xs text-blue-800">{compat.tip}</div>
               </div>
               {/* 怒り方の違い */}
-              <div className="p-2 bg-purple-50 rounded-lg border border-purple-200">
-                <div className="font-bold text-purple-700 text-xs mb-1">⚡ 怒り方の組み合わせ</div>
+              <div className="p-2 bg-stone-50 rounded-lg border border-stone-200">
+                <div className="font-bold text-stone-600 text-xs mb-1">⚡ 怒り方の組み合わせ</div>
                 <div className="grid grid-cols-2 gap-1 text-xs">
                   <div className="text-center p-1 bg-white rounded">
                     <div className="font-bold" style={{color:meBC?.color}}>{me.name}</div>
@@ -338,7 +338,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
                   ].join("\n");
                   navigator.clipboard?.writeText(txt).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);});
                 }}
-                className={`w-full py-2 rounded-lg text-xs font-bold transition-all border-2 ${copied?"bg-green-500 text-white border-green-500":"bg-white text-indigo-600 border-indigo-300 hover:bg-indigo-50"}`}
+                className={`w-full py-2 rounded-lg text-xs font-bold transition-all border-2 ${copied?"bg-green-500 text-white border-green-500":"bg-white text-stone-600 border-stone-300 hover:bg-stone-50"}`}
               >
                 {copied ? "✅ コピーしました！" : "📋 この分析をテキストでコピー"}
               </button>
@@ -408,9 +408,9 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
                     <div className="font-bold">{target.blood}型 {target.age}：{nendai.title}</div>
                   </div>
                   {nendai.traits.map((t,i) => <div key={i} className="p-2 bg-gray-50 border-l-4 border-gray-300 rounded-r-lg text-xs text-gray-700">{t}</div>)}
-                  <div className="p-2 bg-indigo-50 rounded-lg border border-indigo-200">
-                    <div className="font-bold text-indigo-700 text-xs mb-1">💡 この年代の{target.name}への接し方</div>
-                    <div className="text-xs text-indigo-800">{nendai.approach}</div>
+                  <div className="p-2 bg-stone-50 rounded-lg border border-stone-200">
+                    <div className="font-bold text-stone-700 text-xs mb-1">💡 この年代の{target.name}への接し方</div>
+                    <div className="text-xs text-stone-700">{nendai.approach}</div>
                   </div>
                 </>
               ) : (
@@ -424,7 +424,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
                 <div className="text-xs font-bold text-gray-500 mb-1">{target.blood}型 全年代まとめ</div>
                 {["10代","20代","30代","40代","50代","60代","70代"].map(a => {
                   const d = NENDAI[target.blood]?.[a];
-                  return <div key={a} className={`flex items-center gap-2 p-1.5 rounded mb-1 text-xs ${target.age===a?"bg-indigo-50 border border-indigo-200":"bg-gray-50"}`}>
+                  return <div key={a} className={`flex items-center gap-2 p-1.5 rounded mb-1 text-xs ${target.age===a?"bg-stone-50 border border-stone-200":"bg-gray-50"}`}>
                     <span className="font-bold text-white px-1.5 py-0.5 rounded text-xs flex-shrink-0" style={{backgroundColor:targetBC?.color}}>{a}</span>
                     <span className="text-gray-700 font-bold">{d?.title}</span>
                   </div>;
@@ -444,9 +444,9 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
                 <div className="font-bold text-amber-700 mb-2">😊 表の面（距離あり・初対面〜普通の関係）</div>
                 {targetBC?.表の面?.map((f,i) => <div key={i} className="text-sm text-amber-800 mb-1">・{f}</div>)}
               </div>
-              <div className="p-3 bg-purple-50 rounded-xl border border-purple-200">
-                <div className="font-bold text-purple-700 mb-2">🌙 裏の面（距離近い・信頼関係あり）</div>
-                {targetBC?.裏の面?.map((f,i) => <div key={i} className="text-sm text-purple-800 mb-1">・{f}</div>)}
+              <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
+                <div className="font-bold text-stone-600 mb-2">🌙 裏の面（距離近い・信頼関係あり）</div>
+                {targetBC?.裏の面?.map((f,i) => <div key={i} className="text-sm text-stone-700 mb-1">・{f}</div>)}
               </div>
               {/* 今の関係性での距離感アドバイス */}
               <div className="p-2 bg-blue-50 rounded-lg border border-blue-200">
@@ -506,13 +506,13 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
                           <div className="text-sm text-red-800">{s.avoid}</div>
                         </div>
                         {next ? (
-                          <div className="p-2 bg-indigo-50 rounded-lg border border-indigo-200 flex items-center gap-2">
+                          <div className="p-2 bg-stone-50 rounded-lg border border-stone-200 flex items-center gap-2">
                             <span className="text-base">{next.emoji}</span>
-                            <div className="text-xs text-indigo-700"><strong>次の目標：{next.label}</strong> — {next.desc}</div>
+                            <div className="text-xs text-stone-700"><strong>次の目標：{next.label}</strong> — {next.desc}</div>
                           </div>
                         ) : (
-                          <div className="p-2 bg-purple-50 rounded-lg border border-purple-200 text-center">
-                            <div className="text-xs text-purple-700 font-bold">💝 最終段階・本母性ライン到達</div>
+                          <div className="p-2 bg-stone-50 rounded-lg border border-stone-200 text-center">
+                            <div className="text-xs text-stone-600 font-bold">💝 最終段階・本母性ライン到達</div>
                             <div className="text-xs text-purple-600 mt-0.5">この関係を大切に維持し続けてください</div>
                           </div>
                         )}
@@ -536,7 +536,7 @@ export function MsgConverter({ tips, targetLabel }) {
   return (
     <div className="space-y-2">
       <textarea
-        className="w-full border border-gray-300 rounded-lg p-2 text-sm resize-none focus:outline-none focus:border-indigo-400"
+        className="w-full border border-gray-300 rounded-lg p-2 text-sm resize-none focus:outline-none focus:border-stone-400"
         rows={3}
         placeholder="伝えたい内容を入力..."
         value={input}
@@ -545,7 +545,7 @@ export function MsgConverter({ tips, targetLabel }) {
       <button
         onClick={() => setResult(tips.pattern(input.trim()))}
         disabled={!input.trim()}
-        className={`w-full py-2 rounded-lg font-bold text-sm ${input.trim()?"bg-indigo-600 text-white":"bg-gray-200 text-gray-400"}`}>
+        className={`w-full py-2 rounded-lg font-bold text-sm ${input.trim()?"bg-stone-600 text-white":"bg-gray-200 text-gray-400"}`}>
         {targetLabel}向けに変換 →
       </button>
       {result && (

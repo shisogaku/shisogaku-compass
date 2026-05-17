@@ -31,7 +31,7 @@ export function CompatView({ profiles = [], myId = null }) {
       <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
         {[["pair","👥 ペア相性"],["group","🔷 グループ分析"]].map(([m,l])=>(
           <button key={m} onClick={()=>{setCompatMode(m);setGroupFocus(null);}}
-            className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${compatMode===m?"bg-white shadow text-indigo-600":"text-gray-500"}`}>{l}</button>
+            className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${compatMode===m?"bg-white shadow text-stone-600":"text-gray-500"}`}>{l}</button>
         ))}
       </div>
 
@@ -147,10 +147,10 @@ export function CompatView({ profiles = [], myId = null }) {
 
           {groupProfiles.length >= 2 && <>
             {/* スコアサマリー */}
-            <div className="p-3 rounded-xl text-center bg-indigo-50 border border-indigo-200">
-              <div className="text-xs text-indigo-500 font-bold mb-1">グループ相性スコア</div>
-              <div className="text-2xl font-black text-indigo-700">⭐ {avgStars}</div>
-              <div className="text-xs text-indigo-500">{groupProfiles.length}人 ・ {groupPairs.length}ペア分析</div>
+            <div className="p-3 rounded-xl text-center bg-stone-50 border border-stone-200">
+              <div className="text-xs text-stone-500 font-bold mb-1">グループ相性スコア</div>
+              <div className="text-2xl font-black text-stone-700">⭐ {avgStars}</div>
+              <div className="text-xs text-stone-500">{groupProfiles.length}人 ・ {groupPairs.length}ペア分析</div>
               <div className="flex flex-wrap gap-1 justify-center mt-2">
                 {groupProfiles.map(p=>(
                   <span key={p.id} className="text-xs px-2 py-0.5 rounded-full text-white font-bold"
@@ -183,7 +183,7 @@ export function CompatView({ profiles = [], myId = null }) {
                       </div>
                       {focused && focusCompat && (
                         <div className="ml-2 mt-1 space-y-1 pb-1">
-                          <div className="text-xs text-gray-600 bg-white rounded-lg p-2 border border-indigo-100">{focusCompat.summary}</div>
+                          <div className="text-xs text-gray-600 bg-white rounded-lg p-2 border border-stone-100">{focusCompat.summary}</div>
                           <div className="text-xs text-green-700 bg-green-50 rounded-lg p-2 border border-green-200">
                             <span className="font-bold">✅ Good: </span>{focusCompat.good[0]}
                           </div>
@@ -286,7 +286,7 @@ export function SceneView({ profiles = [], myId = null }) {
         <div className="flex gap-1 overflow-x-auto pb-0.5" style={{scrollbarWidth:"none"}}>
           {Object.entries(SCENE_CATS).map(([k,v]) => (
             <button key={k} onClick={() => { setCat(k); setSelScene(null); }}
-              className={`flex-shrink-0 px-2 py-1 rounded-lg text-xs font-bold border-2 transition-all ${cat===k?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 text-gray-600"}`}>
+              className={`flex-shrink-0 px-2 py-1 rounded-lg text-xs font-bold border-2 transition-all ${cat===k?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-600"}`}>
               {v.icon} {v.label}
             </button>
           ))}
@@ -299,7 +299,7 @@ export function SceneView({ profiles = [], myId = null }) {
         <div className="grid grid-cols-4 gap-1">
           {filteredKeys.map(k => (
             <button key={k} onClick={() => setSelScene(k)}
-              className={`py-2 px-1 rounded-xl text-xs font-bold border-2 transition-all flex flex-col items-center gap-0.5 ${selScene===k?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 text-gray-600 hover:border-gray-300"}`}>
+              className={`py-2 px-1 rounded-xl text-xs font-bold border-2 transition-all flex flex-col items-center gap-0.5 ${selScene===k?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-600 hover:border-gray-300"}`}>
               <span className="text-base">{SCENE_DB[k].icon}</span>
               <span style={{fontSize:"9px"}} className="text-center leading-tight">{SCENE_DB[k].label.length > 6 ? SCENE_DB[k].label.slice(0,6)+"…" : SCENE_DB[k].label}</span>
             </button>
@@ -309,14 +309,14 @@ export function SceneView({ profiles = [], myId = null }) {
 
       {selScene && (
         <>
-          <div className="text-xs text-center text-indigo-600 font-bold bg-indigo-50 py-1.5 rounded-lg">
+          <div className="text-xs text-center text-stone-600 font-bold bg-stone-50 py-1.5 rounded-lg">
             {SCENE_DB[selScene].icon} {SCENE_DB[selScene].label}
           </div>
           {/* 手動選択 */}
           <div className="grid grid-cols-2 gap-2">
             <div>
               <div className="text-xs text-gray-500 font-bold mb-1">
-                相手の性別{genderLock && <span className="ml-1 text-indigo-500">（このシーンは{genderLock==="female"?"女性":"男性"}固定）</span>}
+                相手の性別{genderLock && <span className="ml-1 text-stone-500">（このシーンは{genderLock==="female"?"女性":"男性"}固定）</span>}
               </div>
               <div className="flex gap-1">
                 {[{id:"female",label:"👩女性"},{id:"male",label:"👨男性"}]
@@ -326,7 +326,7 @@ export function SceneView({ profiles = [], myId = null }) {
                     return (
                       <button key={g.id} onClick={() => !genderLock && setSelGender(g.id)}
                         disabled={!!genderLock}
-                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${isActive?"border-indigo-500 bg-indigo-100 text-indigo-700":"border-gray-200 text-gray-600"} ${genderLock?"cursor-default":""}`}>
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${isActive?"border-stone-500 bg-stone-100 text-stone-700":"border-gray-200 text-gray-600"} ${genderLock?"cursor-default":""}`}>
                         {g.label}
                       </button>
                     );
@@ -348,8 +348,8 @@ export function SceneView({ profiles = [], myId = null }) {
           </div>
           {tip ? (
             <div className="space-y-3">
-              <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-200 space-y-2">
-                <div className="font-bold text-indigo-700 text-sm">{targetKey}への「{SCENE_DB[selScene].label}」のコツ</div>
+              <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-2">
+                <div className="font-bold text-stone-700 text-sm">{targetKey}への「{SCENE_DB[selScene].label}」のコツ</div>
                 <div className="text-sm text-gray-800 leading-relaxed">{tip.text}</div>
               </div>
               <div className="p-3 bg-green-50 rounded-xl border border-green-200 space-y-2">
@@ -540,10 +540,10 @@ export function SimulateView({ profiles, myId }) {
       <div className="grid grid-cols-4 gap-0.5 bg-gray-100 rounded-lg p-0.5">
         {SIM_TABS.map(t => (
           <button key={t.id} onClick={() => setSimTab(t.id)}
-            className={`py-1.5 rounded text-xs font-bold flex items-center justify-center gap-0.5 transition-all ${simTab===t.id?"bg-white shadow text-indigo-600":"text-gray-500"}`}>
+            className={`py-1.5 rounded text-xs font-bold flex items-center justify-center gap-0.5 transition-all ${simTab===t.id?"bg-white shadow text-stone-600":"text-gray-500"}`}>
             <span>{t.icon}</span><span>{t.label}</span>
             {t.id==="history" && history.length > 0 && (
-              <span className="bg-indigo-500 text-white rounded-full px-1" style={{fontSize:"9px"}}>{history.length}</span>
+              <span className="bg-stone-500 text-white rounded-full px-1" style={{fontSize:"9px"}}>{history.length}</span>
             )}
           </button>
         ))}
@@ -579,7 +579,7 @@ export function SimulateView({ profiles, myId }) {
             <div className="grid grid-cols-2 gap-1">
               {[{id:"female",label:"👩 女性"},{id:"male",label:"👨 男性"}].map(g => (
                 <button key={g.id} onClick={() => { setSituGender(g.id); setSituId(null); }}
-                  className={`py-2 rounded-xl text-sm font-bold border-2 transition-all ${situGender===g.id?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 text-gray-600"}`}>
+                  className={`py-2 rounded-xl text-sm font-bold border-2 transition-all ${situGender===g.id?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-600"}`}>
                   {g.label}
                 </button>
               ))}
@@ -593,7 +593,7 @@ export function SimulateView({ profiles, myId }) {
               <div className="grid grid-cols-2 gap-1.5">
                 {SITUATIONS.map(s => (
                   <button key={s.id} onClick={() => setSituId(s.id)}
-                    className={`py-2 px-2 rounded-xl text-xs font-bold border-2 transition-all flex items-center gap-1.5 ${situId===s.id?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 text-gray-600 hover:border-gray-300"}`}>
+                    className={`py-2 px-2 rounded-xl text-xs font-bold border-2 transition-all flex items-center gap-1.5 ${situId===s.id?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-600 hover:border-gray-300"}`}>
                     <span>{s.icon}</span>
                     <span className="text-left leading-tight">{s.label}</span>
                   </button>
@@ -605,7 +605,7 @@ export function SimulateView({ profiles, myId }) {
           {/* 診断結果 */}
           {situResult && situLabel && (
             <div className="space-y-3">
-              <div className="text-center text-xs font-bold text-indigo-700 bg-indigo-50 py-1.5 rounded-lg">
+              <div className="text-center text-xs font-bold text-stone-700 bg-stone-50 py-1.5 rounded-lg">
                 {SITUATIONS.find(s=>s.id===situId)?.icon} {situLabel} が「{SITUATIONS.find(s=>s.id===situId)?.label}」とき
               </div>
               <div className="p-4 rounded-2xl border-2 border-amber-200 bg-amber-50 space-y-2">
@@ -665,7 +665,7 @@ export function SimulateView({ profiles, myId }) {
           <div>
             <div className="text-xs text-gray-500 font-bold mb-1">送りたいメッセージ（そのまま入力）</div>
             <textarea
-              className="w-full border-2 border-gray-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:border-indigo-400 transition-colors"
+              className="w-full border-2 border-gray-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:border-stone-400 transition-colors"
               rows={3}
               placeholder={"例：あなたとデートしたい\n例：明日の資料お願いできる？\n例：いつも頼りにしてます"}
               value={inputMsg}
@@ -677,7 +677,7 @@ export function SimulateView({ profiles, myId }) {
             <div className="grid grid-cols-3 gap-1.5">
               {TONE_OPTIONS.map(t => (
                 <button key={t.id} onClick={() => { setTone(t.id); setResult(null); }}
-                  className={`flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl border-2 text-xs font-bold transition-all ${tone===t.id?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 text-gray-500 bg-white"}`}>
+                  className={`flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl border-2 text-xs font-bold transition-all ${tone===t.id?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-500 bg-white"}`}>
                   <span className="text-base">{t.icon}</span>
                   <span>{t.label}</span>
                   <span className="text-gray-400 font-normal" style={{fontSize:"9px"}}>{t.desc}</span>
@@ -686,7 +686,7 @@ export function SimulateView({ profiles, myId }) {
             </div>
           </div>
           <button onClick={simulate} disabled={!targetId||!inputMsg.trim()}
-            className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${targetId&&inputMsg.trim()?"bg-indigo-600 text-white hover:bg-indigo-700 shadow-md":"bg-gray-200 text-gray-400"}`}>
+            className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${targetId&&inputMsg.trim()?"bg-stone-600 text-white hover:bg-stone-700 shadow-md":"bg-gray-200 text-gray-400"}`}>
             {target?`${target.name}の反応をシミュレート →`:"相手を選んでください"}
           </button>
           {result && target && (
@@ -833,8 +833,8 @@ export function SimulateView({ profiles, myId }) {
                 })}
               </div>
               {msgFreq && (
-                <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-200 space-y-1.5">
-                  <div className="text-xs font-bold text-indigo-700">よく使うメッセージパターン</div>
+                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-1.5">
+                  <div className="text-xs font-bold text-stone-700">よく使うメッセージパターン</div>
                   {msgFreq.map(([type,count]) => (
                     <div key={type} className="flex justify-between text-xs">
                       <span className="text-gray-700">{type}</span>

@@ -43,24 +43,24 @@ export function LogoIcon({ size = 44 }) {
     <svg width={size} height={size} viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style={{flexShrink:0}}>
       <defs>
         <radialGradient id="lgBg" cx="40%" cy="35%" r="65%">
-          <stop offset="0%" stopColor="#ffe4f5"/>
-          <stop offset="100%" stopColor="#d9a8e8"/>
+          <stop offset="0%" stopColor="#f5ece4"/>
+          <stop offset="100%" stopColor="#d9c4b0"/>
         </radialGradient>
         <linearGradient id="lgBorder" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#f9a8d4"/>
-          <stop offset="50%" stopColor="#c084fc"/>
-          <stop offset="100%" stopColor="#a78bfa"/>
+          <stop offset="0%" stopColor="#C4A882"/>
+          <stop offset="50%" stopColor="#9A7A60"/>
+          <stop offset="100%" stopColor="#7A5C48"/>
         </linearGradient>
         <linearGradient id="lgNeedleUp" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#ff6eb4"/>
-          <stop offset="100%" stopColor="#ff9ed0"/>
+          <stop offset="0%" stopColor="#C4607A"/>
+          <stop offset="100%" stopColor="#D4849A"/>
         </linearGradient>
         <linearGradient id="lgNeedleDown" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#c4a5e8"/>
-          <stop offset="100%" stopColor="#a78bfa"/>
+          <stop offset="0%" stopColor="#B0A0C0"/>
+          <stop offset="100%" stopColor="#C8B8D8"/>
         </linearGradient>
         <filter id="lgShadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#d8b4fe" floodOpacity="0.5"/>
+          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#C4A882" floodOpacity="0.35"/>
         </filter>
         <filter id="lgGlow">
           <feGaussianBlur stdDeviation="1.5" result="blur"/>
@@ -69,13 +69,13 @@ export function LogoIcon({ size = 44 }) {
       </defs>
       <circle cx="60" cy="60" r="55" fill="url(#lgBg)" stroke="url(#lgBorder)" strokeWidth="3.5" filter="url(#lgShadow)"/>
       <circle cx="60" cy="60" r="6" fill="white" opacity="0.9"/>
-      <circle cx="60" cy="60" r="3" fill="#c084fc"/>
+      <circle cx="60" cy="60" r="3" fill="#9A7A60"/>
       <line x1="60" y1="54" x2="60" y2="12" stroke="url(#lgNeedleUp)" strokeWidth="5" strokeLinecap="round" filter="url(#lgGlow)"/>
       <line x1="60" y1="66" x2="60" y2="100" stroke="url(#lgNeedleDown)" strokeWidth="4" strokeLinecap="round"/>
-      <line x1="60" y1="60" x2="95" y2="60" stroke="#e9d5ff" strokeWidth="3" strokeLinecap="round"/>
-      <line x1="60" y1="60" x2="25" y2="60" stroke="#e9d5ff" strokeWidth="3" strokeLinecap="round"/>
-      <circle cx="60" cy="12" r="5" fill="#ff6eb4" filter="url(#lgGlow)"/>
-      <text x="60" y="112" textAnchor="middle" fontSize="9" fill="#a78bfa" fontWeight="bold" letterSpacing="1">COMPASS</text>
+      <line x1="60" y1="60" x2="95" y2="60" stroke="#DDD0C4" strokeWidth="3" strokeLinecap="round"/>
+      <line x1="60" y1="60" x2="25" y2="60" stroke="#DDD0C4" strokeWidth="3" strokeLinecap="round"/>
+      <circle cx="60" cy="12" r="5" fill="#C4607A" filter="url(#lgGlow)"/>
+      <text x="60" y="112" textAnchor="middle" fontSize="9" fill="#9A7A60" fontWeight="bold" letterSpacing="1">COMPASS</text>
     </svg>
   );
 }
@@ -210,7 +210,7 @@ export function WelcomeModal({ onClose }) {
         aria-describedby={descId}
         onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
-        style={{border:'1px solid rgba(180,130,70,0.18)'}}>
+        style={{border:'1px solid rgba(150,118,88,0.15)'}}>
 
         {/* ヘッダー */}
         <div className="px-6 pt-6 pb-3 flex items-start gap-3">
@@ -233,7 +233,7 @@ export function WelcomeModal({ onClose }) {
             {steps.map((_, i) => (
               <div key={i} className="flex-1 h-1 rounded-full transition-colors"
                 style={{background: i <= step
-                  ? 'linear-gradient(90deg,#f472b6,#a78bfa)'
+                  ? 'linear-gradient(90deg,#C4A882,#8C7055)'
                   : '#f3e8ff'}} />
             ))}
           </div>
@@ -262,7 +262,7 @@ export function WelcomeModal({ onClose }) {
             <button onClick={() => isLast ? onClose() : setStep(step+1)}
               type="button"
               className="text-sm font-bold text-white px-5 py-2 rounded-lg shadow transition-all"
-              style={{background:'linear-gradient(135deg,#f472b6,#a78bfa)'}}>
+              style={{background:'#8C7055'}}>
               {isLast ? 'はじめる' : '次へ'}
             </button>
           </div>
@@ -634,7 +634,7 @@ export function CommunicationCompass() {
 
   // ── レンダー ──
   return (
-    <div className="flex h-screen overflow-hidden" style={{background:'#fdf9f3'}}>
+    <div className="flex h-screen overflow-hidden" style={{background:'#FAF7F2'}}>
 
       {/* キーボードユーザー向けスキップリンク（フォーカス時のみ表示） */}
       <a href="#main-content" className="skip-link">本文へスキップ</a>
@@ -656,13 +656,13 @@ export function CommunicationCompass() {
         "flex flex-col z-30 transition-transform duration-300",
         "fixed md:static inset-y-0 left-0 w-56",
         sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-      ].join(' ')} style={{background:'#fffcf7',borderRight:'1px solid rgba(180,130,70,0.18)'}}>
+      ].join(' ')} style={{background:'#F7F3EE',borderRight:'1px solid rgba(150,118,88,0.15)'}}>
 
         {/* ロゴ */}
-        <div className="flex items-center gap-2 px-3 py-2.5" style={{borderBottom:'1px solid rgba(180,130,70,0.15)'}}>
+        <div className="flex items-center gap-2 px-3 py-2.5" style={{borderBottom:'1px solid rgba(150,118,88,0.12)'}}>
           <LogoIcon size={28} />
           <div>
-            <div className="text-xs font-black bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent leading-tight">
+            <div className="text-xs font-black leading-tight" style={{color:'#7A5C48'}}>
               支礎学コンパス
             </div>
             <div className="text-[10px] text-gray-400">血液型コミュニティ</div>
@@ -679,10 +679,10 @@ export function CommunicationCompass() {
               aria-current={view === item.id ? 'page' : undefined}
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all"
               style={view === item.id
-                ? {background:'linear-gradient(135deg,#92400e,#b45309)',color:'white',boxShadow:'0 2px 8px rgba(146,64,14,0.3)'}
-                : {color:'#5c3d1e'}}>
+                ? {background:'#8C7055',color:'white',boxShadow:'0 2px 8px rgba(140,112,85,0.2)'}
+                : {color:'#5C4A38'}}>
               <span aria-hidden="true" className="w-4 flex items-center justify-center">
-                <Icon name={item.icon} size={14} color={view===item.id?"white":"#92400e"} sw={1.5}/>
+                <Icon name={item.icon} size={14} color={view===item.id?"white":"#8C7055"} sw={1.5}/>
               </span>
               <span className="flex-1 text-left">{item.label}</span>
               {item.badge && (
@@ -733,10 +733,10 @@ export function CommunicationCompass() {
               aria-current={view === tab.id ? 'page' : undefined}
               className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
               style={view === tab.id
-                ? {background:'rgba(146,64,14,0.09)',color:'#92400e',fontWeight:700}
-                : {color:'#7c5c3e'}}>
+                ? {background:'rgba(140,112,85,0.08)',color:'#8C7055',fontWeight:700}
+                : {color:'#7A6048'}}>
               <span aria-hidden="true" className="w-4 flex items-center justify-center">
-                <Icon name={tab.icon} size={13} color={view===tab.id?"#92400e":"#a07850"} sw={1.5}/>
+                <Icon name={tab.icon} size={13} color={view===tab.id?"#8C7055":"#9A8060"} sw={1.5}/>
               </span>
               <span>{tab.label}</span>
             </button>
@@ -777,7 +777,7 @@ export function CommunicationCompass() {
             onClick={() => setSidebarOpen(false)}
             className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl text-[10px] font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
             style={{
-              background:'linear-gradient(135deg, #a855f7, #ec4899)',
+              background:'linear-gradient(135deg, #9A7A60, #C4A882)',
               boxShadow:'0 2px 8px rgba(168,85,247,0.4)',
             }}>
             <span aria-hidden="true" className="flex-shrink-0">
@@ -820,7 +820,7 @@ export function CommunicationCompass() {
             ) : (
               <button onClick={handleLogin}
                 className="w-full flex items-center justify-center gap-2 py-1.5 rounded-xl text-xs font-bold transition-all"
-                style={{background:'rgba(146,64,14,0.08)',border:'1px solid rgba(146,64,14,0.2)',color:'#92400e'}}>
+                style={{background:'rgba(140,112,85,0.07)',border:'1px solid rgba(140,112,85,0.15)',color:'#8C7055'}}>
                 🔑 Googleログイン
               </button>
             )
@@ -832,7 +832,7 @@ export function CommunicationCompass() {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
         {/* トップバー */}
-        <header className="px-4 py-2.5 flex items-center gap-3 flex-shrink-0" style={{background:'#fffcf7',borderBottom:'1px solid rgba(180,130,70,0.18)'}}>
+        <header className="px-4 py-2.5 flex items-center gap-3 flex-shrink-0" style={{background:'#F7F3EE',borderBottom:'1px solid rgba(150,118,88,0.15)'}}>
           {/* ハンバーガー（モバイルのみ） */}
           <button className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 text-gray-600"
             type="button"
@@ -848,7 +848,7 @@ export function CommunicationCompass() {
           {/* モバイル：ロゴ表示 */}
           <div className="md:hidden flex items-center gap-1.5">
             <LogoIcon size={24} />
-            <span className="text-sm font-black bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">支礎学コンパス</span>
+            <span className="text-sm font-black" style={{color:'#7A5C48'}}>支礎学コンパス</span>
           </div>
 
           {/* 検索バー */}
@@ -863,7 +863,7 @@ export function CommunicationCompass() {
               value={searchQuery}
               onChange={e => handleSearch(e.target.value)}
               placeholder="血液型・特徴・アドバイスを検索…（A型 愛情、謝り方 など）"
-              className="w-full pl-9 pr-8 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all" style={{background:'#fdf4e8',border:'1px solid rgba(180,130,70,0.25)',outline:'none'}} onFocus={e=>{e.target.style.boxShadow='0 0 0 2px rgba(146,64,14,0.2)';e.target.style.borderColor='rgba(146,64,14,0.4)'}} onBlur={e=>{e.target.style.boxShadow='';e.target.style.borderColor='rgba(180,130,70,0.25)'}}
+              className="w-full pl-9 pr-8 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all" style={{background:'#F5F0EA',border:'1px solid rgba(150,118,88,0.2)',outline:'none'}} onFocus={e=>{e.target.style.boxShadow='0 0 0 2px rgba(140,112,85,0.15)';e.target.style.borderColor='rgba(140,112,85,0.3)'}} onBlur={e=>{e.target.style.boxShadow='';e.target.style.borderColor='rgba(150,118,88,0.2)'}}
             />
             {searchQuery && (
               <button onClick={() => handleSearch('')}
@@ -878,7 +878,7 @@ export function CommunicationCompass() {
 
         {/* タブバー（検索中は非表示・サイドバービュー時も非表示） */}
         {!searchQuery && !isSidebarView && (
-          <nav aria-label="機能タブ" className="px-4 flex-shrink-0" style={{background:'#fffcf7',borderBottom:'1px solid rgba(180,130,70,0.15)'}}>
+          <nav aria-label="機能タブ" className="px-4 flex-shrink-0" style={{background:'#F7F3EE',borderBottom:'1px solid rgba(150,118,88,0.12)'}}>
             <div className="flex gap-1 overflow-x-auto scrollbar-hide py-2">
               {mainTabs.map(tab => (
                 <button key={tab.id} onClick={() => handleViewChange(tab.id)}
@@ -886,10 +886,10 @@ export function CommunicationCompass() {
                   aria-current={view === tab.id ? 'page' : undefined}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex-shrink-0"
                   style={view === tab.id
-                    ? {background:'linear-gradient(135deg,#92400e,#b45309)',color:'white',boxShadow:'0 2px 6px rgba(146,64,14,0.25)'}
-                    : {color:'#7c5c3e',background:'transparent'}}>
+                    ? {background:'#8C7055',color:'white',boxShadow:'0 2px 6px rgba(140,112,85,0.2)'}
+                    : {color:'#7A6048',background:'transparent'}}>
                   <span aria-hidden="true" className="flex items-center">
-                    <Icon name={tab.icon} size={13} color={view===tab.id?"white":"#92400e"} sw={1.5}/>
+                    <Icon name={tab.icon} size={13} color={view===tab.id?"white":"#8C7055"} sw={1.5}/>
                   </span>
                   <span>{tab.label}</span>
                 </button>
@@ -906,7 +906,7 @@ export function CommunicationCompass() {
             {searchQuery ? (
               <SearchResults results={searchResults} query={searchQuery} onTabJump={(tab) => { handleSearch(''); handleViewChange(tab); }} />
             ) : (
-              <div className="bg-white rounded-2xl p-5" style={{boxShadow:'0 1px 12px rgba(180,130,70,0.1)',border:'1px solid rgba(180,130,70,0.15)'}}>
+              <div className="bg-white rounded-2xl p-5" style={{boxShadow:'0 1px 12px rgba(180,130,70,0.1)',border:'1px solid rgba(150,118,88,0.12)'}}>
                 <Suspense fallback={<ViewLoading/>}>
                   {evalToken && <EvaluationFormView token={evalToken} user={user}/>}
                   {!evalToken && view==="manual"    && <ManualView/>}
@@ -939,7 +939,7 @@ export function CommunicationCompass() {
               aria-current={view === item.id ? 'page' : undefined}
               className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all flex-1"
               style={view===item.id
-                ?{background:'linear-gradient(135deg,#92400e,#b45309)',boxShadow:'0 2px 8px rgba(146,64,14,0.5)'}
+                ?{background:'#8C7055',boxShadow:'0 2px 8px rgba(140,112,85,0.3)'}
                 :{}}>
               <span aria-hidden="true" className="flex items-center">
                 <Icon name={item.icon} size={20} color={view===item.id?"#fdf8f0":"rgba(253,248,240,0.38)"} sw={1.5}/>

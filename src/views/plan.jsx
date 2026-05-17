@@ -116,7 +116,7 @@ export function AIView({ profiles = [], myId = null, user = null }) {
 
       {/* 血液型・性別選択 */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+        <div className="p-3 bg-stone-50 rounded-xl border border-stone-100">
           <BloodSel val={myBlood} set={setMyBlood} label="あなたの血液型" />
           <GenderSel val={myGender} set={setMyGender} />
         </div>
@@ -137,7 +137,7 @@ export function AIView({ profiles = [], myId = null, user = null }) {
           onChange={handleSituationChange}
           placeholder={"例：「昨日LINEを送ったのに既読スルーされた。いつもこのパターンで不安になる」\n「仕事でミスをして謝ったが相手の反応が薄い。どう対応すれば良いか」"}
           rows={4}
-          className="w-full text-sm p-3 rounded-xl border-2 border-gray-200 focus:border-indigo-400 focus:outline-none resize-none leading-relaxed"
+          className="w-full text-sm p-3 rounded-xl border-2 border-gray-200 focus:border-stone-400 focus:outline-none resize-none leading-relaxed"
         />
         <div className="text-xs text-gray-400 mt-1">※ 10文字以上入力してください</div>
       </div>
@@ -166,9 +166,9 @@ export function AIView({ profiles = [], myId = null, user = null }) {
       {/* AI回答 */}
       {result && (
         <div className="space-y-2">
-          <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+          <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-stone-200">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-bold">
                 🤖 {myBlood}型{myGender} × {tgBlood}型{tgGender}
               </span>
             </div>
@@ -273,7 +273,7 @@ export function PlanView() {
 
               {/* 3項目カード */}
               {[
-                { label:"💡 意思決定のスタイル", key:"decision", bg:"bg-indigo-50", border:"border-indigo-200", text:"text-indigo-700" },
+                { label:"💡 意思決定のスタイル", key:"decision", bg:"bg-stone-50", border:"border-stone-200", text:"text-stone-700" },
                 { label:"⚠️ 注意したいこと",   key:"risk",     bg:"bg-amber-50",  border:"border-amber-200",  text:"text-amber-700"  },
                 { label:"⏰ 動くタイミング",   key:"timing",   bg:"bg-green-50",  border:"border-green-200",  text:"text-green-700"  },
               ].map(({label,key,bg,border,text}) => (

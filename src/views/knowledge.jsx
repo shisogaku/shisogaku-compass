@@ -19,7 +19,7 @@ export function NendaiView() {
       <div>
         <div className="text-xs text-gray-500 font-bold mb-1">年代</div>
         <div className="flex gap-1">
-          {ages.map(a=><button key={a} onClick={()=>setSelAge(a)} className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${selAge===a?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 text-gray-600"}`}>{a}</button>)}
+          {ages.map(a=><button key={a} onClick={()=>setSelAge(a)} className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${selAge===a?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-600"}`}>{a}</button>)}
         </div>
       </div>
       {data&&<div className="space-y-3">
@@ -31,9 +31,9 @@ export function NendaiView() {
           <div className="font-bold text-sm text-gray-700 mb-2">この時期の特徴</div>
           {data.traits.map((t,i)=><div key={i} className="text-sm text-gray-700 mb-1 flex items-start gap-1"><span className="text-gray-400 flex-shrink-0">•</span><span>{t}</span></div>)}
         </div>
-        <div className="p-3 bg-indigo-50 rounded-lg border border-indigo-200">
-          <div className="font-bold text-sm text-indigo-700 mb-1">💡 このフェーズへの接し方</div>
-          <div className="text-sm text-indigo-800">{data.approach}</div>
+        <div className="p-3 bg-stone-50 rounded-lg border border-stone-200">
+          <div className="font-bold text-sm text-stone-700 mb-1">💡 このフェーズへの接し方</div>
+          <div className="text-sm text-stone-700">{data.approach}</div>
         </div>
       </div>}
       {/* 全年代比較 */}
@@ -41,7 +41,7 @@ export function NendaiView() {
         <div className="text-xs font-bold text-gray-500 mb-2">{selBlood}型 全年代タイトル一覧</div>
         <div className="space-y-1">
           {ages.map(a=>{const d=NENDAI[selBlood]?.[a]; return(
-            <div key={a} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${selAge===a?"bg-indigo-100":"bg-gray-50 hover:bg-gray-100"}`} onClick={()=>setSelAge(a)}>
+            <div key={a} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${selAge===a?"bg-stone-100":"bg-gray-50 hover:bg-gray-100"}`} onClick={()=>setSelAge(a)}>
               <span className="text-xs font-bold w-10 text-center rounded px-1 py-0.5 text-white" style={{backgroundColor:BC[selBlood].color}}>{a}</span>
               <span className="text-sm font-bold text-gray-700">{d?.title}</span>
             </div>
@@ -89,7 +89,7 @@ export function HenkanView() {
       <div>
         <div className="text-xs text-gray-500 font-bold mb-1">伝えたい内容（元のメッセージ）</div>
         <textarea
-          className="w-full border border-gray-300 rounded-lg p-2 text-sm resize-none focus:outline-none focus:border-indigo-400"
+          className="w-full border border-gray-300 rounded-lg p-2 text-sm resize-none focus:outline-none focus:border-stone-400"
           rows={4}
           placeholder="例：明日の資料を準備しておいてください"
           value={inputMsg}
@@ -99,7 +99,7 @@ export function HenkanView() {
       <button
         onClick={convert}
         disabled={!targetKey||!inputMsg.trim()}
-        className={`w-full py-2 rounded-lg font-bold text-sm transition-all ${targetKey&&inputMsg.trim()?"bg-indigo-600 text-white hover:bg-indigo-700":"bg-gray-200 text-gray-400"}`}
+        className={`w-full py-2 rounded-lg font-bold text-sm transition-all ${targetKey&&inputMsg.trim()?"bg-stone-600 text-white hover:bg-stone-700":"bg-gray-200 text-gray-400"}`}
       >
         変換する →
       </button>
@@ -107,7 +107,7 @@ export function HenkanView() {
       {result&&<div>
         <div className="text-xs text-gray-500 font-bold mb-1">変換後メッセージ（{target?.label}向け）</div>
         <div className="p-3 bg-green-50 border border-green-300 rounded-lg text-sm text-green-900 leading-relaxed">{result}</div>
-        <button onClick={()=>navigator.clipboard?.writeText(result)} className="mt-1 text-xs text-indigo-500 hover:text-indigo-700">📋 コピー</button>
+        <button onClick={()=>navigator.clipboard?.writeText(result)} className="mt-1 text-xs text-stone-500 hover:text-stone-700">📋 コピー</button>
       </div>}
       {/* 各タイプの変換ポイント早見表 */}
       <div>
@@ -375,7 +375,7 @@ export function PowerView({ profiles = [] }) {
         <div className="space-y-1.5 text-xs">
           {[
             { title:"「話を聞いていない」問題の正体", body:"男性が狩りに集中する間は「無言・没頭」が正しい姿だった。女性が「ちゃんと聞いてる？」と感じるのは、耳で関係性を確認してきた古代からの本能的反応。", color:"bg-amber-50 border-amber-200" },
-            { title:"「察してほしい」問題の正体", body:"女性は声のトーン・間・表情の変化から感情を読み取ることが得意なため、「言わなくてもわかるはず」という感覚が生まれやすい。男性は視覚優位のため「言葉で明確に言われないと気づかない」のが通常状態。", color:"bg-purple-50 border-purple-200" },
+            { title:"「察してほしい」問題の正体", body:"女性は声のトーン・間・表情の変化から感情を読み取ることが得意なため、「言わなくてもわかるはず」という感覚が生まれやすい。男性は視覚優位のため「言葉で明確に言われないと気づかない」のが通常状態。", color:"bg-stone-50 border-stone-200" },
             { title:"「地図が読めない」「道を聞けない」問題", body:"女性の方向感覚が弱いのではなく、女性は「人に聞く」という音声コミュニケーションで解決する方法が自然。男性は「自分の空間認識で解決する」という本能が強い。どちらも正しい適応策。", color:"bg-green-50 border-green-200" },
             { title:"「共感してほしいだけ」問題", body:"女性が悩みを話す時、解決策より「聞いてもらうこと」を求める場合が多い。これは集落で感情を共有・処理することで生存してきた女性の本能。男性は「問題→解決」という狩猟モードで応答しがちなため、ズレが生じる。", color:"bg-rose-50 border-rose-200" },
           ].map(item => (
@@ -385,7 +385,7 @@ export function PowerView({ profiles = [] }) {
             </div>
           ))}
         </div>
-        <div className="mt-2 p-2 bg-indigo-50 rounded-lg border border-indigo-200 text-xs text-indigo-800 leading-relaxed">
+        <div className="mt-2 p-2 bg-stone-50 rounded-lg border border-stone-200 text-xs text-stone-700 leading-relaxed">
           <strong>支礎学との接続：</strong>この男女の根本的な能力分化の上に、血液型ごとの特性が重なる。例えば「察する」能力はA型女性で最大化され、「没頭・無言」はAB型男性で最も顕著に現れる。
         </div>
       </div>
@@ -422,7 +422,7 @@ export function PowerView({ profiles = [] }) {
             <span className="text-gray-600">{p.d}</span>
           </div>
         ))}
-        <div className="mt-2 p-2 bg-indigo-50 rounded text-xs text-indigo-800">
+        <div className="mt-2 p-2 bg-stone-50 rounded text-xs text-stone-700">
           <strong>人間目線の価値：</strong>男性・女性目線ではなく「人間」として相手を見ることで偏りのない判断ができる。性別は後から付加されたオプション。素体＝人間で判断すること。
         </div>
       </div>
@@ -508,7 +508,7 @@ export function PowerView({ profiles = [] }) {
         <div className="font-bold text-sm text-gray-700 mb-2">📖 支礎学とは何か — 基礎理論</div>
         <div className="space-y-2 text-xs">
           {[
-            { title:"支礎学の定義", color:"bg-indigo-50 border-indigo-200", body:"支礎学（しそがく）とは、血液型を「性格の型」として捉え、人間関係・コミュニケーション・人生設計を科学的・体系的に読み解くフレームワーク。占いでも医学でもなく「行動特性のパターン学」として活用する。" },
+            { title:"支礎学の定義", color:"bg-stone-50 border-stone-200", body:"支礎学（しそがく）とは、血液型を「性格の型」として捉え、人間関係・コミュニケーション・人生設計を科学的・体系的に読み解くフレームワーク。占いでも医学でもなく「行動特性のパターン学」として活用する。" },
             { title:"なぜ血液型で違いが生まれるのか", color:"bg-blue-50 border-blue-200", body:"血液型は赤血球の表面抗原（ABO式）の違い。この違いが免疫系・神経伝達物質・ストレス反応のパターンに影響を与えるという研究が存在する。支礎学ではこれを「行動の傾向パターン」として活用し、予測・対応に使う。" },
             { title:"XY軸の仕組み", color:"bg-violet-50 border-violet-200", body:"X軸は「攻撃性（左）↔ 消極性（右）」、Y軸は「社会従属性（上）↔ 自己主張性（下）」で構成される。4象限にそれぞれの血液型が位置し、男女でも微妙に座標が異なる。この座標が「相手との力学・ぶつかり方」を決める。" },
             { title:"感情タグと心のゴミ", color:"bg-amber-50 border-amber-200", body:"人間は生まれた瞬間から「感情タグ（喜怒哀楽のラベル）」を経験に貼り続ける。この感情タグの蓄積が「心のゴミ」であり、適切に処理しないと爆発・関係リセットを引き起こす。血液型によって処理パターンが全く異なる。" },
@@ -543,7 +543,7 @@ export function DetailView({blood,setBlood,gender,setGender}) {
     if (category==="対応"||category==="危険") return sd?sd[category]:[];
     return cd[category]||[];
   };
-  const catColor = id => id==="危険"?"bg-red-50 border-red-400 text-red-800":id==="対応"?"bg-green-50 border-green-400 text-green-800":id==="心理"?"bg-blue-50 border-blue-400 text-blue-800":id==="表の面"?"bg-yellow-50 border-yellow-400 text-yellow-800":id==="裏の面"?"bg-purple-50 border-purple-400 text-purple-800":id==="恋愛結婚"?"bg-pink-50 border-pink-400 text-pink-800":"bg-gray-50 border-gray-300 text-gray-700";
+  const catColor = id => id==="危険"?"bg-red-50 border-red-400 text-red-800":id==="対応"?"bg-green-50 border-green-400 text-green-800":id==="心理"?"bg-blue-50 border-blue-400 text-blue-800":id==="表の面"?"bg-yellow-50 border-yellow-400 text-yellow-800":id==="裏の面"?"bg-stone-50 border-purple-400 text-stone-700":id==="恋愛結婚"?"bg-pink-50 border-pink-400 text-pink-800":"bg-gray-50 border-gray-300 text-gray-700";
 
   return (
     <div className="space-y-4">
@@ -551,7 +551,7 @@ export function DetailView({blood,setBlood,gender,setGender}) {
       <div>
         <div className="text-xs text-gray-500 font-bold mb-1">STEP 1 — 性別</div>
         <div className="flex gap-2">
-          {genders.map(g=><button key={g.id} onClick={()=>{setGender(g.id);setBlood(null);setCategory(null);}} className={`flex-1 py-2 rounded-lg text-sm font-bold border-2 transition-all ${gender===g.id?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 bg-white text-gray-600"}`}>{g.icon} {g.label}</button>)}
+          {genders.map(g=><button key={g.id} onClick={()=>{setGender(g.id);setBlood(null);setCategory(null);}} className={`flex-1 py-2 rounded-lg text-sm font-bold border-2 transition-all ${gender===g.id?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 bg-white text-gray-600"}`}>{g.icon} {g.label}</button>)}
         </div>
       </div>
       {/* 血液型 */}

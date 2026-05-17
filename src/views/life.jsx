@@ -34,7 +34,7 @@ export function LifeView() {
       <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
         {[["phase","📈 フェーズ"],["temp","🌡️ 温度変化"]].map(([t,l])=>(
           <button key={t} onClick={()=>setLifeTab(t)}
-            className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${lifeTab===t?"bg-white shadow text-indigo-600":"text-gray-500"}`}>{l}</button>
+            className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${lifeTab===t?"bg-white shadow text-stone-600":"text-gray-500"}`}>{l}</button>
         ))}
       </div>
 
@@ -137,7 +137,7 @@ export function LifeView() {
 
           {/* 男性の温度グラフ */}
           <div className="rounded-2xl border-2 border-blue-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-400 px-4 py-2">
+            <div className="bg-gradient-to-r from-blue-500 to-stone-400 px-4 py-2">
               <div className="font-black text-white text-sm">👨 男性の感情温度グラフ</div>
               <div className="text-xs text-blue-100">「波形」を繰り返す周期的サイクル</div>
             </div>
@@ -208,8 +208,8 @@ export function LifeView() {
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-indigo-50 rounded-xl border border-indigo-200">
-                  <div className="font-bold text-indigo-700 text-xs mb-1.5">💡 男性サイクルへの対応策（女性向け）</div>
+                <div className="p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+                  <div className="font-bold text-stone-700 text-xs mb-1.5">💡 男性サイクルへの対応策（女性向け）</div>
                   <div className="space-y-1 text-xs text-gray-700">
                     <div>・波が低い時期は<span className="font-bold">「引き寄せ」より「安心感の提供」</span>が効果的</div>
                     <div>・熱が下がった時に責めたり詰めたりすると逃げたくなる。距離を置くことが逆効果になる局面も</div>
@@ -300,9 +300,9 @@ export function LifeView() {
           {phase.edu && (
             <div className="rounded-xl border-2 border-purple-300 overflow-hidden">
               <button onClick={() => setEduOpen(!eduOpen)}
-                className="w-full p-3 bg-purple-50 flex items-center justify-between text-left">
+                className="w-full p-3 bg-stone-50 flex items-center justify-between text-left">
                 <div>
-                  <div className="font-bold text-purple-700 text-xs">{phase.edu.title}</div>
+                  <div className="font-bold text-stone-600 text-xs">{phase.edu.title}</div>
                   <div className="text-xs text-purple-500 mt-0.5">タップして学習コンテンツを開く</div>
                 </div>
                 <span className="text-purple-400 text-lg">{eduOpen?"▲":"▼"}</span>
@@ -331,7 +331,7 @@ export function LifeView() {
             <div className="flex gap-2">
               {[{id:"female",label:"👩 女性"},{id:"male",label:"👨 男性"}].map(g => (
                 <button key={g.id} onClick={() => setSelGender(selGender===g.id&&isDiff?null:g.id)}
-                  className={`flex-1 py-1.5 rounded-lg text-sm font-bold border-2 transition-all ${selGender===g.id?"border-indigo-500 bg-indigo-100 text-indigo-700":"border-gray-200 text-gray-600"}`}>
+                  className={`flex-1 py-1.5 rounded-lg text-sm font-bold border-2 transition-all ${selGender===g.id?"border-stone-500 bg-stone-100 text-stone-700":"border-gray-200 text-gray-600"}`}>
                   {g.label}
                 </button>
               ))}
@@ -447,10 +447,10 @@ export function LevelUpSection({ blood, gender, onChecksChange }) {
   };
 
   return (
-    <div className="border-t border-indigo-200 pt-3 space-y-2">
+    <div className="border-t border-stone-200 pt-3 space-y-2">
       <div className="flex items-center gap-1.5 mb-1">
         <span className="text-base">🚀</span>
-        <span className="text-xs font-black text-indigo-700">レベルアップ ロードマップ</span>
+        <span className="text-xs font-black text-stone-700">レベルアップ ロードマップ</span>
         <span className="text-xs text-gray-400">アクションをチェックするとレベルが上がります</span>
       </div>
       {weakAxes.map(({ ax, v }, i) => {

@@ -75,7 +75,7 @@ export function EvaluationFormView({ token, user }) {
       <div className="text-sm text-gray-500">回答するにはログインが必要です</div>
       <button
         onClick={() => _sb?.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.href } })}
-        className="flex items-center gap-2 mx-auto px-6 py-3 rounded-xl bg-white border-2 border-indigo-300 shadow text-sm font-bold text-indigo-700 hover:bg-indigo-50 transition-all">
+        className="flex items-center gap-2 mx-auto px-6 py-3 rounded-xl bg-white border-2 border-stone-300 shadow text-sm font-bold text-stone-700 hover:bg-stone-50 transition-all">
         Googleでログイン
       </button>
     </div>
@@ -198,12 +198,12 @@ export function EvaluationPanel({ user, profileKey, requesterName, selfChecks })
   const latestResult = results?.[results.length - 1];
 
   return (
-    <div className="mt-2 rounded-xl border border-indigo-200 overflow-hidden">
+    <div className="mt-2 rounded-xl border border-stone-200 overflow-hidden">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-3 py-2.5 bg-indigo-50 text-left">
-        <span className="text-xs font-bold text-indigo-700">👥 相手からの評価を依頼する</span>
-        <span className="text-xs text-indigo-400">{open ? "▲" : "▼"}</span>
+        className="w-full flex items-center justify-between px-3 py-2.5 bg-stone-50 text-left">
+        <span className="text-xs font-bold text-stone-700">👥 相手からの評価を依頼する</span>
+        <span className="text-xs text-stone-400">{open ? "▲" : "▼"}</span>
       </button>
 
       {open && (
@@ -229,7 +229,7 @@ export function EvaluationPanel({ user, profileKey, requesterName, selfChecks })
                   <button
                     onClick={copyLink}
                     className={`w-full py-2 rounded-lg text-xs font-bold border-2 transition-all ${
-                      copied ? "bg-green-50 border-green-400 text-green-700" : "border-indigo-300 text-indigo-700"
+                      copied ? "bg-green-50 border-green-400 text-green-700" : "border-stone-300 text-stone-700"
                     }`}>
                     {copied ? "✅ コピーしました！" : "🔗 評価リンクをコピー"}
                   </button>
