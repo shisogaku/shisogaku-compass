@@ -31,7 +31,7 @@ export function CompatView({ profiles = [], myId = null }) {
       <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
         {[["pair","👥 ペア相性"],["group","🔷 グループ分析"]].map(([m,l])=>(
           <button key={m} onClick={()=>{setCompatMode(m);setGroupFocus(null);}}
-            className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${compatMode===m?"bg-white shadow text-stone-600":"text-gray-500"}`}>{l}</button>
+            className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${compatMode===m?"bg-white shadow text-amber-900":"text-gray-500"}`}>{l}</button>
         ))}
       </div>
 
@@ -286,7 +286,7 @@ export function SceneView({ profiles = [], myId = null }) {
         <div className="flex gap-1 overflow-x-auto pb-0.5" style={{scrollbarWidth:"none"}}>
           {Object.entries(SCENE_CATS).map(([k,v]) => (
             <button key={k} onClick={() => { setCat(k); setSelScene(null); }}
-              className={`flex-shrink-0 px-2 py-1 rounded-lg text-xs font-bold border-2 transition-all ${cat===k?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-600"}`}>
+              className={`flex-shrink-0 px-2 py-1 rounded-lg text-xs font-bold border-2 transition-all ${cat===k?"warm-sel":"border-gray-200 text-gray-600"}`}>
               {v.icon} {v.label}
             </button>
           ))}
@@ -299,7 +299,7 @@ export function SceneView({ profiles = [], myId = null }) {
         <div className="grid grid-cols-4 gap-1">
           {filteredKeys.map(k => (
             <button key={k} onClick={() => setSelScene(k)}
-              className={`py-2 px-1 rounded-xl text-xs font-bold border-2 transition-all flex flex-col items-center gap-0.5 ${selScene===k?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-600 hover:border-gray-300"}`}>
+              className={`py-2 px-1 rounded-xl text-xs font-bold border-2 transition-all flex flex-col items-center gap-0.5 ${selScene===k?"warm-sel":"border-gray-200 text-gray-600 hover:border-gray-300"}`}>
               <span className="text-base">{SCENE_DB[k].icon}</span>
               <span style={{fontSize:"9px"}} className="text-center leading-tight">{SCENE_DB[k].label.length > 6 ? SCENE_DB[k].label.slice(0,6)+"…" : SCENE_DB[k].label}</span>
             </button>
@@ -326,7 +326,7 @@ export function SceneView({ profiles = [], myId = null }) {
                     return (
                       <button key={g.id} onClick={() => !genderLock && setSelGender(g.id)}
                         disabled={!!genderLock}
-                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${isActive?"border-stone-500 bg-stone-100 text-stone-700":"border-gray-200 text-gray-600"} ${genderLock?"cursor-default":""}`}>
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${isActive?"warm-sel":"border-gray-200 text-gray-600"} ${genderLock?"cursor-default":""}`}>
                         {g.label}
                       </button>
                     );
@@ -540,7 +540,7 @@ export function SimulateView({ profiles, myId }) {
       <div className="grid grid-cols-4 gap-0.5 bg-gray-100 rounded-lg p-0.5">
         {SIM_TABS.map(t => (
           <button key={t.id} onClick={() => setSimTab(t.id)}
-            className={`py-1.5 rounded text-xs font-bold flex items-center justify-center gap-0.5 transition-all ${simTab===t.id?"bg-white shadow text-stone-600":"text-gray-500"}`}>
+            className={`py-1.5 rounded text-xs font-bold flex items-center justify-center gap-0.5 transition-all ${simTab===t.id?"bg-white shadow text-amber-900":"text-gray-500"}`}>
             <span>{t.icon}</span><span>{t.label}</span>
             {t.id==="history" && history.length > 0 && (
               <span className="bg-stone-500 text-white rounded-full px-1" style={{fontSize:"9px"}}>{history.length}</span>
@@ -579,7 +579,7 @@ export function SimulateView({ profiles, myId }) {
             <div className="grid grid-cols-2 gap-1">
               {[{id:"female",label:"👩 女性"},{id:"male",label:"👨 男性"}].map(g => (
                 <button key={g.id} onClick={() => { setSituGender(g.id); setSituId(null); }}
-                  className={`py-2 rounded-xl text-sm font-bold border-2 transition-all ${situGender===g.id?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-600"}`}>
+                  className={`py-2 rounded-xl text-sm font-bold border-2 transition-all ${situGender===g.id?"warm-sel":"border-gray-200 text-gray-600"}`}>
                   {g.label}
                 </button>
               ))}
@@ -593,7 +593,7 @@ export function SimulateView({ profiles, myId }) {
               <div className="grid grid-cols-2 gap-1.5">
                 {SITUATIONS.map(s => (
                   <button key={s.id} onClick={() => setSituId(s.id)}
-                    className={`py-2 px-2 rounded-xl text-xs font-bold border-2 transition-all flex items-center gap-1.5 ${situId===s.id?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-600 hover:border-gray-300"}`}>
+                    className={`py-2 px-2 rounded-xl text-xs font-bold border-2 transition-all flex items-center gap-1.5 ${situId===s.id?"warm-sel":"border-gray-200 text-gray-600 hover:border-gray-300"}`}>
                     <span>{s.icon}</span>
                     <span className="text-left leading-tight">{s.label}</span>
                   </button>
@@ -608,17 +608,23 @@ export function SimulateView({ profiles, myId }) {
               <div className="text-center text-xs font-bold text-stone-700 bg-stone-50 py-1.5 rounded-lg">
                 {SITUATIONS.find(s=>s.id===situId)?.icon} {situLabel} が「{SITUATIONS.find(s=>s.id===situId)?.label}」とき
               </div>
-              <div className="p-4 rounded-2xl border-2 border-amber-200 bg-amber-50 space-y-2">
-                <div className="text-xs font-bold text-amber-700 tracking-wider uppercase">内側で起きていること</div>
-                <div className="text-sm text-gray-800 leading-relaxed">{situResult.inside}</div>
+              <div className="rounded-xl overflow-hidden" style={{ border:'1px solid #EEE8E2', borderLeft:'3px solid #C4A070' }}>
+                <div className="px-4 py-3">
+                  <div className="text-[10px] font-bold tracking-widest uppercase mb-2" style={{ color:'#C4A070' }}>内側で起きていること</div>
+                  <div className="text-sm text-gray-700 leading-relaxed">{situResult.inside}</div>
+                </div>
               </div>
-              <div className="p-4 rounded-2xl border-2 border-green-200 bg-green-50 space-y-2">
-                <div className="text-xs font-bold text-green-700 tracking-wider uppercase">✅ やるべきこと</div>
-                <div className="text-sm text-gray-800 leading-relaxed">{situResult.todo}</div>
+              <div className="rounded-xl overflow-hidden" style={{ border:'1px solid #EEE8E2', borderLeft:'3px solid #7A9E7A' }}>
+                <div className="px-4 py-3">
+                  <div className="text-[10px] font-bold tracking-widest uppercase mb-2" style={{ color:'#7A9E7A' }}>やるべきこと</div>
+                  <div className="text-sm text-gray-700 leading-relaxed">{situResult.todo}</div>
+                </div>
               </div>
-              <div className="p-4 rounded-2xl border-2 border-red-200 bg-red-50 space-y-2">
-                <div className="text-xs font-bold text-red-700 tracking-wider uppercase">⛔ やってはいけないこと</div>
-                <div className="text-sm text-gray-800 leading-relaxed">{situResult.dont}</div>
+              <div className="rounded-xl overflow-hidden" style={{ border:'1px solid #EEE8E2', borderLeft:'3px solid #C87070' }}>
+                <div className="px-4 py-3">
+                  <div className="text-[10px] font-bold tracking-widest uppercase mb-2" style={{ color:'#C87070' }}>やってはいけないこと</div>
+                  <div className="text-sm text-gray-700 leading-relaxed">{situResult.dont}</div>
+                </div>
               </div>
             </div>
           )}
@@ -677,7 +683,7 @@ export function SimulateView({ profiles, myId }) {
             <div className="grid grid-cols-3 gap-1.5">
               {TONE_OPTIONS.map(t => (
                 <button key={t.id} onClick={() => { setTone(t.id); setResult(null); }}
-                  className={`flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl border-2 text-xs font-bold transition-all ${tone===t.id?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-500 bg-white"}`}>
+                  className={`flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl border-2 text-xs font-bold transition-all ${tone===t.id?"warm-sel":"border-gray-200 text-gray-500 bg-white"}`}>
                   <span className="text-base">{t.icon}</span>
                   <span>{t.label}</span>
                   <span className="text-gray-400 font-normal" style={{fontSize:"9px"}}>{t.desc}</span>

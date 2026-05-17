@@ -241,16 +241,16 @@ export function ManualView() {
         </p>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { id:'female', label:'女性', color:'#ec4899' },
-            { id:'male',   label:'男性', color:'#6366f1' },
+            { id:'female', label:'女性', color:'#C4607A' },
+            { id:'male',   label:'男性', color:'#6070A8' },
           ].map(g => {
             const on = gender === g.id;
             return (
               <button key={g.id} type="button" onClick={() => setGender(g.id)}
                 className="py-4 rounded-2xl font-bold text-sm transition-all"
                 style={on
-                  ? { background: g.color, color: '#fff', boxShadow: `0 4px 20px ${g.color}45` }
-                  : { background: '#faf9f7', color: g.color, border: `1.5px solid ${g.color}40` }}>
+                  ? { background: g.color, color: '#fff', boxShadow: `0 4px 16px ${g.color}35` }
+                  : { background: '#FAF7F2', color: g.color, border: `1.5px solid ${g.color}50` }}>
                 {g.label}
               </button>
             );
@@ -282,9 +282,10 @@ export function ManualView() {
           </div>
 
           {/* キャッチ */}
-          <div className="py-5 text-center" style={{ borderBottom: '1px solid #f0ede8' }}>
-            <p className="text-sm text-gray-600 leading-relaxed font-medium">
-              {CATCH[label]}
+          <div className="py-6" style={{ borderBottom: '1px solid #f0ede8' }}>
+            <p className="text-base text-gray-700 leading-relaxed font-bold text-center px-2"
+              style={{ letterSpacing: '0.01em' }}>
+              "{CATCH[label]}"
             </p>
           </div>
 
@@ -294,51 +295,76 @@ export function ManualView() {
           {/* NGリスト */}
           <Sec label="やめて" color="#ef4444" items={gsData.危険} max={4} />
 
-          {/* 求めていること */}
-          {NEEDS_DB[label] && <>
-            <Sec label="この人が求めていること" color={color} items={NEEDS_DB[label].needs} />
+          {/* 求めていること・怖れていること・充電・感情パターン */}
+          {NEEDS_DB[label] && (
+            <div className="py-5 space-y-3" style={{ borderTop: '1px solid #f0ede8' }}>
+              <p className="text-[10px] font-bold tracking-widest uppercase text-center mb-4"
+                style={{ color: '#B0A090' }}>Inner World</p>
 
-            {/* 怖れていること */}
-            <div className="py-5" style={{ borderTop: '1px solid #f0ede8' }}>
-              <p className="text-[11px] font-bold tracking-widest uppercase mb-3" style={{ color: '#ef4444' }}>
-                この人が怖れていること
-              </p>
-              <ul className="space-y-2.5">
-                {NEEDS_DB[label].fears.map((t, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 leading-relaxed">
-                    <span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: '#ef4444', minWidth: 4 }} />
-                    <span>{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+              {/* 求めていること */}
+              <div className="rounded-xl overflow-hidden"
+                style={{ border: '1px solid #EEE8E2', borderLeft: `3px solid ${color}` }}>
+                <div className="px-4 pt-3 pb-1">
+                  <p className="text-[10px] font-bold tracking-widest uppercase mb-2.5" style={{ color }}>
+                    求めていること
+                  </p>
+                  <ul className="space-y-2 pb-3">
+                    {NEEDS_DB[label].needs.map((t, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-gray-700 leading-relaxed">
+                        <span className="mt-1.5 flex-shrink-0 w-1 h-1 rounded-full" style={{ background: color, minWidth: 4 }} />
+                        <span>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
 
-            {/* 感情の充電方法 */}
-            <div className="py-5" style={{ borderTop: '1px solid #f0ede8' }}>
-              <p className="text-[11px] font-bold tracking-widest uppercase mb-3" style={{ color: '#10b981' }}>
-                感情の充電方法
-              </p>
-              <ul className="space-y-2.5">
-                {NEEDS_DB[label].recharge.map((t, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 leading-relaxed">
-                    <span className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: '#10b981', minWidth: 4 }} />
-                    <span>{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+              {/* 怖れていること */}
+              <div className="rounded-xl overflow-hidden"
+                style={{ border: '1px solid #EEE8E2', borderLeft: '3px solid #C87070' }}>
+                <div className="px-4 pt-3 pb-1">
+                  <p className="text-[10px] font-bold tracking-widest uppercase mb-2.5" style={{ color: '#C87070' }}>
+                    怖れていること
+                  </p>
+                  <ul className="space-y-2 pb-3">
+                    {NEEDS_DB[label].fears.map((t, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-gray-700 leading-relaxed">
+                        <span className="mt-1.5 flex-shrink-0 w-1 h-1 rounded-full" style={{ background: '#C87070', minWidth: 4 }} />
+                        <span>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
 
-            {/* 感情パターン */}
-            <div className="py-5" style={{ borderTop: '1px solid #f0ede8' }}>
-              <p className="text-[11px] font-bold tracking-widest uppercase mb-3" style={{ color: '#f59e0b' }}>
-                感情パターン（注意）
-              </p>
-              <div className="text-sm text-gray-700 leading-relaxed p-3 rounded-xl"
-                style={{ background: '#fef3c7', border: '1px solid #fde68a' }}>
-                {NEEDS_DB[label].pattern}
+              {/* 感情の充電方法 */}
+              <div className="rounded-xl overflow-hidden"
+                style={{ border: '1px solid #EEE8E2', borderLeft: '3px solid #7A9E7A' }}>
+                <div className="px-4 pt-3 pb-1">
+                  <p className="text-[10px] font-bold tracking-widest uppercase mb-2.5" style={{ color: '#7A9E7A' }}>
+                    感情の充電方法
+                  </p>
+                  <ul className="space-y-2 pb-3">
+                    {NEEDS_DB[label].recharge.map((t, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-gray-700 leading-relaxed">
+                        <span className="mt-1.5 flex-shrink-0 w-1 h-1 rounded-full" style={{ background: '#7A9E7A', minWidth: 4 }} />
+                        <span>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* 感情パターン */}
+              <div className="rounded-xl px-4 py-3"
+                style={{ background: '#FBF7F0', border: '1px solid #E8DDD0', borderLeft: '3px solid #C4A070' }}>
+                <p className="text-[10px] font-bold tracking-widest uppercase mb-1.5" style={{ color: '#C4A070' }}>
+                  感情パターン
+                </p>
+                <p className="text-sm text-gray-600 leading-relaxed">{NEEDS_DB[label].pattern}</p>
               </div>
             </div>
-          </>}
+          )}
 
           {/* 恋愛ヒント */}
           <Sec

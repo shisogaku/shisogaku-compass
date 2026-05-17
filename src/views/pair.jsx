@@ -143,7 +143,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
               <div className="flex gap-2">
                 {[{id:"female",label:"👩 女性"},{id:"male",label:"👨 男性"}].map(g => (
                   <button key={g.id} onClick={() => setMGender(g.id)}
-                    className={`flex-1 py-1.5 rounded-lg text-sm font-bold border-2 transition-all ${mGender === g.id ? "border-stone-500 bg-stone-100 text-stone-700" : "border-gray-200 text-gray-600"}`}>
+                    className={`flex-1 py-1.5 rounded-lg text-sm font-bold border-2 transition-all ${mGender === g.id ? "warm-sel" : "border-gray-200 text-gray-600"}`}>
                     {g.label}
                   </button>
                 ))}
@@ -272,7 +272,7 @@ export function PairView({ profiles, setProfiles, myId, user = null }) {
           <div className="flex gap-0.5 overflow-x-auto bg-gray-100 rounded-lg p-0.5" style={{scrollbarWidth:"none"}}>
             {PAIR_TABS.map(t => (
               <button key={t.id} onClick={() => setPairTab(t.id)}
-                className={`py-1.5 px-2 rounded text-xs font-bold flex flex-col items-center gap-0.5 transition-all flex-shrink-0 ${pairTab===t.id?"bg-white shadow text-stone-600":"text-gray-500"}`}>
+                className={`py-1.5 px-2 rounded text-xs font-bold flex flex-col items-center gap-0.5 transition-all flex-shrink-0 ${pairTab===t.id?"bg-white shadow text-amber-900":"text-gray-500"}`}>
                 <span>{t.icon}</span><span style={{fontSize:"8px"}}>{t.label}</span>
               </button>
             ))}

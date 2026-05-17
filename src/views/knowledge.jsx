@@ -19,7 +19,7 @@ export function NendaiView() {
       <div>
         <div className="text-xs text-gray-500 font-bold mb-1">年代</div>
         <div className="flex gap-1">
-          {ages.map(a=><button key={a} onClick={()=>setSelAge(a)} className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${selAge===a?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 text-gray-600"}`}>{a}</button>)}
+          {ages.map(a=><button key={a} onClick={()=>setSelAge(a)} className={`flex-1 py-1.5 rounded-lg text-xs font-bold border-2 transition-all ${selAge===a?"warm-sel":"border-gray-200 text-gray-600"}`}>{a}</button>)}
         </div>
       </div>
       {data&&<div className="space-y-3">
@@ -551,7 +551,7 @@ export function DetailView({blood,setBlood,gender,setGender}) {
       <div>
         <div className="text-xs text-gray-500 font-bold mb-1">STEP 1 — 性別</div>
         <div className="flex gap-2">
-          {genders.map(g=><button key={g.id} onClick={()=>{setGender(g.id);setBlood(null);setCategory(null);}} className={`flex-1 py-2 rounded-lg text-sm font-bold border-2 transition-all ${gender===g.id?"border-stone-500 bg-stone-50 text-stone-700":"border-gray-200 bg-white text-gray-600"}`}>{g.icon} {g.label}</button>)}
+          {genders.map(g=><button key={g.id} onClick={()=>{setGender(g.id);setBlood(null);setCategory(null);}} className={`flex-1 py-2 rounded-lg text-sm font-bold border-2 transition-all ${gender===g.id?"warm-sel":"border-gray-200 bg-white text-gray-600"}`}>{g.icon} {g.label}</button>)}
         </div>
       </div>
       {/* 血液型 */}

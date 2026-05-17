@@ -34,7 +34,7 @@ export function LifeView() {
       <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
         {[["phase","📈 フェーズ"],["temp","🌡️ 温度変化"]].map(([t,l])=>(
           <button key={t} onClick={()=>setLifeTab(t)}
-            className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${lifeTab===t?"bg-white shadow text-stone-600":"text-gray-500"}`}>{l}</button>
+            className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${lifeTab===t?"bg-white shadow text-amber-900":"text-gray-500"}`}>{l}</button>
         ))}
       </div>
 
@@ -331,7 +331,7 @@ export function LifeView() {
             <div className="flex gap-2">
               {[{id:"female",label:"👩 女性"},{id:"male",label:"👨 男性"}].map(g => (
                 <button key={g.id} onClick={() => setSelGender(selGender===g.id&&isDiff?null:g.id)}
-                  className={`flex-1 py-1.5 rounded-lg text-sm font-bold border-2 transition-all ${selGender===g.id?"border-stone-500 bg-stone-100 text-stone-700":"border-gray-200 text-gray-600"}`}>
+                  className={`flex-1 py-1.5 rounded-lg text-sm font-bold border-2 transition-all ${selGender===g.id?"warm-sel":"border-gray-200 text-gray-600"}`}>
                   {g.label}
                 </button>
               ))}

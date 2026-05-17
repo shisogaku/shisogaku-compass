@@ -47,9 +47,31 @@
   outline: none;
 }
 :focus-visible {
-  outline: 2px solid #a78bfa;
+  outline: 2px solid #C4A882;
   outline-offset: 2px;
   border-radius: 8px;
+}
+
+/* 選択状態の統一スタイル（暖色アース） */
+.warm-sel {
+  background: #FDF0E8 !important;
+  border-color: #C4A882 !important;
+  color: #7A5C48 !important;
+}
+/* タブ系のアクティブ下線 */
+.warm-tab-active {
+  color: #7A5C48;
+  font-weight: 700;
+}
+/* 白カード＋左ボーダーアクセント */
+.card-left-accent {
+  background: #ffffff;
+  border-left: 3px solid;
+  border-top: 1px solid #F0EDE8;
+  border-right: 1px solid #F0EDE8;
+  border-bottom: 1px solid #F0EDE8;
+  border-radius: 12px;
+  padding: 14px 16px;
 }
 
 /* ── prefers-reduced-motion 対応 ── */
