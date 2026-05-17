@@ -112,4 +112,17 @@ export const sbDb = {
       .order("created_at", { ascending: false }).limit(1).maybeSingle();
     return data?.token || null;
   },
+
+  // ── アバター画像 ──────────────────────────
+  async uploadAvatar(userId, profileId, file) {
+    if (!_sb || !userId) return null;
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `avatars/${userId}/${profileId}.${ext}`;
+      const { error } = await _sb.storage.from('avatars').upload(path, file, { upsert: true });
+      if (error) { console.warn('[SB] uploadAvatar:', error.message); return null; }
+      const { data } = _sb.storage.from('avatars').getPublicUrl(path);
+      return data?.publicUrl || null;
+    } catch { return null; }
+  },
 };

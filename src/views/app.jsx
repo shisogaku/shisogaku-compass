@@ -2,28 +2,21 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BC, PLAN_DB, SCENE_DB } from '../data.js';
 import { _sb, sbDb, SUPABASE_URL } from '../lib/supabase.js';
 
-// 初期表示ビューは eager（ファーストペイントで Suspense 待ちにならないよう）
 import { TorokuView } from './profile.jsx';
 import { PairView } from './pair.jsx';
-// life.jsx は profile / pair から共通コンポーネント（RadarChart など）が
-// 静的に import されているため、ここでも eager のまま読み込む
 import { LifeView } from './life.jsx';
+import { ChatView, AvatarUploader, getAvatar } from './chat.jsx';
 
-// それ以外は必要時にロードして初期バンドルを軽くする
 const CompatView   = lazy(() => import('./social.jsx').then(m => ({ default: m.CompatView })));
 const SceneView    = lazy(() => import('./social.jsx').then(m => ({ default: m.SceneView })));
 const SimulateView = lazy(() => import('./social.jsx').then(m => ({ default: m.SimulateView })));
 const PowerView    = lazy(() => import('./knowledge.jsx').then(m => ({ default: m.PowerView })));
-const AIView       = lazy(() => import('./plan.jsx').then(m => ({ default: m.AIView })));
 const PlanView     = lazy(() => import('./plan.jsx').then(m => ({ default: m.PlanView })));
 const EvaluationFormView = lazy(() => import('./evaluate.jsx').then(m => ({ default: m.EvaluationFormView })));
 const ManualView         = lazy(() => import('./manual.jsx').then(m => ({ default: m.ManualView })));
 
-// フィーチャーフラグ: AI相談タブの表示 ON/OFF（Anthropic APIクレジット・
-// レート制限の設定が整うまでは false にして非表示にする）
 const AI_TAB_ENABLED = false;
 
-// 遅延ロード中のフォールバック
 function ViewLoading() {
   return (
     <div className="flex items-center justify-center py-16" role="status" aria-live="polite">
@@ -80,9 +73,6 @@ export function LogoIcon({ size = 44 }) {
   );
 }
 
-// ─────────────────────────────────────────
-// シンプル SVGアイコン（フェミニン・細線）
-// ─────────────────────────────────────────
 export function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
   const P = (d, op) => <path strokeLinecap="round" strokeLinejoin="round" d={d} opacity={op||1}/>;
   const C = (cx,cy,r,f) => <circle cx={cx} cy={cy} r={r} fill={f||"none"}/>;
@@ -100,6 +90,9 @@ export function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
     robot:    <>{P("M9 3H7a2 2 0 00-2 2v2M15 3h2a2 2 0 012 2v2M5 7h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z")}{C(9,13,1.5)}{C(15,13,1.5)}{P("M9 17h6",.6)}</>,
     menu:     <>{P("M4 6h16M4 12h16M4 18h16")}</>,
     external: <>{P("M14 3h7v7")}{P("M10 14L21 3")}{P("M21 14v6a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h6")}</>,
+    plus:     <>{P("M12 5v14M5 12h14")}</>,
+    x:        <>{P("M18 6L6 18M6 6l12 12")}</>,
+    chevron:  <>{P("M19 9l-7 7-7-7")}</>,
   };
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
@@ -109,25 +102,19 @@ export function Icon({ name, size=20, color="currentColor", sw=1.5 }) {
 }
 
 // ─────────────────────────────────────────
-// 検索インデックス構築
-// ─────────────────────────────────────────
-// ─────────────────────────────────────────
-// 初回起動オンボーディング（3ステップ）
+// オンボーディングモーダル
 // ─────────────────────────────────────────
 export function WelcomeModal({ onClose }) {
   const [step, setStep] = useState(0);
   const titleId = 'welcome-modal-title';
   const descId = 'welcome-modal-desc';
-  const dialogRef = React.useRef(null);
   const closeBtnRef = React.useRef(null);
 
-  // Escape で閉じる / 表示中は body スクロール抑制 / 初期フォーカス
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    // モーダル表示時は閉じるボタンにフォーカス（明示的な離脱手段へ）
     closeBtnRef.current?.focus();
     return () => {
       document.removeEventListener('keydown', onKey);
@@ -145,8 +132,7 @@ export function WelcomeModal({ onClose }) {
             自分と周りの人との関わりかたを見つけるツールです。
           </p>
           <p className="text-gray-500 text-sm leading-relaxed mt-3">
-            プロフィールを登録すると、相性・シーン別会話のヒント・長期プランまで、
-            あなたと相手に合わせた提案が見られるようになります。
+            左パネルに相手を登録すると、相性・シーンTips・妄想チャットまで楽しめます。
           </p>
           <p className="text-xs text-gray-400 mt-4 leading-relaxed">
             ※ 血液型による性格論は娯楽目的の参考としてお楽しみください。
@@ -166,29 +152,23 @@ export function WelcomeModal({ onClose }) {
             ))}
           </div>
           <p className="text-gray-600 leading-relaxed">
-            左のメニュー <span className="font-bold text-amber-700">「自分」</span> から、
-            あなたの名前と血液型を登録してください。
-          </p>
-          <p className="text-gray-500 text-sm leading-relaxed mt-3">
-            入力は端末とSupabaseに保存されます。ログインすれば別端末からも同じデータが使えます。
+            左パネル上部の <span className="font-bold text-amber-700">「自分を登録」</span> から、
+            名前と血液型を入力してください。
           </p>
         </>
       ),
     },
     {
-      title: '「相手」を登録して相性チェック',
+      title: '相手を登録してチャット！',
       body: (
         <>
           <p className="text-gray-600 leading-relaxed">
-            続けて <span className="font-bold text-amber-700">「相手」</span> タブから、
-            気になる人（家族・同僚・パートナーなど）を登録。
+            続けて <span className="font-bold text-amber-700">「＋ 相手を追加」</span> から、
+            気になる人を登録。
           </p>
           <p className="text-gray-500 text-sm leading-relaxed mt-3">
-            自分と相手が揃うと、 <span className="font-bold">相性</span>・<span className="font-bold">シーン別の伝え方</span>・
-            <span className="font-bold">プラン</span>タブでぐっと情報が増えます。
-          </p>
-          <p className="text-gray-500 text-sm leading-relaxed mt-3">
-            上部の検索バーでキーワード検索もできます（「O型 仕事」「恋愛 A」など）。
+            相手を選ぶと中央に<span className="font-bold">妄想チャット</span>が始まります。<br/>
+            顔写真・声も設定できます。
           </p>
         </>
       ),
@@ -203,7 +183,6 @@ export function WelcomeModal({ onClose }) {
       style={{background:'rgba(0,0,0,0.45)', backdropFilter:'blur(4px)'}}
       onClick={onClose}>
       <div
-        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -211,57 +190,33 @@ export function WelcomeModal({ onClose }) {
         onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
         style={{border:'1px solid rgba(150,118,88,0.15)'}}>
-
-        {/* ヘッダー */}
         <div className="px-6 pt-6 pb-3 flex items-start gap-3">
           <span aria-hidden="true" className="flex items-start"><LogoIcon size={40}/></span>
           <div className="flex-1">
             <h2 id={titleId} className="text-lg font-bold text-gray-800 leading-tight">{cur.title}</h2>
-            <div className="text-xs text-gray-400 mt-0.5" aria-live="polite">ステップ {step+1} / {steps.length}</div>
+            <div className="text-xs text-gray-400 mt-0.5">ステップ {step+1} / {steps.length}</div>
           </div>
-          <button ref={closeBtnRef} onClick={onClose} aria-label="オンボーディングを閉じる"
-            type="button"
-            className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1"><span aria-hidden="true">×</span></button>
+          <button ref={closeBtnRef} onClick={onClose} aria-label="閉じる" type="button"
+            className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1">×</button>
         </div>
-
-        {/* 進捗バー */}
-        <div className="px-6 pb-4"
-          role="progressbar"
-          aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={step+1}
-          aria-label="オンボーディング進捗">
+        <div className="px-6 pb-4">
           <div className="flex gap-1.5" aria-hidden="true">
             {steps.map((_, i) => (
               <div key={i} className="flex-1 h-1 rounded-full transition-colors"
-                style={{background: i <= step
-                  ? 'linear-gradient(90deg,#C4A882,#8C7055)'
-                  : '#f3e8ff'}} />
+                style={{background: i <= step ? 'linear-gradient(90deg,#C4A882,#8C7055)' : '#f3e8ff'}} />
             ))}
           </div>
         </div>
-
-        {/* 本文 */}
-        <div id={descId} className="px-6 pb-5 min-h-[180px]">
-          {cur.body}
-        </div>
-
-        {/* フッター */}
+        <div id={descId} className="px-6 pb-5 min-h-[160px]">{cur.body}</div>
         <div className="px-6 py-4 bg-gray-50 flex items-center justify-between">
-          <button onClick={onClose}
-            type="button"
-            className="text-sm text-gray-500 hover:text-gray-700 font-medium px-2 py-2">
-            スキップ
-          </button>
+          <button onClick={onClose} type="button" className="text-sm text-gray-500 font-medium px-2 py-2">スキップ</button>
           <div className="flex items-center gap-2">
             {step > 0 && (
-              <button onClick={() => setStep(step-1)}
-                type="button"
-                className="text-sm text-gray-600 hover:bg-gray-100 font-medium px-4 py-2 rounded-lg">
-                戻る
-              </button>
+              <button onClick={() => setStep(step-1)} type="button"
+                className="text-sm text-gray-600 hover:bg-gray-100 font-medium px-4 py-2 rounded-lg">戻る</button>
             )}
-            <button onClick={() => isLast ? onClose() : setStep(step+1)}
-              type="button"
-              className="text-sm font-bold text-white px-5 py-2 rounded-lg shadow transition-all"
+            <button onClick={() => isLast ? onClose() : setStep(step+1)} type="button"
+              className="text-sm font-bold text-white px-5 py-2 rounded-lg shadow"
               style={{background:'#8C7055'}}>
               {isLast ? 'はじめる' : '次へ'}
             </button>
@@ -273,171 +228,320 @@ export function WelcomeModal({ onClose }) {
 }
 
 // ─────────────────────────────────────────
-// 検索用テキスト正規化
-//  - 大文字↔小文字、全角↔半角、カタカナ↔ひらがな、血液型の表記ゆれを吸収
+// 相手登録フォーム（モーダル）
 // ─────────────────────────────────────────
-function normalizeForSearch(s) {
-  if (!s) return '';
-  let t = String(s);
-  // 全角英数 → 半角
-  t = t.replace(/[！-～]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
-  // 大文字 → 小文字（ただし日本語には影響なし）
-  t = t.toLowerCase();
-  // カタカナ → ひらがな（濁点付きもまとめて）
-  t = t.replace(/[\u30A1-\u30F6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
-  // 血液型の表記ゆれ → 統一形（長音 ー を含むパターンを先に処理）
-  //   これにより「おがた」などの名前を O型 と誤解釈しない
-  t = t.replace(/えーびー型/g, 'ab型');
-  t = t.replace(/おー型/g, 'o型');
-  t = t.replace(/えー型/g, 'a型');
-  t = t.replace(/びー型/g, 'b型');
-  // 残った長音 ー を削除（例：「バランス」→「ばらんす」）
-  t = t.replace(/ー/g, '');
-  // 空白正規化
-  t = t.replace(/\s+/g, ' ').trim();
-  return t;
-}
+function PartnerFormModal({ initial, onSave, onClose, user }) {
+  const [name, setName] = useState(initial?.name || '');
+  const [blood, setBlood] = useState(initial?.blood || null);
+  const [gender, setGender] = useState(initial?.gender || null);
+  const [relation, setRelation] = useState(initial?.relation || '友人');
 
-function buildSearchIndex() {
-  const entries = [];
+  const RELATIONS = ['恋人', '友人', '同僚', '家族', '上司', '部下', 'その他'];
 
-  // ── 血液型データ (BC) ──
-  const bcCats = ['心理','仕事','時間','愛情','距離','相性','攻撃性','素質','表の面','裏の面','恋愛結婚','keywords'];
-  Object.entries(BC).forEach(([type, data]) => {
-    bcCats.forEach(cat => {
-      const arr = data[cat];
-      if (Array.isArray(arr)) {
-        arr.forEach(text => {
-          if (typeof text === 'string' && text.trim().length > 3) {
-            entries.push({
-              id: `bc-${type}-${cat}-${entries.length}`,
-              category: '血液型',
-              label: `${data.label}（${cat}）`,
-              text: text.trim(),
-              color: data.color,
-              tab: 'power',
-            });
-          }
-        });
-      }
+  const handleSave = () => {
+    if (!name.trim() || !blood || !gender) return;
+    onSave({
+      id: initial?.id || Date.now().toString(),
+      name: name.trim(), blood, gender, relation,
+      color: BC[blood].color,
     });
-  });
-
-  // ── プランDB (PLAN_DB) ──
-  if (typeof PLAN_DB !== 'undefined') {
-    Object.entries(PLAN_DB).forEach(([planKey, plan]) => {
-      ['O','A','B','AB'].forEach(bt => {
-        const tips = plan.tips?.[bt];
-        if (tips && typeof tips === 'object') {
-          Object.entries(tips).forEach(([, text]) => {
-            if (typeof text === 'string' && text.trim().length > 3) {
-              entries.push({
-                id: `plan-${planKey}-${bt}-${entries.length}`,
-                category: 'プラン',
-                label: `${plan.label}（${BC[bt]?.label || bt+'型'}）`,
-                text: text.trim(),
-                color: plan.color || '#6366f1',
-                tab: 'plan',
-              });
-            }
-          });
-        }
-      });
-    });
-  }
-
-  // ── シーンDB (SCENE_DB) ──
-  if (typeof SCENE_DB !== 'undefined') {
-    Object.entries(SCENE_DB).forEach(([, scene]) => {
-      if (!scene?.tips) return;
-      Object.entries(scene.tips).forEach(([btKey, tip]) => {
-        if (tip?.text) {
-          entries.push({
-            id: `scene-${btKey}-${entries.length}`,
-            category: 'シーン',
-            label: `${scene.label}（${btKey}）`,
-            text: tip.text,
-            color: '#0ea5e9',
-            tab: 'scene',
-          });
-        }
-        if (tip?.example) {
-          entries.push({
-            id: `scene-ex-${btKey}-${entries.length}`,
-            category: 'シーン例文',
-            label: `${scene.label}（${btKey}）`,
-            text: tip.example,
-            color: '#0ea5e9',
-            tab: 'scene',
-          });
-        }
-      });
-    });
-  }
-
-  return entries;
-}
-
-// ─────────────────────────────────────────
-// 検索結果コンポーネント
-// ─────────────────────────────────────────
-export function SearchResults({ results, query, onTabJump }) {
-  if (!query.trim()) return null;
-
-  const highlight = (text) => {
-    const q = query.trim();
-    if (!q) return text;
-    const idx = text.toLowerCase().indexOf(q.toLowerCase());
-    if (idx === -1) return text;
-    return (
-      <span>
-        {text.slice(0, idx)}
-        <mark className="bg-yellow-200 text-yellow-900 rounded px-0.5">{text.slice(idx, idx + q.length)}</mark>
-        {text.slice(idx + q.length)}
-      </span>
-    );
-  };
-
-  const catColor = {
-    '血液型': 'bg-purple-100 text-purple-700',
-    'プラン': 'bg-green-100 text-green-700',
-    'シーン': 'bg-sky-100 text-sky-700',
-    'シーン例文': 'bg-amber-100 text-amber-700',
   };
 
   return (
-    <section aria-label="検索結果" className="space-y-2">
-      <div className="text-xs text-gray-500 font-medium mb-3" role="status" aria-live="polite">
-        「{query}」の検索結果：{results.length} 件{results.length === 30 ? '（上位30件）' : ''}
-      </div>
-      {results.length === 0 ? (
-        <div className="text-center py-12 text-gray-500" role="status">
-          <div className="text-3xl mb-2" aria-hidden="true">🔍</div>
-          <div className="text-sm font-medium text-gray-700">一致する内容が見つかりませんでした</div>
-          <div className="text-xs text-gray-400 mt-3 leading-relaxed max-w-xs mx-auto">
-            たとえば「<span className="font-bold text-amber-700">A型 愛情</span>」や
-            「<span className="font-bold text-amber-700">謝り方</span>」のように、<br/>
-            血液型 + 状況の言葉を組み合わせて検索してみてください。
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      style={{background:'rgba(0,0,0,0.4)', backdropFilter:'blur(3px)'}}
+      onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+        onClick={e => e.stopPropagation()}>
+        <div className="px-5 py-4 flex items-center justify-between border-b border-gray-100">
+          <div className="font-bold text-gray-800">{initial ? '相手を編集' : '相手を追加'}</div>
+          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
+        </div>
+        <div className="px-5 py-4 space-y-4">
+          <div>
+            <div className="text-xs font-bold text-gray-500 mb-1">ニックネーム</div>
+            <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-400"
+              placeholder="例：田中さん、好きな人、など"
+              value={name} onChange={e => setName(e.target.value)} />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-gray-500 mb-1">性別</div>
+            <div className="flex gap-2">
+              {[{id:'female',label:'👩 女性'},{id:'male',label:'👨 男性'}].map(g => (
+                <button key={g.id} type="button" onClick={() => setGender(g.id)}
+                  className="flex-1 py-2 rounded-xl text-sm font-bold border-2 transition-all"
+                  style={gender === g.id
+                    ? {borderColor:'#8C7055', background:'#FDF0E8', color:'#7A5C48'}
+                    : {borderColor:'#e5e7eb', color:'#6b7280'}}>
+                  {g.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-bold text-gray-500 mb-1">血液型</div>
+            <div className="grid grid-cols-4 gap-1">
+              {['O','A','B','AB'].map(b => (
+                <button key={b} type="button" onClick={() => setBlood(b)}
+                  className="py-2 rounded-xl text-sm font-bold border-2 transition-all"
+                  style={blood === b
+                    ? {backgroundColor:BC[b].color, borderColor:BC[b].color, color:'white'}
+                    : {borderColor:'#e5e7eb', color:'#374151'}}>
+                  {b}型
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-bold text-gray-500 mb-1">関係性</div>
+            <div className="flex flex-wrap gap-1">
+              {RELATIONS.map(r => (
+                <button key={r} type="button" onClick={() => setRelation(r)}
+                  className="px-3 py-1 rounded-full text-xs font-bold border-2 transition-all"
+                  style={relation === r
+                    ? {background:'#8C7055', borderColor:'#8C7055', color:'white'}
+                    : {borderColor:'#e5e7eb', color:'#6b7280'}}>
+                  {r}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      ) : results.map(r => (
-        <button key={r.id}
-          type="button"
-          onClick={() => onTabJump(r.tab)}
-          className="w-full text-left bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-indigo-300 hover:shadow-sm transition-all">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${catColor[r.category] || 'bg-gray-100 text-gray-600'}`}>
-              {r.category}
+        <div className="px-5 py-3 border-t border-gray-100 flex gap-2">
+          <button type="button" onClick={onClose}
+            className="flex-1 py-2 rounded-xl text-sm text-gray-500 border border-gray-200 font-medium">
+            キャンセル
+          </button>
+          <button type="button" onClick={handleSave}
+            disabled={!name.trim() || !blood || !gender}
+            className="flex-1 py-2 rounded-xl text-sm font-bold text-white transition-all"
+            style={{background: name.trim() && blood && gender ? '#8C7055' : '#d1c4b8'}}>
+            {initial ? '更新する' : '追加する'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// 左パネル
+// ─────────────────────────────────────────
+const FEATURE_TABS = [
+  { id:'manual',   label:'取説',   icon:'sparkle'  },
+  { id:'simulate', label:'伝え方', icon:'envelope' },
+  { id:'compat',   label:'相性',   icon:'heart'    },
+  { id:'scene',    label:'シーン', icon:'chat'     },
+  { id:'life',     label:'ライフ', icon:'journey'  },
+  { id:'power',    label:'知識',   icon:'book'     },
+  { id:'plan',     label:'プラン', icon:'calender' },
+];
+
+function LeftPanel({
+  profiles, setProfiles, myId, setMyId, user,
+  selectedPartnerId, setSelectedPartnerId,
+  featureTab, setFeatureTab,
+  onLogin,
+}) {
+  const [showPartnerForm, setShowPartnerForm] = useState(false);
+  const [editingPartner, setEditingPartner] = useState(null);
+  const [showSelf, setShowSelf] = useState(false);
+  const [avatarTick, setAvatarTick] = useState(0);
+
+  const me = profiles.find(p => p.id === myId);
+  const partners = profiles.filter(p => p.id !== myId);
+  const selectedPartner = partners.find(p => p.id === selectedPartnerId);
+
+  const handleSavePartner = (data) => {
+    const isNew = !profiles.find(p => p.id === data.id);
+    if (isNew) {
+      setProfiles(prev => [...prev, data]);
+      setSelectedPartnerId(data.id);
+    } else {
+      setProfiles(prev => prev.map(p => p.id === data.id ? data : p));
+    }
+    if (user) sbDb.saveProfile(user.id, data, false);
+    setShowPartnerForm(false);
+    setEditingPartner(null);
+  };
+
+  const handleDeletePartner = (id) => {
+    if (!window.confirm('この相手を削除しますか？')) return;
+    setProfiles(prev => prev.filter(p => p.id !== id));
+    if (selectedPartnerId === id) setSelectedPartnerId(null);
+    if (user) sbDb.deleteProfile(user.id, id);
+  };
+
+  return (
+    <div className="flex flex-col h-full" style={{ background: '#F7F3EE' }}>
+      {/* ── 自分セクション ── */}
+      <div className="px-3 pt-3 pb-2 flex-shrink-0" style={{ borderBottom: '1px solid rgba(150,118,88,0.12)' }}>
+        <div className="text-[10px] font-bold text-gray-400 mb-1.5 tracking-wider uppercase">自分</div>
+        {me ? (
+          <div className="flex items-center gap-2 cursor-pointer rounded-xl px-2 py-1.5 hover:bg-amber-50 transition-all"
+            onClick={() => setShowSelf(s => !s)}>
+            <AvatarUploader profile={me} user={user} size={32} onUpdate={() => setAvatarTick(t => t+1)}/>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-bold text-gray-800 truncate">{me.name}</div>
+              <div className="text-[10px] text-gray-400">{me.blood}型 · {me.gender === 'female' ? '女性' : '男性'}</div>
+            </div>
+            <span className="text-gray-400" style={{transform: showSelf ? 'rotate(180deg)' : '', transition:'transform 0.2s'}}>
+              <Icon name="chevron" size={12} color="#999"/>
             </span>
-            <span className="text-xs text-gray-500 truncate">{r.label}</span>
           </div>
-          <div className="text-sm text-gray-700 leading-relaxed line-clamp-3">
-            {highlight(r.text)}
+        ) : (
+          <button type="button" onClick={() => setShowSelf(true)}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-dashed text-xs font-bold transition-all"
+            style={{ borderColor: '#C4A882', color: '#8C7055', background: 'rgba(196,168,130,0.06)' }}>
+            <Icon name="plus" size={14} color="#8C7055"/>
+            自分を登録する
+          </button>
+        )}
+        {showSelf && (
+          <div className="mt-2 p-3 bg-white rounded-xl border border-gray-100">
+            <Suspense fallback={<ViewLoading/>}>
+              <TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user} onLogin={onLogin}/>
+            </Suspense>
           </div>
-          <div className="text-xs text-indigo-500 mt-1.5 font-medium">→ {r.tab === 'power' ? '知識' : r.tab === 'plan' ? 'プラン' : 'シーン'}タブで見る</div>
-        </button>
-      ))}
-    </section>
+        )}
+      </div>
+
+      {/* ── 相手リスト ── */}
+      <div className="px-3 py-2 flex-shrink-0" style={{ borderBottom: '1px solid rgba(150,118,88,0.12)' }}>
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="text-[10px] font-bold text-gray-400 tracking-wider uppercase">相手</div>
+          <button type="button" onClick={() => { setEditingPartner(null); setShowPartnerForm(true); }}
+            className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full transition-all"
+            style={{ background: 'rgba(140,112,85,0.08)', color: '#8C7055' }}>
+            <Icon name="plus" size={10} color="#8C7055"/> 追加
+          </button>
+        </div>
+
+        {partners.length === 0 ? (
+          <div className="text-xs text-gray-400 text-center py-3">
+            まだ相手が登録されていません
+          </div>
+        ) : (
+          <div className="space-y-1 max-h-48 overflow-y-auto">
+            {partners.map(p => {
+              const avatar = getAvatar(p.id);
+              const isSelected = selectedPartnerId === p.id;
+              return (
+                <div key={p.id}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-xl cursor-pointer transition-all group"
+                  style={isSelected
+                    ? { background: p.color + '18', border: `1px solid ${p.color}44` }
+                    : { border: '1px solid transparent' }}
+                  onClick={() => setSelectedPartnerId(p.id)}>
+                  <div className="rounded-full overflow-hidden flex-shrink-0"
+                    style={{ width: 28, height: 28, background: p.color + '22', border: `1.5px solid ${p.color}` }}>
+                    {avatar
+                      ? <img src={avatar} alt="" className="w-full h-full object-cover"/>
+                      : <div className="w-full h-full flex items-center justify-center text-[10px] font-black" style={{color:p.color}}>{p.blood}</div>}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold truncate" style={{ color: isSelected ? '#5C3A20' : '#374151' }}>{p.name}</div>
+                    <div className="text-[10px] text-gray-400">{p.relation} · {p.blood}型</div>
+                  </div>
+                  <div className="hidden group-hover:flex gap-1">
+                    <button type="button"
+                      onClick={e => { e.stopPropagation(); setEditingPartner(p); setShowPartnerForm(true); }}
+                      className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                      ✏️
+                    </button>
+                    <button type="button"
+                      onClick={e => { e.stopPropagation(); handleDeletePartner(p.id); }}
+                      className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── 機能タブ ── */}
+      <div className="px-3 pt-2 pb-1 flex-shrink-0" style={{ borderBottom: '1px solid rgba(150,118,88,0.12)' }}>
+        <div className="text-[10px] font-bold text-gray-400 mb-1.5 tracking-wider uppercase">機能</div>
+        <div className="flex flex-wrap gap-1">
+          {FEATURE_TABS.map(tab => (
+            <button key={tab.id} type="button"
+              onClick={() => setFeatureTab(tab.id)}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold transition-all"
+              style={featureTab === tab.id
+                ? { background: '#8C7055', color: 'white' }
+                : { background: 'rgba(140,112,85,0.06)', color: '#7A6048' }}>
+              <Icon name={tab.icon} size={11} color={featureTab === tab.id ? 'white' : '#9A8060'}/>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── 機能コンテンツ ── */}
+      <div className="flex-1 overflow-y-auto px-3 py-3">
+        <Suspense fallback={<ViewLoading/>}>
+          {featureTab === 'manual'   && <ManualView/>}
+          {featureTab === 'simulate' && <SimulateView profiles={profiles} myId={myId}/>}
+          {featureTab === 'compat'   && <CompatView profiles={profiles} myId={myId}/>}
+          {featureTab === 'scene'    && <SceneView profiles={profiles} myId={myId}/>}
+          {featureTab === 'life'     && <LifeView/>}
+          {featureTab === 'power'    && <PowerView profiles={profiles}/>}
+          {featureTab === 'plan'     && <PlanView/>}
+        </Suspense>
+      </div>
+
+      {/* ── 認証 / PR ── */}
+      <div className="flex-shrink-0 px-3 py-2 space-y-2" style={{ borderTop: '1px solid rgba(150,118,88,0.12)' }}>
+        {/* PR */}
+        <a href="https://px.a8.net/svt/ejp?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
+          rel="nofollow noopener noreferrer sponsored" target="_blank"
+          className="flex items-center justify-center gap-1 w-full py-1.5 rounded-xl text-[10px] font-bold text-white"
+          style={{ background: 'linear-gradient(135deg, #9A7A60, #C4A882)' }}>
+          <Icon name="external" size={10} color="white" sw={2.2}/>
+          お悩み相談・カウンセリング
+        </a>
+        <img src="https://www13.a8.net/0.gif?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
+          alt="" width="1" height="1"
+          style={{ border: 0, position: 'absolute', pointerEvents: 'none', width: 1, height: 1 }}/>
+        {/* 認証 */}
+        {SUPABASE_URL !== 'YOUR_SUPABASE_URL' && (
+          user ? (
+            <div className="flex items-center gap-2 px-1">
+              {user.user_metadata?.avatar_url && (
+                <img src={user.user_metadata.avatar_url} alt="avatar"
+                  className="w-6 h-6 rounded-full border border-green-400 flex-shrink-0"/>
+              )}
+              <div className="flex-1 min-w-0 text-[10px] text-gray-500 truncate">
+                {user.user_metadata?.full_name || user.email}
+              </div>
+              <button onClick={async () => { await _sb.auth.signOut(); }}
+                className="text-[10px] text-gray-400 hover:text-gray-600 px-2 py-0.5 rounded bg-gray-100">
+                ログアウト
+              </button>
+            </div>
+          ) : (
+            <button onClick={onLogin}
+              className="w-full flex items-center justify-center gap-2 py-1.5 rounded-xl text-[10px] font-bold transition-all"
+              style={{ background: 'rgba(140,112,85,0.07)', border: '1px solid rgba(140,112,85,0.15)', color: '#8C7055' }}>
+              🔑 Googleログイン
+            </button>
+          )
+        )}
+      </div>
+
+      {/* 相手追加/編集モーダル */}
+      {showPartnerForm && (
+        <PartnerFormModal
+          initial={editingPartner}
+          onSave={handleSavePartner}
+          onClose={() => { setShowPartnerForm(false); setEditingPartner(null); }}
+          user={user}
+        />
+      )}
+    </div>
   );
 }
 
@@ -445,19 +549,16 @@ export function SearchResults({ results, query, onTabJump }) {
 // メイン
 // ─────────────────────────────────────────
 export function CommunicationCompass() {
-  // #/evaluate/[token] ルート検出
   const evalToken = (() => {
     const hash = window.location.hash;
     const m = hash.match(/^#\/evaluate\/([a-f0-9]+)$/);
     return m ? m[1] : null;
   })();
 
-  const [view, setView] = useState("toroku");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [featureTab, setFeatureTab] = useState('manual');
+  const [leftOpen, setLeftOpen] = useState(false); // mobile: left panel visible
+  const [selectedPartnerId, setSelectedPartnerId] = useState(null);
 
-  // ── 初回起動時のオンボーディング表示 ──
   const [showWelcome, setShowWelcome] = useState(() => {
     try { return !localStorage.getItem('sg_onboarded'); } catch { return false; }
   });
@@ -466,66 +567,26 @@ export function CommunicationCompass() {
     setShowWelcome(false);
   };
 
-  // 検索インデックス（初回のみ構築、正規化テキストもキャッシュ）
-  const searchIndexRef = React.useRef(null);
-  const getIndex = () => {
-    if (!searchIndexRef.current) {
-      const raw = buildSearchIndex();
-      searchIndexRef.current = raw.map(e => ({
-        ...e,
-        _ntext: normalizeForSearch(e.text),
-        _nlabel: normalizeForSearch(e.label),
-      }));
-    }
-    return searchIndexRef.current;
-  };
-
-  // 検索実行（正規化 + スコアリング）
-  const handleSearch = (q) => {
-    setSearchQuery(q);
-    if (!q.trim()) { setSearchResults([]); return; }
-    const nq = normalizeForSearch(q);
-    if (!nq) { setSearchResults([]); return; }
-
-    const scored = [];
-    for (const e of getIndex()) {
-      let score = 0;
-      // label 一致は強め
-      if (e._nlabel.includes(nq)) score += 3;
-      // text の前方一致は真ん中、部分一致は最小
-      const ti = e._ntext.indexOf(nq);
-      if (ti === 0) score += 2;
-      else if (ti > 0) score += 1;
-      // 単語境界的な一致（前後が日本語/英数以外）をさらに加点
-      if (ti > 0 && /[\s、。・（）「」]/.test(e._ntext[ti-1])) score += 1;
-      if (score > 0) scored.push({ ...e, _score: score });
-    }
-    scored.sort((a, b) => b._score - a._score);
-    setSearchResults(scored.slice(0, 30));
-  };
-
-  // ── 認証状態 ──
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(!!_sb);
 
-  // ── プロフィール（localStorage + Supabase）──
   const [profiles, setProfiles] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("shisogaku_profiles")) || []; } catch { return []; }
+    try { return JSON.parse(localStorage.getItem('shisogaku_profiles')) || []; } catch { return []; }
   });
   const [myId, setMyId] = useState(() => {
-    try { return localStorage.getItem("shisogaku_myId") || null; } catch { return null; }
+    try { return localStorage.getItem('shisogaku_myId') || null; } catch { return null; }
   });
 
   useEffect(() => {
-    if (!user && profiles.length === 0) return;
-    try { localStorage.setItem("shisogaku_profiles", JSON.stringify(profiles)); } catch {}
-  }, [profiles, user]);
+    try { localStorage.setItem('shisogaku_profiles', JSON.stringify(profiles)); } catch {}
+  }, [profiles]);
   useEffect(() => {
-    if (!user && !myId) return;
-    try { if (myId) localStorage.setItem("shisogaku_myId", myId); else localStorage.removeItem("shisogaku_myId"); } catch {}
-  }, [myId, user]);
+    try {
+      if (myId) localStorage.setItem('shisogaku_myId', myId);
+      else localStorage.removeItem('shisogaku_myId');
+    } catch {}
+  }, [myId]);
 
-  // ── Supabase 認証初期化 ──
   useEffect(() => {
     if (!_sb) return;
     _sb.auth.getSession().then(({ data: { session } }) => {
@@ -539,13 +600,13 @@ export function CommunicationCompass() {
       setAuthLoading(false);
       if (u) {
         loadFromSupabase(u.id);
-        sbDb.log(u.id, "login", { provider: session?.user?.app_metadata?.provider });
+        sbDb.log(u.id, 'login', { provider: session?.user?.app_metadata?.provider });
       } else {
         setProfiles([]);
         setMyId(null);
         try {
-          localStorage.removeItem("shisogaku_profiles");
-          localStorage.removeItem("shisogaku_myId");
+          localStorage.removeItem('shisogaku_profiles');
+          localStorage.removeItem('shisogaku_myId');
         } catch {}
       }
     });
@@ -559,33 +620,23 @@ export function CommunicationCompass() {
     ]);
     let localProfiles = [];
     let localMyId = null;
-    try { localProfiles = JSON.parse(localStorage.getItem("shisogaku_profiles")) || []; } catch {}
-    try { localMyId = localStorage.getItem("shisogaku_myId") || null; } catch {}
-
-    // Supabase + local を id でマージ（Supabase 側を優先。ローカルにしか
-    // 無いものは Supabase に back-fill する）
+    try { localProfiles = JSON.parse(localStorage.getItem('shisogaku_profiles')) || []; } catch {}
+    try { localMyId = localStorage.getItem('shisogaku_myId') || null; } catch {}
     const sb = Array.isArray(sbProfiles) ? sbProfiles : [];
     const sbIds = new Set(sb.map(p => p.id));
     const onlyLocal = localProfiles.filter(p => !sbIds.has(p.id));
     const merged = [...sb, ...onlyLocal];
-
     if (merged.length > 0) {
       setProfiles(merged);
-      try { localStorage.setItem("shisogaku_profiles", JSON.stringify(merged)); } catch {}
+      try { localStorage.setItem('shisogaku_profiles', JSON.stringify(merged)); } catch {}
     }
-
-    // ローカルにしか無いものを Supabase に反映（主に旧クライアントで
-    // 登録された相手の救済）
     if (onlyLocal.length > 0) {
       const effectiveMyId = sbMyId || localMyId;
-      for (const p of onlyLocal) {
-        await sbDb.saveProfile(userId, p, p.id === effectiveMyId);
-      }
+      for (const p of onlyLocal) await sbDb.saveProfile(userId, p, p.id === effectiveMyId);
     }
-
     if (sbMyId !== null) {
       setMyId(sbMyId);
-      try { localStorage.setItem("shisogaku_myId", sbMyId); } catch {}
+      try { localStorage.setItem('shisogaku_myId', sbMyId); } catch {}
     } else if (localMyId) {
       setMyId(localMyId);
     }
@@ -593,376 +644,133 @@ export function CommunicationCompass() {
 
   const handleLogin = async () => {
     if (!_sb) return;
-    await _sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.href } });
-  };
-  const handleLogout = async () => {
-    if (!_sb) return;
-    await _sb.auth.signOut();
-    setUser(null); setProfiles([]); setMyId(null);
-    try { localStorage.removeItem("shisogaku_profiles"); localStorage.removeItem("shisogaku_myId"); } catch {}
-  };
-  const handleViewChange = (v) => {
-    setView(v);
-    setSidebarOpen(false);
-    setSearchQuery('');
-    setSearchResults([]);
-    if (user) sbDb.log(user.id, "view_tab", { tab: v });
+    await _sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
   };
 
   const me = profiles.find(p => p.id === myId);
-  const partners = profiles.filter(p => p.id !== myId);
-  const sbConfigured = SUPABASE_URL !== "YOUR_SUPABASE_URL";
+  const selectedPartner = profiles.find(p => p.id === selectedPartnerId && p.id !== myId);
 
-  // ── タブ定義 ──
-  const sidebarItems = [
-    { id:"toroku", label:"自分の登録", icon:"user",   badge: me ? (me.blood + '型') : null, badgeColor: me?.color },
-    { id:"pair",   label:"相手の登録", icon:"people", badge: partners.length > 0 ? String(partners.length) : null },
-    ...(AI_TAB_ENABLED ? [{ id:"ai", label:"AIに確認", icon:"robot" }] : []),
-  ];
-  const mainTabs = [
-    { id:"manual",   label:"取説",    icon:"sparkle"  },
-    { id:"simulate", label:"伝え方",  icon:"envelope" },
-    { id:"compat",   label:"相性",    icon:"heart"    },
-    { id:"scene",    label:"シーン",  icon:"chat"     },
-    { id:"life",     label:"ライフ",  icon:"journey"  },
-    { id:"power",    label:"知識",    icon:"book"     },
-    { id:"plan",     label:"プラン",  icon:"calender" },
-  ];
-
-  const isSidebarView = ['toroku','pair','ai'].includes(view);
-  const activeMain = !isSidebarView ? view : null;
-
-  // ── レンダー ──
-  return (
-    <div className="flex h-screen overflow-hidden" style={{background:'#FAF7F2'}}>
-
-      {/* キーボードユーザー向けスキップリンク（フォーカス時のみ表示） */}
-      <a href="#main-content" className="skip-link">本文へスキップ</a>
-
-      {/* ── 初回オンボーディング ── */}
-      {showWelcome && <WelcomeModal onClose={closeWelcome} />}
-
-      {/* ── サイドバー（デスクトップ固定 / モバイルオーバーレイ）── */}
-      {sidebarOpen && (
-        <button type="button"
-          className="fixed inset-0 bg-black bg-opacity-30 z-20 md:hidden"
-          aria-label="メニューを閉じる"
-          onClick={() => setSidebarOpen(false)} />
-      )}
-
-      <aside id="primary-sidebar"
-        aria-label="メインナビゲーション"
-        className={[
-        "flex flex-col z-30 transition-transform duration-300",
-        "fixed md:static inset-y-0 left-0 w-56",
-        sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-      ].join(' ')} style={{background:'#F7F3EE',borderRight:'1px solid rgba(150,118,88,0.15)'}}>
-
-        {/* ロゴ */}
-        <div className="flex items-center gap-2 px-3 py-2.5" style={{borderBottom:'1px solid rgba(150,118,88,0.12)'}}>
-          <LogoIcon size={28} />
-          <div>
-            <div className="text-xs font-black leading-tight" style={{color:'#7A5C48'}}>
-              支礎学コンパス
-            </div>
-            <div className="text-[10px] text-gray-400">血液型コミュニティ</div>
+  // evaluate ルート
+  if (evalToken) {
+    return (
+      <div className="flex h-screen overflow-hidden" style={{ background: '#FAF7F2' }}>
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="max-w-xl mx-auto bg-white rounded-2xl p-5" style={{ boxShadow: '0 1px 12px rgba(180,130,70,0.1)' }}>
+            <Suspense fallback={<ViewLoading/>}>
+              <EvaluationFormView token={evalToken} user={user}/>
+            </Suspense>
           </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* ナビ（スクロール可能） */}
-        <nav className="flex-1 px-2 pt-1 pb-0 space-y-0.5 overflow-y-auto">
-          <div className="text-[10px] font-bold text-gray-400 px-2 pt-2 pb-1 tracking-wider uppercase">Profile</div>
+  return (
+    <div className="flex h-screen overflow-hidden" style={{ background: '#FAF7F2' }}>
+      <a href="#main-content" className="skip-link">本文へスキップ</a>
+      {showWelcome && <WelcomeModal onClose={closeWelcome}/>}
 
-          {sidebarItems.map(item => (
-            <button key={item.id} onClick={() => handleViewChange(item.id)}
-              type="button"
-              aria-current={view === item.id ? 'page' : undefined}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all"
-              style={view === item.id
-                ? {background:'#8C7055',color:'white',boxShadow:'0 2px 8px rgba(140,112,85,0.2)'}
-                : {color:'#5C4A38'}}>
-              <span aria-hidden="true" className="w-4 flex items-center justify-center">
-                <Icon name={item.icon} size={14} color={view===item.id?"white":"#8C7055"} sw={1.5}/>
-              </span>
-              <span className="flex-1 text-left">{item.label}</span>
-              {item.badge && (
-                <span className={[
-                  "text-[10px] px-1.5 py-0.5 rounded-full font-bold",
-                  view === item.id
-                    ? "bg-white bg-opacity-25 text-white"
-                    : "bg-gray-100 text-gray-600"
-                ].join(' ')}
-                  style={view !== item.id && item.badgeColor ? {background: item.badgeColor + '22', color: item.badgeColor} : {}}>
-                  {item.badge}
-                </span>
-              )}
-            </button>
-          ))}
+      {/* ── モバイル：左パネルオーバーレイ ── */}
+      {leftOpen && (
+        <button type="button"
+          className="fixed inset-0 bg-black bg-opacity-30 z-20 md:hidden"
+          aria-label="閉じる"
+          onClick={() => setLeftOpen(false)}/>
+      )}
 
-          {/* 血液型クイック検索 */}
-          <div className="text-[10px] font-bold text-gray-400 px-2 pt-2.5 pb-1 tracking-wider uppercase">血液型</div>
-          <div className="grid grid-cols-4 gap-1 px-2 pb-0.5">
-            {["A","B","O","AB"].map(b => {
-              const color = BC[b]?.color || "#999";
-              const active = searchQuery === `${b}型`;
-              return (
-                <button
-                  key={b}
-                  type="button"
-                  onClick={() => {
-                    handleSearch(`${b}型`);
-                    setSidebarOpen(false);
-                  }}
-                  aria-label={`${b}型で検索`}
-                  aria-pressed={active}
-                  className="py-1 rounded-lg text-[10px] font-black border-2 transition-all"
-                  style={active
-                    ? { backgroundColor: color, borderColor: color, color: "white", boxShadow: `0 2px 8px ${color}66` }
-                    : { borderColor: color + "55", color: color, backgroundColor: color + "10" }}>
-                  {b}型
-                </button>
-              );
-            })}
+      {/* ── 左パネル ── */}
+      <aside
+        aria-label="機能パネル"
+        className={[
+          'flex flex-col z-30 transition-transform duration-300 flex-shrink-0',
+          'fixed md:static inset-y-0 left-0',
+          'w-72 lg:w-80',
+          leftOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+        ].join(' ')}
+        style={{ borderRight: '1px solid rgba(150,118,88,0.15)' }}>
+        {/* 左パネルヘッダー：ロゴ */}
+        <div className="flex items-center gap-2 px-3 py-2.5 flex-shrink-0"
+          style={{ background: '#F7F3EE', borderBottom: '1px solid rgba(150,118,88,0.12)' }}>
+          <LogoIcon size={26}/>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-black" style={{ color: '#7A5C48' }}>支礎学コンパス</div>
+            <div className="text-[10px] text-gray-400">血液型 × 妄想チャット</div>
           </div>
-
-          <div className="text-[10px] font-bold text-gray-400 px-2 pt-2.5 pb-1 tracking-wider uppercase">Features</div>
-
-          {mainTabs.map(tab => (
-            <button key={tab.id} onClick={() => handleViewChange(tab.id)}
-              type="button"
-              aria-current={view === tab.id ? 'page' : undefined}
-              className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
-              style={view === tab.id
-                ? {background:'rgba(140,112,85,0.08)',color:'#8C7055',fontWeight:700}
-                : {color:'#7A6048'}}>
-              <span aria-hidden="true" className="w-4 flex items-center justify-center">
-                <Icon name={tab.icon} size={13} color={view===tab.id?"#8C7055":"#9A8060"} sw={1.5}/>
-              </span>
-              <span>{tab.label}</span>
-            </button>
-          ))}
-
-          <div className="text-[10px] font-bold text-gray-400 px-2 pt-2.5 pb-1 tracking-wider uppercase">テキトーくんLinks</div>
-          <div className="space-y-1 px-2 pb-1">
+          {/* リンク群（小） */}
+          <div className="flex gap-1">
             {[
-              { url:"https://twitter.com/KunTekito",                          label:"X Twitter（情報発信用）", color:"#000000" },
-              { url:"https://www.youtube.com/c/tekitokun",                    label:"YouTube（初・中級編）",   color:"#ff0000" },
-              { url:"https://community.camp-fire.jp/projects/view/365771",    label:"魂学コミュニティ（上級編）", color:"#f59e0b" },
-              { url:"https://community.camp-fire.jp/projects/view/697850",    label:"人間支礎学コミュ",         color:"#e2342d" },
-            ].map(link => (
-              <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer"
-                onClick={() => setSidebarOpen(false)}
-                className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl text-[10px] font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
-                style={{
-                  background: `linear-gradient(135deg, ${link.color}, ${link.color}dd)`,
-                  boxShadow: `0 2px 6px ${link.color}44`,
-                }}>
-                <span aria-hidden="true" className="flex-shrink-0">
-                  <Icon name="external" size={10} color="white" sw={2.2}/>
-                </span>
-                <span className="truncate">{link.label}</span>
+              { url: 'https://twitter.com/KunTekito', icon: '𝕏' },
+              { url: 'https://www.youtube.com/c/tekitokun', icon: '▶' },
+            ].map(l => (
+              <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer"
+                className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black text-white"
+                style={{ background: '#8C7055' }}>
+                {l.icon}
               </a>
             ))}
           </div>
-        </nav>
-
-        {/* PR固定エリア（スクロール外・常に表示） */}
-        <div className="flex-shrink-0 px-2 pt-1.5 pb-1" style={{borderTop:'1px solid rgba(180,130,70,0.12)'}}>
-          <div className="text-[9px] font-bold text-gray-400 px-1 pb-1 flex items-baseline gap-1">
-            <span>PR</span><span className="font-normal opacity-70">広告</span>
-          </div>
-          <a href="https://px.a8.net/svt/ejp?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
-            rel="nofollow noopener noreferrer sponsored"
-            target="_blank"
-            onClick={() => setSidebarOpen(false)}
-            className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl text-[10px] font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
-            style={{
-              background:'linear-gradient(135deg, #9A7A60, #C4A882)',
-              boxShadow:'0 2px 8px rgba(168,85,247,0.4)',
-            }}>
-            <span aria-hidden="true" className="flex-shrink-0">
-              <Icon name="external" size={10} color="white" sw={2.2}/>
-            </span>
-            <span className="truncate">お悩み相談・カウンセリング</span>
-          </a>
-          <img src="https://www13.a8.net/0.gif?a8mat=356JGK+AINTDM+2PEO+1BPGPE"
-            alt="" width="1" height="1"
-            style={{border:0,position:'absolute',pointerEvents:'none',width:1,height:1}}/>
         </div>
-
-        {/* 認証エリア */}
-        <div className="border-t border-gray-100 p-2">
-          {sbConfigured && (
-            authLoading ? (
-              <div className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1" role="status" aria-live="polite">
-                <span className="inline-block w-3 h-3 border-2 border-amber-200 border-t-amber-600 rounded-full animate-spin" aria-hidden="true"/>
-                <span>ログイン状態を確認中…</span>
-              </div>
-            ) : user ? (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 px-2">
-                  {user.user_metadata?.avatar_url && (
-                    <img src={user.user_metadata.avatar_url} alt="avatar"
-                      className="w-7 h-7 rounded-full border-2 border-green-400 flex-shrink-0" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold text-gray-700 truncate">
-                      {user.user_metadata?.full_name || user.email}
-                    </div>
-                    <div className="text-xs text-green-600">☁️ 同期中</div>
-                  </div>
-                </div>
-                <button onClick={handleLogout}
-                  className="w-full text-xs py-1.5 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 transition-all font-medium">
-                  ログアウト
-                </button>
-              </div>
-            ) : (
-              <button onClick={handleLogin}
-                className="w-full flex items-center justify-center gap-2 py-1.5 rounded-xl text-xs font-bold transition-all"
-                style={{background:'rgba(140,112,85,0.07)',border:'1px solid rgba(140,112,85,0.15)',color:'#8C7055'}}>
-                🔑 Googleログイン
-              </button>
-            )
-          )}
-        </div>
+        <LeftPanel
+          profiles={profiles}
+          setProfiles={setProfiles}
+          myId={myId}
+          setMyId={setMyId}
+          user={user}
+          selectedPartnerId={selectedPartnerId}
+          setSelectedPartnerId={(id) => { setSelectedPartnerId(id); setLeftOpen(false); }}
+          featureTab={featureTab}
+          setFeatureTab={setFeatureTab}
+          onLogin={handleLogin}
+        />
       </aside>
 
-      {/* ── メインエリア ── */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-
-        {/* トップバー */}
-        <header className="px-4 py-2.5 flex items-center gap-3 flex-shrink-0" style={{background:'#F7F3EE',borderBottom:'1px solid rgba(150,118,88,0.15)'}}>
-          {/* ハンバーガー（モバイルのみ） */}
-          <button className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 text-gray-600"
-            type="button"
-            aria-label={sidebarOpen ? "メニューを閉じる" : "メニューを開く"}
-            aria-expanded={sidebarOpen}
-            aria-controls="primary-sidebar"
-            onClick={() => setSidebarOpen(s => !s)}>
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round"/>
-            </svg>
+      {/* ── 中央：チャット ── */}
+      <div id="main-content" className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* モバイルヘッダー */}
+        <header className="md:hidden flex items-center gap-2 px-3 py-2 flex-shrink-0"
+          style={{ background: '#F7F3EE', borderBottom: '1px solid rgba(150,118,88,0.15)' }}>
+          <button type="button"
+            onClick={() => setLeftOpen(s => !s)}
+            className="p-1.5 rounded-lg hover:bg-gray-100"
+            aria-label="機能パネルを開く">
+            <Icon name="menu" size={18} color="#7A5C48"/>
           </button>
-
-          {/* モバイル：ロゴ表示 */}
-          <div className="md:hidden flex items-center gap-1.5">
-            <LogoIcon size={24} />
-            <span className="text-sm font-black" style={{color:'#7A5C48'}}>支礎学コンパス</span>
-          </div>
-
-          {/* 検索バー */}
-          <div role="search" className="flex-1 relative max-w-xl">
-            <span aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">🔍</span>
-            <label htmlFor="global-search" className="sr-only">血液型・特徴・アドバイスの検索</label>
-            <input
-              id="global-search"
-              type="search"
-              inputMode="search"
-              autoComplete="off"
-              value={searchQuery}
-              onChange={e => handleSearch(e.target.value)}
-              placeholder="血液型・特徴・アドバイスを検索…（A型 愛情、謝り方 など）"
-              className="w-full pl-9 pr-8 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all" style={{background:'#F5F0EA',border:'1px solid rgba(150,118,88,0.2)',outline:'none'}} onFocus={e=>{e.target.style.boxShadow='0 0 0 2px rgba(140,112,85,0.15)';e.target.style.borderColor='rgba(140,112,85,0.3)'}} onBlur={e=>{e.target.style.boxShadow='';e.target.style.borderColor='rgba(150,118,88,0.2)'}}
-            />
-            {searchQuery && (
-              <button onClick={() => handleSearch('')}
-                type="button"
-                aria-label="検索をクリア"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold">
-                <span aria-hidden="true">✕</span>
-              </button>
-            )}
-          </div>
+          <LogoIcon size={22}/>
+          <span className="text-sm font-black flex-1" style={{ color: '#7A5C48' }}>支礎学コンパス</span>
+          {selectedPartner && (
+            <div className="flex items-center gap-1.5 text-xs font-bold" style={{ color: selectedPartner.color }}>
+              <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-black"
+                style={{ background: selectedPartner.color }}>
+                {selectedPartner.blood}
+              </div>
+              {selectedPartner.name}
+            </div>
+          )}
         </header>
 
-        {/* タブバー（検索中は非表示・サイドバービュー時も非表示） */}
-        {!searchQuery && !isSidebarView && (
-          <nav aria-label="機能タブ" className="px-4 flex-shrink-0" style={{background:'#F7F3EE',borderBottom:'1px solid rgba(150,118,88,0.12)'}}>
-            <div className="flex gap-1 overflow-x-auto scrollbar-hide py-2">
-              {mainTabs.map(tab => (
-                <button key={tab.id} onClick={() => handleViewChange(tab.id)}
-                  type="button"
-                  aria-current={view === tab.id ? 'page' : undefined}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex-shrink-0"
-                  style={view === tab.id
-                    ? {background:'#8C7055',color:'white',boxShadow:'0 2px 6px rgba(140,112,85,0.2)'}
-                    : {color:'#7A6048',background:'transparent'}}>
-                  <span aria-hidden="true" className="flex items-center">
-                    <Icon name={tab.icon} size={13} color={view===tab.id?"white":"#8C7055"} sw={1.5}/>
-                  </span>
-                  <span>{tab.label}</span>
-                </button>
-              ))}
-            </div>
-          </nav>
-        )}
-
-        {/* コンテンツエリア */}
-        <main id="main-content" tabIndex={-1} aria-live="polite" className="flex-1 overflow-y-auto">
-          <div className="max-w-2xl mx-auto p-4">
-
-            {/* 検索結果 */}
-            {searchQuery ? (
-              <SearchResults results={searchResults} query={searchQuery} onTabJump={(tab) => { handleSearch(''); handleViewChange(tab); }} />
-            ) : (
-              <div className="bg-white rounded-2xl p-5" style={{boxShadow:'0 1px 12px rgba(180,130,70,0.1)',border:'1px solid rgba(150,118,88,0.12)'}}>
-                <Suspense fallback={<ViewLoading/>}>
-                  {evalToken && <EvaluationFormView token={evalToken} user={user}/>}
-                  {!evalToken && view==="manual"    && <ManualView/>}
-                  {!evalToken && view==="toroku"    && <TorokuView profiles={profiles} setProfiles={setProfiles} myId={myId} setMyId={setMyId} user={user} onLogin={handleLogin}/>}
-                  {!evalToken && view==="pair"      && <PairView profiles={profiles} setProfiles={setProfiles} myId={myId} user={user}/>}
-                  {!evalToken && view==="life"      && <LifeView/>}
-                  {!evalToken && view==="compat"    && <CompatView profiles={profiles} myId={myId}/>}
-                  {!evalToken && view==="scene"     && <SceneView profiles={profiles} myId={myId}/>}
-                  {!evalToken && view==="power"     && <PowerView profiles={profiles}/>}
-                  {!evalToken && view==="simulate"  && <SimulateView profiles={profiles} myId={myId}/>}
-                  {!evalToken && view==="plan"      && <PlanView/>}
-                  {!evalToken && view==="ai" && AI_TAB_ENABLED && <AIView profiles={profiles} myId={myId} user={user}/>}
-                </Suspense>
-              </div>
-            )}
-          </div>
-        </main>
-
-        {/* ── モバイル下部ナビ ── */}
-        <nav aria-label="主要ナビゲーション（モバイル）" className="md:hidden flex items-center justify-around px-1 py-2 flex-shrink-0" style={{background:'#2c1a0e',borderTop:'1px solid rgba(255,220,160,0.08)'}}>
-          {[
-            { id:"toroku", icon:"user",   label:"自分" },
-            { id:"pair",   icon:"people", label:"相手" },
-            { id:"compat", icon:"heart",  label:"相性" },
-            { id:"scene",  icon:"chat",   label:"シーン" },
-            ...(AI_TAB_ENABLED ? [{ id:"ai", icon:"robot", label:"AI" }] : []),
-          ].map(item => (
-            <button key={item.id} onClick={() => handleViewChange(item.id)}
-              type="button"
-              aria-current={view === item.id ? 'page' : undefined}
-              className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all flex-1"
-              style={view===item.id
-                ?{background:'#8C7055',boxShadow:'0 2px 8px rgba(140,112,85,0.3)'}
-                :{}}>
-              <span aria-hidden="true" className="flex items-center">
-                <Icon name={item.icon} size={20} color={view===item.id?"#fdf8f0":"rgba(253,248,240,0.38)"} sw={1.5}/>
-              </span>
-              <span className="text-xs font-bold" style={{color:view===item.id?"#fdf8f0":"rgba(253,248,240,0.38)"}}>{item.label}</span>
-            </button>
-          ))}
-          <button onClick={() => setSidebarOpen(true)}
-            type="button"
-            aria-label="メニューを開く"
-            aria-controls="primary-sidebar"
-            className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl flex-1">
-            <span aria-hidden="true" className="flex items-center">
-              <Icon name="menu" size={20} color="rgba(253,248,240,0.38)" sw={1.5}/>
-            </span>
-            <span className="text-xs font-bold" style={{color:"rgba(253,248,240,0.38)"}}>メニュー</span>
+        {/* モバイル下部タブ */}
+        <nav aria-label="モバイルナビ" className="md:hidden flex items-center px-2 py-1.5 flex-shrink-0"
+          style={{ background: '#2c1a0e', borderTop: '1px solid rgba(255,220,160,0.08)' }}>
+          <button type="button"
+            onClick={() => setLeftOpen(false)}
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 rounded-xl transition-all"
+            style={!leftOpen ? { background: '#8C7055' } : {}}>
+            <Icon name="chat" size={18} color={!leftOpen ? '#fdf8f0' : 'rgba(253,248,240,0.4)'} sw={1.5}/>
+            <span className="text-[10px] font-bold" style={{ color: !leftOpen ? '#fdf8f0' : 'rgba(253,248,240,0.4)' }}>チャット</span>
+          </button>
+          <button type="button"
+            onClick={() => setLeftOpen(true)}
+            className="flex-1 flex flex-col items-center gap-0.5 py-1 rounded-xl transition-all"
+            style={leftOpen ? { background: '#8C7055' } : {}}>
+            <Icon name="sparkle" size={18} color={leftOpen ? '#fdf8f0' : 'rgba(253,248,240,0.4)'} sw={1.5}/>
+            <span className="text-[10px] font-bold" style={{ color: leftOpen ? '#fdf8f0' : 'rgba(253,248,240,0.4)' }}>機能</span>
           </button>
         </nav>
 
+        <ChatView partner={selectedPartner} me={me} user={user}/>
       </div>
     </div>
   );
 }
-
 
 export default CommunicationCompass;
