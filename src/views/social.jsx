@@ -374,11 +374,84 @@ export function SceneView({ profiles = [], myId = null }) {
 }
 
 // ─────────────────────────────────────────
-// メッセージ反応シミュレーター データ
+// 状況診断データ（血液型×性別×状況 → 内側で起きていること・対処法）
 // ─────────────────────────────────────────
+const SITUATIONS = [
+  { id: "cold",     label: "急に冷たくなった",      icon: "🥶" },
+  { id: "quiet",    label: "連絡が減った・返信が遅い", icon: "📵" },
+  { id: "angry",    label: "怒っている・機嫌が悪い",  icon: "😤" },
+  { id: "down",     label: "元気がなさそう",          icon: "😔" },
+  { id: "distance", label: "距離を置いている",        icon: "↔️" },
+  { id: "want",     label: "何かを求めている感じ",    icon: "🙏" },
+];
 
-// メッセージの意図を分類するキーワード
-// 血液型×性別×関係性×メッセージタイプ → 反応データ
+const SITUATION_DB = {
+  "O型女性": {
+    cold:     { inside: "不満や傷ついた気持ちが蓄積限界に近い。怒る前の「静かな嵐」の状態。", todo: "責めずに「最近どう？」と声をかける。「ありがとう」の言葉を添えること。", dont: "放置・無関心・「何かしたっけ？」の責任転嫁はNG。" },
+    quiet:    { inside: "心のゴミが溜まっていて発散できていない状態。または距離感を試している。", todo: "「最近元気？」と短く連絡する。頼りにしているアピールが有効。", dont: "既読スルー・一言返信の繰り返し。催促は逆効果。" },
+    angry:    { inside: "長期間溜め込んだ不満が一気に爆発している。直接の原因は引き金にすぎない。", todo: "まず謝る。落ち着いたタイミングで「何が嫌だったか聞かせて」と話せる機会をつくる。", dont: "「そんなことで」「気にしすぎ」は絶対NG。火に油。" },
+    down:     { inside: "心の余裕がなくなっている。誰かに頼ることが苦手で一人で抱えている。", todo: "「何かできることある？」と具体的に提案する。一緒に過ごす時間をつくる。", dont: "「しっかりしなよ」「自分で解決して」は孤独感を深める。" },
+    distance: { inside: "傷ついたか、信頼関係に亀裂が入っている。関係をリセットするか迷っている段階。", todo: "焦らず待ちながら「いつでもいるよ」という姿勢を示す。実際に頼ってみる。", dont: "詰め寄る・理由を問い詰める・感情的に反論する。" },
+    want:     { inside: "「頼ってほしい」「必要とされたい」というサインを出している。", todo: "具体的に相談を持ちかける。「あなたじゃないとダメ」という言葉が刺さる。", dont: "気づかないふりで放置。自己完結してしまうのもNG。" },
+  },
+  "O型男性": {
+    cold:     { inside: "プライドが傷ついた、または「必要とされていない」と感じている状態。", todo: "「頼りにしている」「さすがだと思う」と尊敬を伝えるメッセージを送る。", dont: "プライドをさらに傷つける言動・比較・弱点への言及。" },
+    quiet:    { inside: "傷ついたプライドを抱えて黙っているか、頼られなくて意欲が落ちている状態。", todo: "相談を持ちかける。「あなたの意見を聞きたい」が有効。", dont: "放置・または「どうしたの？」と感情的に詰め寄ること。" },
+    angry:    { inside: "プライドへの積み重なったダメージが爆発している。公的な場での傷が引き金になりやすい。", todo: "まずその場を収める。後で「あのときは言い方が悪かった」と謝罪の機会をつくる。", dont: "対抗する・責める・正論で畳み掛ける。" },
+    down:     { inside: "リーダー役割への疲弊、または誰にも頼れない孤独感がある。", todo: "「いつも頑張っているね」と労う。飲みや外出の機会をつくる。", dont: "「しっかりしてよ」「何かあった？」の過度な詮索。" },
+    distance: { inside: "プライドが深く傷ついて関係を見直している。最終段階に近い可能性。", todo: "「あなたのことを尊敬している」を行動で示す。焦らず待つ。", dont: "詰め寄る・感情的に責める・さらにプライドを傷つける言動。" },
+    want:     { inside: "「頼ってほしい・尊敬してほしい」のサインが出ている。", todo: "相談・依頼・称賛の三点セット。「あなたなら解決できる」が響く。", dont: "自己解決して報告のみ。頼られないと意欲が落ちる。" },
+  },
+  "A型女性": {
+    cold:     { inside: "マナー違反・約束破りなど「許せない」と判断したことがあり、言葉で対処しようとしている。", todo: "礼儀正しく・計画的に・誠意を持って謝罪する。何が問題だったかを具体的に述べる。", dont: "「そんな細かいこと気にするの？」「忘れてよ」は最悪。" },
+    quiet:    { inside: "心のゴミが溜まり他者に処理させたい状態。または不満を言葉にする前の蓄積期。", todo: "「最近どう？愚痴でも聞くよ」と話す機会をつくる。", dont: "放置・または「大丈夫でしょ」と流す。" },
+    angry:    { inside: "足し算式の怒りが限界を超えた。言葉での攻撃が出てくる（言い回しが鋭い）。", todo: "まず聞く。「何が嫌だったか」を言葉にさせる。反論しない。謝罪は具体的に。", dont: "感情論で反論・「うるさい」「細かすぎ」は言語道断。" },
+    down:     { inside: "完璧主義が崩れて自己評価が下がっている状態。または心のゴミが満杯。", todo: "「いつも頑張ってるね」と具体的に労う。愚痴を聞く機会をつくる。", dont: "「大丈夫？」だけで終わる・アドバイスを押しつける。" },
+    distance: { inside: "信頼が大きく損なわれている。または言葉で傷ついている。", todo: "計画的・誠実な対話で信頼を取り戻す。具体的な行動改善を示す。", dont: "感情的な謝罪・その場しのぎの言葉。" },
+    want:     { inside: "「几帳面さ・努力を認めてほしい」というサインが出ている。", todo: "「いつも細かいところまで気が利くね」と具体的に褒める。", dont: "気づかないふり・「普通だよ」と流す。" },
+  },
+  "A型男性": {
+    cold:     { inside: "プライドへの批判か約束破りが積み重なっている。言葉で対処しようとしている。", todo: "礼儀を尽くして謝罪する。「あなたの几帳面さが助かっています」と伝える。", dont: "感情論での謝罪・「なんで怒るの？」の詮索。" },
+    quiet:    { inside: "不満を言葉に整理している段階。または傷ついたプライドを抱えている。", todo: "計画的な会話の機会をつくる。「意見を聞かせて」が開くきっかけになる。", dont: "放置・感情的なアプローチ。" },
+    angry:    { inside: "足し算式の怒りが爆発。プライドへの攻撃が引き金になりやすい。", todo: "論理的に・誠実に謝罪する。「何が問題だったか」を把握した上で話す。", dont: "「細かい」「気にしすぎ」・感情的な反論。" },
+    down:     { inside: "完璧主義によるプレッシャーに疲れている。または努力が評価されていない感覚。", todo: "「いつも丁寧にやっていてすごい」と労う。論理的な対話で話せる機会をつくる。", dont: "「しっかりして」「頑張れ」の圧をかける言葉。" },
+    distance: { inside: "信頼が大きく損なわれた可能性。またはプライドが深く傷ついている。", todo: "誠実・計画的な行動で信頼を取り戻す。言葉より行動を見せる。", dont: "感情的な詰め寄り・さらなるプライドへの言及。" },
+    want:     { inside: "「真面目さを認めてほしい・評価してほしい」のサインが出ている。", todo: "「あなたがいてくれると助かる」を具体的に言葉で伝える。", dont: "当たり前扱い・成果を他者と比較する。" },
+  },
+  "B型女性": {
+    cold:     { inside: "正直に「嫌だ」と感じていて距離を置いている。裏表がないのでそのまま。または深く傷ついて孤独を抱えている。", todo: "「何かあった？」と直球で聞く。個性を認める言葉をかける。", dont: "「なんで？」と責める・束縛・管理しようとする。" },
+    quiet:    { inside: "興味を失っている、またはエネルギーが切れている状態。", todo: "楽しい提案をして引っ張り出す。「これ面白そうじゃない？」が有効。", dont: "感情論で引き止める・「なんで連絡しないの」の責め立て。" },
+    angry:    { inside: "感情をストレートに出している状態（後は引かない）。直接原因に怒っているだけ。", todo: "まず「そうだよね、わかる」と受け止める。短く解決策を提示する。", dont: "感情をぶつけ返す・論理で封じ込める・時間をかけすぎる。" },
+    down:     { inside: "意外に繊細で傷ついている。強がりの裏に孤独感がある。", todo: "「一緒に何かしよう」と誘う。楽しいことで気分を変えるアプローチが効果的。", dont: "「しっかりして」「原因は何？」と問い詰める。" },
+    distance: { inside: "束縛・否定・自由の侵害を感じて自然に離れている状態。", todo: "自由を尊重し、引き止めず「いつでも来てね」のスタンスをとる。", dont: "追いかける・理由を問い詰める・感情的に訴える。" },
+    want:     { inside: "「自分の個性を認めてほしい・一緒に楽しみたい」のサインが出ている。", todo: "「面白いね！」と個性を肯定し、一緒に楽しめることを提案する。", dont: "型にはめようとする・真面目に説教する。" },
+  },
+  "B型男性": {
+    cold:     { inside: "正直に距離を置いている。束縛・否定・管理に反応していることが多い。", todo: "自由を尊重し、個性を認める言葉をかける。正直に「最近どう？」と聞く。", dont: "「なんで冷たいの？」と責める・束縛的な言動。" },
+    quiet:    { inside: "興味が別に向いているか、エネルギーが切れている状態。", todo: "楽しそうな提案で自然に引き出す。「これやってみない？」が有効。", dont: "連絡を催促する・感情的に訴える。" },
+    angry:    { inside: "感情をそのまま出している。後は引かないのがB型男性。直接原因のみ。", todo: "「そうだね」と短く受け止めて解決策を提示する。引かずに正面から向き合う。", dont: "論理で否定する・時間をかけすぎる・感情的に返す。" },
+    down:     { inside: "強がりの裏に繊細さがある。個性を否定されたか、孤独感を感じている。", todo: "「あなたのこういうところが好きだ」と個性を肯定する。一緒に楽しめることに誘う。", dont: "「何があったの？」と掘り下げる・プレッシャーをかける。" },
+    distance: { inside: "自由を侵害されていると感じて自然に離れている状態。", todo: "追いかけず自由を尊重する。「また遊ぼう」程度の軽い連絡にとどめる。", dont: "追いかける・管理しようとする・感情的に訴える。" },
+    want:     { inside: "「独創性を認めてほしい・一緒に楽しみたい」のサインが出ている。", todo: "「あなたの発想は面白い」と肯定し、一緒に動ける提案をする。", dont: "否定・型にはめる・正論で説く。" },
+  },
+  "AB型女性": {
+    cold:     { inside: "一人の時間が必要なサインか、感情を蓄積して限界に近い状態（外からは突然に見える）。", todo: "一人の時間を尊重しながら「いるからね」と軽く示す。論理的に話せる機会を待つ。", dont: "感情的に詰め寄る・「なんで？」と距離を詰める。" },
+    quiet:    { inside: "一人の時間で充電中。または距離感を置いて自分を守っている状態。", todo: "急かさず待つ。知的な話題でさりげなく繋がる。", dont: "連絡を催促する・「元気？」の連打。" },
+    angry:    { inside: "蓄積限界で爆発しているが表に出さないことが多い（静かに去る形）。怒っているか外からわかりにくい。", todo: "「何か気になることがあれば聞くよ」と話せる場をつくる。論理的に受け止める。", dont: "感情的に反応する・「怒ってる？」と詰め寄る。" },
+    down:     { inside: "一人の時間が不足しているか、深く悩みを抱えて自己完結しようとしている。", todo: "「一人でいていいよ、でもいつでも話せる」と示す。知的な対話で繋がる機会をつくる。", dont: "無理に明るくさせようとする・詮索する。" },
+    distance: { inside: "一人の時間の侵害か、距離の詰めすぎで完全に心を閉じている状態。最悪は静かに去る。", todo: "完全に距離を置いて待つ。焦らず自然な機会を待つ。", dont: "追いかける・感情的に訴える・「どうして？」を繰り返す。" },
+    want:     { inside: "「理解してほしい・一人の時間を守ってほしい」のサインが出ている。", todo: "「あなたの考え方は面白い」と理解を示す。一人の時間の保証を言葉にする。", dont: "急ぐ・感情的なアプローチ・一人の空間への侵入。" },
+  },
+  "AB型男性": {
+    cold:     { inside: "感情が蓄積していて限界に近い（外からは突然に見える）。または一人の時間が必要な状態。", todo: "一人の時間を完全に尊重する。論理的な短いメッセージで「いるよ」を示す。", dont: "感情的に詰め寄る・ペースを乱す・理由を問い詰める。" },
+    quiet:    { inside: "一人でじっくり考えている時間。または人間関係への疲弊。", todo: "急かさず待つ。知的な話題でさりげなく繋がる試みをする。", dont: "連絡の催促・「元気？」の連打・感情的なアプローチ。" },
+    angry:    { inside: "蓄積型なので外から怒っているかどうか見えにくい。静かに去る直前の状態の可能性。", todo: "論理的に「何か気になることがあれば話せる」と示す。急がない。", dont: "感情的に反応する・論理なき要求を重ねる。" },
+    down:     { inside: "一人で抱え込んでいる。または人間関係の消耗で充電不足の状態。", todo: "「一人の時間が必要なら全然いいよ」と保証する。知的な対話で気持ちを引き出す。", dont: "励ます・プレッシャーをかける・詮索する。" },
+    distance: { inside: "一人の時間を侵害されたか、自分のペースを乱されて完全に引いている状態。", todo: "完全に距離を置いて待つ。自分のペースで戻ってくるのを待つ。", dont: "追いかける・「もっと話して」の圧・感情的なアプローチ。" },
+    want:     { inside: "「論理的に理解してほしい・自分のペースを守ってほしい」のサインが出ている。", todo: "「あなたの視点は面白い、もっと聞かせて」と知的な関心を示す。一人の時間の保証を添える。", dont: "感情で押す・急ぐ・ペースを管理しようとする。" },
+  },
+};
+
 // ─────────────────────────────────────────
 // 反応シミュレーターメインビュー
 // ─────────────────────────────────────────
@@ -423,10 +496,20 @@ export function SimulateView({ profiles, myId }) {
     return Object.entries(freq).sort((a, b) => b[1] - a[1]);
   })();
 
+  const [situBlood, setSituBlood] = useState(null);
+  const [situGender, setSituGender] = useState(null);
+  const [situId, setSituId] = useState(null);
+
+  const situLabel = situBlood && situGender
+    ? `${situBlood}型${situGender === "female" ? "女性" : "男性"}`
+    : null;
+  const situResult = situLabel && situId ? SITUATION_DB[situLabel]?.[situId] : null;
+
   const SIM_TABS = [
-    { id: "simulate", label: "シミュ", icon: "🎯" },
-    { id: "history",  label: "履歴",  icon: "📝" },
-    { id: "tendency", label: "傾向",  icon: "📊" },
+    { id: "simulate", label: "伝え方",  icon: "🎯" },
+    { id: "situation",label: "状況診断", icon: "🔍" },
+    { id: "history",  label: "履歴",   icon: "📝" },
+    { id: "tendency", label: "傾向",   icon: "📊" },
   ];
 
   const ScoreBar = ({ score, label }) => {
@@ -444,32 +527,20 @@ export function SimulateView({ profiles, myId }) {
     );
   };
 
-  if (!me) return (
-    <div className="text-center py-12 space-y-2">
-      <div className="text-4xl">👤</div>
-      <div className="font-bold text-gray-700">「登録」タブで自分を登録してください</div>
-    </div>
-  );
-
-  if (others.length === 0) return (
-    <div className="text-center py-12 space-y-2">
-      <div className="text-4xl">👥</div>
-      <div className="font-bold text-gray-700">「登録」タブで相手を追加してください</div>
-    </div>
-  );
+  const needsRegistration = !me || others.length === 0;
 
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <div className="text-sm font-bold text-gray-700">送る前に反応をシミュレート</div>
-        <div className="text-xs text-gray-400 mt-0.5">メッセージを入力→相手の反応を体験してから送る</div>
+        <div className="text-sm font-bold text-gray-700">相手を知る・伝え方を変える</div>
+        <div className="text-xs text-gray-400 mt-0.5">状況診断はすぐ使える。伝え方変換は登録後に</div>
       </div>
 
       {/* サブタブ */}
-      <div className="grid grid-cols-3 gap-0.5 bg-gray-100 rounded-lg p-0.5">
+      <div className="grid grid-cols-4 gap-0.5 bg-gray-100 rounded-lg p-0.5">
         {SIM_TABS.map(t => (
           <button key={t.id} onClick={() => setSimTab(t.id)}
-            className={`py-1.5 rounded text-xs font-bold flex items-center justify-center gap-1 transition-all ${simTab===t.id?"bg-white shadow text-indigo-600":"text-gray-500"}`}>
+            className={`py-1.5 rounded text-xs font-bold flex items-center justify-center gap-0.5 transition-all ${simTab===t.id?"bg-white shadow text-indigo-600":"text-gray-500"}`}>
             <span>{t.icon}</span><span>{t.label}</span>
             {t.id==="history" && history.length > 0 && (
               <span className="bg-indigo-500 text-white rounded-full px-1" style={{fontSize:"9px"}}>{history.length}</span>
@@ -478,8 +549,102 @@ export function SimulateView({ profiles, myId }) {
         ))}
       </div>
 
+      {/* ── 状況診断タブ ── */}
+      {simTab==="situation" && (
+        <div className="space-y-4">
+          <div className="text-center">
+            <div className="text-sm font-bold text-gray-700">相手の今を読み解く</div>
+            <div className="text-xs text-gray-400 mt-0.5">血液型・性別・今の状況を選ぶと内側で起きていることがわかる</div>
+          </div>
+
+          {/* 血液型 */}
+          <div>
+            <div className="text-xs text-gray-500 font-bold mb-1">相手の血液型</div>
+            <div className="grid grid-cols-4 gap-1">
+              {["O","A","B","AB"].map(b => (
+                <button key={b} onClick={() => { setSituBlood(b); setSituId(null); }}
+                  className="py-2 rounded-xl text-sm font-bold border-2 transition-all"
+                  style={situBlood===b
+                    ? { backgroundColor: BC[b].color, borderColor: BC[b].color, color: "white" }
+                    : { borderColor: "#e5e7eb", color: "#374151" }}>
+                  {b}型
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 性別 */}
+          <div>
+            <div className="text-xs text-gray-500 font-bold mb-1">相手の性別</div>
+            <div className="grid grid-cols-2 gap-1">
+              {[{id:"female",label:"👩 女性"},{id:"male",label:"👨 男性"}].map(g => (
+                <button key={g.id} onClick={() => { setSituGender(g.id); setSituId(null); }}
+                  className={`py-2 rounded-xl text-sm font-bold border-2 transition-all ${situGender===g.id?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 text-gray-600"}`}>
+                  {g.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 状況 */}
+          {situBlood && situGender && (
+            <div>
+              <div className="text-xs text-gray-500 font-bold mb-1">今の状況</div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {SITUATIONS.map(s => (
+                  <button key={s.id} onClick={() => setSituId(s.id)}
+                    className={`py-2 px-2 rounded-xl text-xs font-bold border-2 transition-all flex items-center gap-1.5 ${situId===s.id?"border-indigo-500 bg-indigo-50 text-indigo-700":"border-gray-200 text-gray-600 hover:border-gray-300"}`}>
+                    <span>{s.icon}</span>
+                    <span className="text-left leading-tight">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 診断結果 */}
+          {situResult && situLabel && (
+            <div className="space-y-3">
+              <div className="text-center text-xs font-bold text-indigo-700 bg-indigo-50 py-1.5 rounded-lg">
+                {SITUATIONS.find(s=>s.id===situId)?.icon} {situLabel} が「{SITUATIONS.find(s=>s.id===situId)?.label}」とき
+              </div>
+              <div className="p-4 rounded-2xl border-2 border-amber-200 bg-amber-50 space-y-2">
+                <div className="text-xs font-bold text-amber-700 tracking-wider uppercase">内側で起きていること</div>
+                <div className="text-sm text-gray-800 leading-relaxed">{situResult.inside}</div>
+              </div>
+              <div className="p-4 rounded-2xl border-2 border-green-200 bg-green-50 space-y-2">
+                <div className="text-xs font-bold text-green-700 tracking-wider uppercase">✅ やるべきこと</div>
+                <div className="text-sm text-gray-800 leading-relaxed">{situResult.todo}</div>
+              </div>
+              <div className="p-4 rounded-2xl border-2 border-red-200 bg-red-50 space-y-2">
+                <div className="text-xs font-bold text-red-700 tracking-wider uppercase">⛔ やってはいけないこと</div>
+                <div className="text-sm text-gray-800 leading-relaxed">{situResult.dont}</div>
+              </div>
+            </div>
+          )}
+
+          {!situBlood || !situGender ? (
+            <div className="text-center text-gray-300 py-8">
+              <div className="text-4xl mb-2">🔍</div>
+              <div className="text-sm text-gray-400">血液型と性別を選んでください</div>
+            </div>
+          ) : !situId ? (
+            <div className="text-center text-gray-300 py-4">
+              <div className="text-sm text-gray-400">状況を選ぶと診断が表示されます</div>
+            </div>
+          ) : null}
+        </div>
+      )}
+
       {/* ── シミュタブ ── */}
-      {simTab==="simulate" && (
+      {simTab==="simulate" && needsRegistration && (
+        <div className="text-center py-10 space-y-3">
+          <div className="text-4xl">{!me ? "👤" : "👥"}</div>
+          <div className="font-bold text-gray-700">{!me ? "「登録」タブで自分を登録してください" : "「登録」タブで相手を追加してください"}</div>
+          <div className="text-xs text-gray-400">※ 状況診断タブは登録なしで使えます</div>
+        </div>
+      )}
+      {simTab==="simulate" && !needsRegistration && (
         <div className="space-y-4">
           <div>
             <div className="text-xs text-gray-500 font-bold mb-1">相手を選ぶ</div>

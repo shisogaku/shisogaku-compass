@@ -621,11 +621,11 @@ export function CommunicationCompass() {
   ];
   const mainTabs = [
     { id:"manual",   label:"取説",    icon:"sparkle"  },
-    { id:"life",     label:"ライフ",  icon:"journey"  },
+    { id:"simulate", label:"伝え方",  icon:"envelope" },
     { id:"compat",   label:"相性",    icon:"heart"    },
     { id:"scene",    label:"シーン",  icon:"chat"     },
+    { id:"life",     label:"ライフ",  icon:"journey"  },
     { id:"power",    label:"知識",    icon:"book"     },
-    { id:"simulate", label:"シミュ",  icon:"envelope" },
     { id:"plan",     label:"プラン",  icon:"calender" },
   ];
 
